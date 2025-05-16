@@ -47,9 +47,9 @@ classic oscillator, it should not be used for trading rule signals.
 
 \examples{
 
- data(ttrc)
- priceDPO <- DPO(ttrc[,"Close"])
- volumeDPO <- DPO(ttrc[,"Volume"])
+data(ttrc)
+priceDPO <- DPO(ttrc[, "Close"])
+volumeDPO <- DPO(ttrc[, "Volume"])
 
 }
 \references{
@@ -63,6 +63,6 @@ options; and note Warning section.  See \code{\link{MACD}} for a general
 oscillator.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

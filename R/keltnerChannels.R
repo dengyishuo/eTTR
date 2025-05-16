@@ -1,5 +1,5 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
 #   Copyright (C) 2020  Joshua M. Ulrich
 #
@@ -75,39 +75,36 @@
 #' @examples
 #'
 #' data(ttrc)
-#' kc <- keltnerChannels(ttrc[,c("High","Low","Close")])
+#' kc <- keltnerChannels(ttrc[, c("High", "Low", "Close")])
 #'
 #' @keywords ts
 #' @rdname keltnerChannels
 keltnerChannels <-
-function (HLC, n = 20, maType, atr = 2, ...)
-{
-  atrHLC <- HLC
-  HLC <- try.xts(HLC, error = as.matrix)
-  if (NCOL(HLC) == 3) {
-    if (is.xts(HLC)) {
-      xa <- xcoredata(HLC)
-      HLC <- xts(apply(HLC, 1, mean), index(HLC))
-      xcoredata(HLC) <- xa
+  function(HLC, n = 20, maType, atr = 2, ...) {
+    atrHLC <- HLC
+    HLC <- try.xts(HLC, error = as.matrix)
+    if (NCOL(HLC) == 3) {
+      if (is.xts(HLC)) {
+        xa <- xcoredata(HLC)
+        HLC <- xts(apply(HLC, 1, mean), index(HLC))
+        xcoredata(HLC) <- xa
+      } else {
+        HLC <- apply(HLC, 1, mean)
+      }
+    } else if (NCOL(HLC) != 1) {
+      stop("Price series must be either High-Low-Close, or Close/univariate.")
     }
-    else {
-      HLC <- apply(HLC, 1, mean)
+    maArgs <- list(n = n, ...)
+    if (missing(maType)) {
+      maType <- "EMA"
     }
-  }
-  else if (NCOL(HLC) != 1) {
-    stop("Price series must be either High-Low-Close, or Close/univariate.")
-  }
-  maArgs <- list(n = n, ...)
-  if (missing(maType)) {
-    maType <- "EMA"
-  }
-  mavg <- do.call(maType, c(list(HLC), maArgs))
-  avgtruerange <- ATR(atrHLC, n = n)
+    mavg <- do.call(maType, c(list(HLC), maArgs))
+    avgtruerange <- ATR(atrHLC, n = n)
 
-  up <- mavg + atr * avgtruerange[,2]
-  dn <- mavg - atr * avgtruerange[,2]
+    up <- mavg + atr * avgtruerange[, 2]
+    dn <- mavg - atr * avgtruerange[, 2]
 
-  res <- cbind(dn, mavg, up)
-  colnames(res) <- c("dn", "mavg", "up")
-  reclass(res, HLC)
-}
+    res <- cbind(dn, mavg, up)
+    colnames(res) <- c("dn", "mavg", "up")
+    reclass(res, HLC)
+  }

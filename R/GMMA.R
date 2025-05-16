@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@
 #'  }
 #' @return A object of the same class as \code{x} or \code{price} or a vector
 #' (if \code{try.xts} fails) containing the Guppy Multiple Moving Average.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{aroon}}, \code{\link{CCI}}, \code{\link{ADX}},
 #' \code{\link{VHF}}, \code{\link{TDI}} for other indicators that measure trend
 #' direction/strength.
@@ -49,24 +49,25 @@
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  gmma <- GMMA(ttrc[,"Close"])
+#' data(ttrc)
+#' gmma <- GMMA(ttrc[, "Close"])
 #'
 "GMMA" <-
-function(x, short=c(3,5,8,10,12,15), long=c(30,35,40,45,50,60), maType) {
+  function(x, short = c(3, 5, 8, 10, 12, 15), long = c(30, 35, 40, 45, 50, 60), maType) {
+    # Guppy Multiple Moving Average
 
-  # Guppy Multiple Moving Average
+    x <- try.xts(x, error = as.matrix)
 
-  x <- try.xts(x, error=as.matrix)
+    # Default MA
+    if (missing(maType)) {
+      maType <- "EMA"
+    }
 
-  # Default MA
-  if(missing(maType)) {
-    maType <- 'EMA'
+    fn <- function(g) {
+      do.call(maType, list(x, n = g))
+    }
+    gmma <- do.call(cbind, lapply(c(short, long), fn))
+    colnames(gmma) <- c(paste("short lag", short), paste("long lag", long))
+
+    reclass(gmma, x)
   }
-
-  fn <- function(g) { do.call(maType, list(x,n=g)) }
-  gmma <- do.call(cbind, lapply(c(short,long), fn))
-  colnames(gmma) <- c(paste('short lag',short),paste('long lag',long))
-
-  reclass(gmma, x)
-}

@@ -1,7 +1,7 @@
 /*
- *  TTR: Technical Trading Rules
+ *  eTTR: Enhanced Technical Trading Rules
  *
- *  Copyright (C) 2007-2013  Joshua M. Ulrich
+ *  Copyright (C) 2025-2030  DengYishuo
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ SEXP adjRatios (SEXP split, SEXP div, SEXP close) {
     double *real_close = REAL(close);
     double *real_split = REAL(split);
     double *real_div   = REAL(div);
-    
+
     /* Initialize loop and PROTECT counters */
     int i, P = 0;
     /* Initialize object length (NOTE: all arguments are the same length) */
@@ -36,7 +36,7 @@ SEXP adjRatios (SEXP split, SEXP div, SEXP close) {
     SEXP result;    PROTECT(result  = allocVector(VECSXP, 2)); P++;
     SEXP s_ratio;   PROTECT(s_ratio = allocVector(REALSXP,N)); P++;
     SEXP d_ratio;   PROTECT(d_ratio = allocVector(REALSXP,N)); P++;
-    
+
     /* Initialize REAL pointers to R objects and set their last value to '1' */
     double *rs_ratio = REAL(s_ratio);
     double *rd_ratio = REAL(d_ratio);
@@ -61,7 +61,7 @@ SEXP adjRatios (SEXP split, SEXP div, SEXP close) {
                 (1.0 - real_div[i] / real_close[i-1]);
         }
     }
-    
+
     /* Assign results to list */
     SET_VECTOR_ELT(result, 0, s_ratio);
     SET_VECTOR_ELT(result, 1, d_ratio);

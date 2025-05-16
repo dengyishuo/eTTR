@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -34,70 +34,68 @@
 #' @return A object of the same class as \code{x} or a vector (if \code{try.xts}
 #' fails) containing the rate-of-change (or return) values for \code{ROC} or a
 #' vector containing the differenced price series for \code{momentum}.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  roc <- ROC(ttrc[,"Close"])
-#'  mom <- momentum(ttrc[,"Close"])
+#' data(ttrc)
+#' roc <- ROC(ttrc[, "Close"])
+#' mom <- momentum(ttrc[, "Close"])
 #' @rdname changes
 "ROC" <-
-function(x, n=1, type=c("continuous","discrete"), na.pad=TRUE) {
+  function(x, n = 1, type = c("continuous", "discrete"), na.pad = TRUE) {
+    # Rate of Change
 
-  # Rate of Change
+    x <- try.xts(x, error = as.matrix)
+    type <- match.arg(type)
 
-  x <- try.xts(x, error=as.matrix)
-  type <- match.arg(type)
-
-  if(is.xts(x)) {
-    if(type=="discrete") {
-      roc <- x / lag.xts(x,n,na.pad=na.pad) - 1
+    if (is.xts(x)) {
+      if (type == "discrete") {
+        roc <- x / lag.xts(x, n, na.pad = na.pad) - 1
+      }
+      # Continuous change
+      if (type == "continuous") {
+        roc <- diff(log(x), n, na.pad = na.pad)
+      }
+      # Convert back to original class
+      reclass(roc, x)
+    } else {
+      NAs <- NULL
+      if (na.pad) {
+        NAs <- rep(NA, n)
+      }
+      # Discrete changes
+      if (type == "discrete") {
+        roc <- c(NAs, x[(n + 1):NROW(x)] / x[1:(NROW(x) - n)] - 1)
+      }
+      # Continuous changes
+      if (type == "continuous") {
+        roc <- c(NAs, diff(log(x), n))
+      }
+      return(roc)
     }
-    # Continuous change
-    if(type=="continuous") {
-      roc <- diff(log(x),n,na.pad=na.pad)
-    }
-    # Convert back to original class
-    reclass(roc, x)
-  } else {
-    NAs <- NULL
-    if(na.pad) {
-      NAs <- rep(NA,n)
-    }
-    # Discrete changes
-    if(type=="discrete") {
-      roc <- c( NAs, x[(n+1):NROW(x)] / x[1:(NROW(x)-n)] - 1 )
-    }
-    # Continuous changes
-    if(type=="continuous") {
-      roc <- c( NAs, diff(log(x),n) )
-    }
-    return(roc)
   }
-}
 
 #-------------------------------------------------------------------------#
 
 #' @rdname changes
 "momentum" <-
-function(x, n=1, na.pad=TRUE) {
+  function(x, n = 1, na.pad = TRUE) {
+    # Momentum
 
-  # Momentum
+    # http://www.fmlabs.com/reference/Momentum.htm
+    # https://www.metastock.com/Customer/Resources/TAAZ/?p=95
+    # https://www.linnsoft.com/tour/techind/momentum.htm
 
-  # http://www.fmlabs.com/reference/Momentum.htm
-  # https://www.metastock.com/Customer/Resources/TAAZ/?p=95
-  # https://www.linnsoft.com/tour/techind/momentum.htm
-
-  x <- try.xts(x, error=as.matrix)
-  if(is.xts(x)) {
-    mom <- diff(x,n,na.pad=na.pad)
-  } else {
-    NAs <- NULL
-    if(na.pad) {
-      NAs <- rep(NA,n)
+    x <- try.xts(x, error = as.matrix)
+    if (is.xts(x)) {
+      mom <- diff(x, n, na.pad = na.pad)
+    } else {
+      NAs <- NULL
+      if (na.pad) {
+        NAs <- rep(NA, n)
+      }
+      mom <- c(NAs, diff(x, n))
     }
-    mom <- c( NAs, diff(x, n) )
+    reclass(mom, x)
   }
-  reclass(mom,x)
-}

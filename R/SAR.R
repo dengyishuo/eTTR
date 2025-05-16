@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@
 #' factor.
 #' @return A object of the same class as \code{HL} or a vector (if
 #' \code{try.xts} fails) containing the Parabolic Stop and Reverse values.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{ATR}} and \code{\link{ADX}}, which were also
 #' developed by Welles Wilder.
 #' @references The following site(s) were used to code/document this
@@ -47,38 +47,37 @@
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  sar <- SAR(ttrc[,c("High","Low")])
+#' data(ttrc)
+#' sar <- SAR(ttrc[, c("High", "Low")])
 #'
 "SAR" <-
-function(HL, accel=c(.02,.2)) {
+  function(HL, accel = c(.02, .2)) {
+    # Parabolic Stop-and-Reverse (SAR)
+    # ----------------------------------------------
+    #       HL = HL vector, matrix, or dataframe
+    # accel[1] = acceleration factor
+    # accel[2] = maximum acceleration factor
 
-  # Parabolic Stop-and-Reverse (SAR)
-  # ----------------------------------------------
-  #       HL = HL vector, matrix, or dataframe
-  # accel[1] = acceleration factor
-  # accel[2] = maximum acceleration factor
+    # WISHLIST:
+    # Determine signal based on DM+/DM- for first bar
+    # If sig[1]==1, then ep[1]==high; if sig[1]==-1, then ep[1]==low
+    # The first SAR value should be the opposite (high/low) of ep
+    # The first acceleration factor is based on the first signal
 
-  # WISHLIST:
-  # Determine signal based on DM+/DM- for first bar
-  # If sig[1]==1, then ep[1]==high; if sig[1]==-1, then ep[1]==low
-  # The first SAR value should be the opposite (high/low) of ep
-  # The first acceleration factor is based on the first signal
+    # Since I've already lost one bar, do what TA-lib does and use that bar to
+    # determine the inital signal value.  Also try to incorporate different
+    # accel factors for long/short.
+    # accel = c( long = c( 0.02, 0.2 ), short = long )
 
-  # Since I've already lost one bar, do what TA-lib does and use that bar to
-  # determine the inital signal value.  Also try to incorporate different
-  # accel factors for long/short.
-  # accel = c( long = c( 0.02, 0.2 ), short = long )
+    HL <- try.xts(HL, error = as.matrix)
 
-  HL <- try.xts(HL, error=as.matrix)
+    # Check for non-leading NAs
+    # Leading NAs are handled in the C code
+    naCheck(HL, 0) # called for error handling side-effect
 
-  # Check for non-leading NAs
-  # Leading NAs are handled in the C code
-  naCheck(HL, 0)  # called for error handling side-effect
+    # Call C routine
+    sar <- .Call(C_sar, HL[, 1], HL[, 2], accel)
+    colnames(sar) <- "sar"
 
-  # Call C routine
-  sar <- .Call(C_sar, HL[,1], HL[,2], accel)
-  colnames(sar) <- "sar"
-
-  reclass( sar, HL )
-}
+    reclass(sar, HL)
+  }

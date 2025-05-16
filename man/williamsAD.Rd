@@ -43,6 +43,6 @@ See \code{\link{OBV}}, \code{\link{chaikinAD}}, and
 \code{\link{ATR}}.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

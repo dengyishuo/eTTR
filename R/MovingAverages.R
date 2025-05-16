@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -109,7 +109,7 @@
 #' calculated using the indicators' own previous values, and are therefore
 #' unstable in the short-term.  As the indicator receives more data, its output
 #' becomes more stable.  See example below.
-#' @author Joshua Ulrich, Ivan Popivanov (HMA, ALMA)
+#' @author DengYishuo, Ivan Popivanov (HMA, ALMA)
 #' @seealso See \code{\link{wilderSum}}, which is used in calculating a Welles
 #' Wilder type MA.
 #' @references The following site(s) were used to code/document this
@@ -125,306 +125,312 @@
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  ema.20 <-   EMA(ttrc[,"Close"], 20)
-#'  sma.20 <-   SMA(ttrc[,"Close"], 20)
-#'  dema.20 <-  DEMA(ttrc[,"Close"], 20)
-#'  evwma.20 <- EVWMA(ttrc[,"Close"], ttrc[,"Volume"], 20)
-#'  zlema.20 <- ZLEMA(ttrc[,"Close"], 20)
-#'  alma <- ALMA(ttrc[,"Close"])
-#'  hma <- HMA(ttrc[,"Close"])
+#' data(ttrc)
+#' ema.20 <- EMA(ttrc[, "Close"], 20)
+#' sma.20 <- SMA(ttrc[, "Close"], 20)
+#' dema.20 <- DEMA(ttrc[, "Close"], 20)
+#' evwma.20 <- EVWMA(ttrc[, "Close"], ttrc[, "Volume"], 20)
+#' zlema.20 <- ZLEMA(ttrc[, "Close"], 20)
+#' alma <- ALMA(ttrc[, "Close"])
+#' hma <- HMA(ttrc[, "Close"])
 #'
-#'  ## Example of Tim Tillson's T3 indicator
-#'  T3 <- function(x, n=10, v=1) DEMA(DEMA(DEMA(x,n,v),n,v),n,v)
-#'  t3 <- T3(ttrc[,"Close"])
+#' ## Example of Tim Tillson's T3 indicator
+#' T3 <- function(x, n = 10, v = 1) DEMA(DEMA(DEMA(x, n, v), n, v), n, v)
+#' t3 <- T3(ttrc[, "Close"])
 #'
-#'  ## Example of short-term instability of EMA
-#'  ## (and other indicators mentioned above)
-#'  x <- rnorm(100)
-#'  tail( EMA(x[90:100],10), 1 )
-#'  tail( EMA(x[70:100],10), 1 )
-#'  tail( EMA(x[50:100],10), 1 )
-#'  tail( EMA(x[30:100],10), 1 )
-#'  tail( EMA(x[10:100],10), 1 )
-#'  tail( EMA(x[ 1:100],10), 1 )
+#' ## Example of short-term instability of EMA
+#' ## (and other indicators mentioned above)
+#' x <- rnorm(100)
+#' tail(EMA(x[90:100], 10), 1)
+#' tail(EMA(x[70:100], 10), 1)
+#' tail(EMA(x[50:100], 10), 1)
+#' tail(EMA(x[30:100], 10), 1)
+#' tail(EMA(x[10:100], 10), 1)
+#' tail(EMA(x[1:100], 10), 1)
 #'
 #' @rdname MovingAverages
 "SMA" <-
-function(x, n=10, ...) {
+  function(x, n = 10, ...) {
+    # Simple Moving Average
 
-  # Simple Moving Average
+    ma <- runMean(x, n)
 
-  ma <- runMean( x, n )
+    if (!is.null(dim(ma))) {
+      colnames(ma) <- "SMA"
+    }
 
-  if(!is.null(dim(ma))) {
-    colnames(ma) <- "SMA"
+    return(ma)
   }
-
-  return(ma)
-}
 
 #-------------------------------------------------------------------------#
 
 #' @rdname MovingAverages
 "EMA" <-
-function (x, n=10, wilder=FALSE, ratio=NULL, ...) {
+  function(x, n = 10, wilder = FALSE, ratio = NULL, ...) {
+    # Exponential Moving Average
 
-  # Exponential Moving Average
+    x <- try.xts(x, error = as.matrix)
+    if (n < 1 || n > NROW(x)) {
+      stop(sprintf("n = %d is outside valid range: [1, %d]", n, NROW(x)))
+    }
 
-  x <- try.xts(x, error=as.matrix)
-  if( n < 1 || n > NROW(x) )
-    stop(sprintf("n = %d is outside valid range: [1, %d]", n, NROW(x)))
+    # If ratio is specified, and n is not, set n to approx 'correct'
+    # value backed out from ratio
+    if (missing(n) && !missing(ratio)) {
+      n <- NULL
+    }
 
-  # If ratio is specified, and n is not, set n to approx 'correct'
-  # value backed out from ratio
-  if(missing(n) && !missing(ratio))
-    n <- NULL
+    # Call C routine
+    ma <- .Call(C_ema, x, n, ratio, isTRUE(wilder))
 
-  # Call C routine
-  ma <- .Call(C_ema, x, n, ratio, isTRUE(wilder))
+    ma <- reclass(ma, x)
 
-  ma <- reclass(ma,x)
+    if (!is.null(dim(ma))) {
+      colnames(ma) <- "EMA"
+    }
 
-  if(!is.null(dim(ma))) {
-    colnames(ma) <- "EMA"
+    return(ma)
   }
-
-  return(ma)
-
-}
 
 #-------------------------------------------------------------------------#
 
 #' @rdname MovingAverages
 "DEMA" <-
-function(x, n=10, v=1, wilder=FALSE, ratio=NULL) {
+  function(x, n = 10, v = 1, wilder = FALSE, ratio = NULL) {
+    # Double Exponential Moving Average
+    # Thanks to John Gavin for the v-factor generalization
 
-  # Double Exponential Moving Average
-  # Thanks to John Gavin for the v-factor generalization
+    x <- try.xts(x, error = as.matrix)
+    if (n < 1 || n > NROW(x)) {
+      stop(sprintf("n = %d is outside valid range: [1, %d]", n, NROW(x)))
+    }
+    if (NCOL(x) > 1) {
+      stop("ncol(x) > 1. DEMA only supports univariate 'x'")
+    }
+    if (v < 0 || v > 1) {
+      stop("Please ensure 0 <= v <= 1")
+    }
 
-  x <- try.xts(x, error=as.matrix)
-  if( n < 1 || n > NROW(x) )
-    stop(sprintf("n = %d is outside valid range: [1, %d]", n, NROW(x)))
-  if(NCOL(x) > 1) {
-    stop("ncol(x) > 1. DEMA only supports univariate 'x'")
+    if (missing(n) && !missing(ratio)) {
+      n <- NULL
+    }
+
+    # Call C routine
+    ma1 <- .Call(C_ema, x, n, ratio, isTRUE(wilder))
+    d <- .Call(C_ema, ma1, n, ratio, isTRUE(wilder))
+
+    dema <- (1 + v) * ma1 - d * v
+    dema <- reclass(dema, x)
+
+    if (!is.null(dim(dema))) {
+      colnames(dema) <- "DEMA"
+    }
+
+    return(dema)
   }
-  if(v < 0 || v > 1) {
-    stop("Please ensure 0 <= v <= 1")
-  }
-
-  if(missing(n) && !missing(ratio))
-    n <- NULL
-
-  # Call C routine
-  ma1 <- .Call(C_ema, x, n, ratio, isTRUE(wilder))
-  d <- .Call(C_ema, ma1, n, ratio, isTRUE(wilder))
-
-  dema <- (1 + v) * ma1 - d * v
-  dema <- reclass(dema, x)
-
-  if(!is.null(dim(dema))) {
-    colnames(dema) <- "DEMA"
-  }
-
-  return(dema)
-}
 
 #-------------------------------------------------------------------------#
 
 #' @rdname MovingAverages
 "WMA" <-
-function(x, n=10, wts=1:n, ...) {
+  function(x, n = 10, wts = 1:n, ...) {
+    # Weighted Moving Average
 
-  # Weighted Moving Average
+    x <- try.xts(x, error = as.matrix)
+    wts <- try.xts(wts, error = as.matrix)
 
-  x <- try.xts(x, error=as.matrix)
-  wts <- try.xts(wts, error=as.matrix)
+    if (!any(NROW(wts) == c(NROW(x), n))) {
+      stop("Length of 'wts' must equal the length of 'x' or 'n'")
+    }
+    if (n < 1 || n > NROW(x)) {
+      stop(sprintf("n = %d is outside valid range: [1, %d]", n, NROW(x)))
+    }
+    if (NCOL(x) > 1 || NCOL(wts) > 1) {
+      stop("ncol(x) > 1 or ncol(wts) > 1. WMA only supports univariate 'x' and 'w'")
+    }
 
-  if( !any( NROW(wts) == c( NROW(x), n ) ) )
-    stop("Length of 'wts' must equal the length of 'x' or 'n'")
-  if( n < 1 || n > NROW(x) )
-    stop(sprintf("n = %d is outside valid range: [1, %d]", n, NROW(x)))
-  if(NCOL(x) > 1 || NCOL(wts) > 1) {
-    stop("ncol(x) > 1 or ncol(wts) > 1. WMA only supports univariate 'x' and 'w'")
+    # Count NAs, ensure they're only at beginning of data, then remove.
+    NAx <- sum(is.na(x))
+    NAw <- sum(is.na(wts))
+    NAs <- max(NAx, NAw)
+    if (NAs > 0) {
+      if (any(is.na(x[-(1:NAx)]))) {
+        stop("'x' contains non-leading NAs")
+      }
+      if (any(is.na(wts[-(1:NAw)]))) {
+        stop("'wts' contains non-leading NAs")
+      }
+    }
+
+    if (NROW(wts) == n) {
+      NAs <- NAx
+
+      if (any(is.na(wts))) {
+        stop("'wts' vector of length 'n' cannot have NA values")
+      }
+
+      # Call C routine
+      ma <- .Call(C_wma, x, wts, n)
+    } else {
+      xw <- cbind(x, wts)
+      ma <- runSum(xw[, 1] * xw[, 2], n) / runSum(xw[, 2], n)
+    }
+
+    # replace 1:(n-1) with NAs and prepend NAs from original data
+    ma[1:(n - 1)] <- NA
+
+    # Convert back to original class
+    ma <- reclass(ma, x)
+
+    if (!is.null(dim(ma))) {
+      colnames(ma) <- "WMA"
+    }
+
+    return(ma)
   }
-
-  # Count NAs, ensure they're only at beginning of data, then remove.
-  NAx <- sum( is.na(x) )
-  NAw <- sum( is.na(wts) )
-  NAs <- max( NAx, NAw )
-  if( NAs > 0 ) {
-    if( any( is.na(  x[-(1:NAx)]) ) )
-      stop("'x' contains non-leading NAs")
-    if( any( is.na(wts[-(1:NAw)]) ) )
-      stop("'wts' contains non-leading NAs")
-  }
-
-  if( NROW(wts) == n ) {
-
-    NAs <- NAx
-
-    if( any(is.na(wts)) )
-      stop("'wts' vector of length 'n' cannot have NA values")
-
-    # Call C routine
-    ma <- .Call(C_wma, x, wts, n)
-
-  } else {
-
-    xw <- cbind(x, wts)
-    ma <- runSum( xw[,1]*xw[,2], n) / runSum(xw[,2], n)
-  }
-
-  # replace 1:(n-1) with NAs and prepend NAs from original data
-  ma[1:(n-1)] <- NA
-
-  # Convert back to original class
-  ma <- reclass(ma,x)
-
-  if(!is.null(dim(ma))) {
-    colnames(ma) <- "WMA"
-  }
-
-  return(ma)
-}
 
 #-------------------------------------------------------------------------#
 
 #' @rdname MovingAverages
 "EVWMA" <-
-function(price, volume, n=10, ...) {
+  function(price, volume, n = 10, ...) {
+    # Elastic, Volume-Weighted Moving Average
 
-  # Elastic, Volume-Weighted Moving Average
+    price <- try.xts(price, error = as.matrix)
+    volume <- try.xts(volume, error = as.matrix)
 
-  price <- try.xts(price, error=as.matrix)
-  volume <- try.xts(volume, error=as.matrix)
+    if (!any(NROW(volume) == c(NROW(price), 1))) {
+      stop("Length of 'volume' must equal 1 or the length of 'price'")
+    }
+    if (n < 1 || n > NROW(price)) {
+      stop(sprintf("n = %d is outside valid range: [1, %d]", n, NROW(price)))
+    }
+    if (NCOL(price) > 1 || NCOL(volume) > 1) {
+      stop(
+        "ncol(price) > 1 or ncol(volume) > 1.",
+        " EVWMA only supports univariate 'price' and 'volume'"
+      )
+    }
 
-  if( !any( NROW(volume) == c( NROW(price), 1 ) ) )
-    stop("Length of 'volume' must equal 1 or the length of 'price'")
-  if( n < 1 || n > NROW(price) )
-    stop(sprintf("n = %d is outside valid range: [1, %d]", n, NROW(price)))
-  if(NCOL(price) > 1 || NCOL(volume) > 1) {
-    stop("ncol(price) > 1 or ncol(volume) > 1.",
-         " EVWMA only supports univariate 'price' and 'volume'")
+    pv <- cbind(price, volume)
+
+    if (any(nNonNA <- n > colSums(!is.na(pv)))) {
+      stop(
+        "n > number of non-NA values in ",
+        paste(c("price", "volume")[which(nNonNA)], collapse = ", ")
+      )
+    }
+
+    # Call C routine
+    ma <- .Call(C_evwma, pv[, 1], pv[, 2], n)
+
+    # Convert back to original class
+    ma <- reclass(ma, price)
+
+    if (!is.null(dim(ma))) {
+      colnames(ma) <- "EVWMA"
+    }
+
+    return(ma)
   }
-
-  pv <- cbind(price, volume)
-
-  if( any(nNonNA <- n > colSums(!is.na(pv))) )
-    stop("n > number of non-NA values in ",
-         paste(c("price","volume")[which(nNonNA)], collapse=", "))
-
-  # Call C routine
-  ma <- .Call(C_evwma, pv[,1], pv[,2], n)
-
-  # Convert back to original class
-  ma <- reclass(ma, price)
-
-  if(!is.null(dim(ma))) {
-    colnames(ma) <- "EVWMA"
-  }
-
-  return(ma)
-}
 
 #-------------------------------------------------------------------------#
 
 #' @rdname MovingAverages
 "ZLEMA" <-
-function (x, n=10, ratio=NULL, ...) {
+  function(x, n = 10, ratio = NULL, ...) {
+    # Zero-Lag Exponential Moving Average
 
-  # Zero-Lag Exponential Moving Average
+    x <- try.xts(x, error = as.matrix)
+    if (NCOL(x) > 1) {
+      stop("ncol(x) > 1. ZLEMA only supports univariate 'x'")
+    }
 
-  x <- try.xts(x, error=as.matrix)
-  if(NCOL(x) > 1) {
-    stop("ncol(x) > 1. ZLEMA only supports univariate 'x'")
+    # If ratio is specified, and n is not, set n to approx 'correct'
+    # value backed out from ratio
+    if (missing(n) && !missing(ratio)) {
+      n <- NULL
+    }
+
+    # Call C routine
+    ma <- .Call(C_zlema, x, n, ratio)
+
+    # Convert back to original class
+    ma <- reclass(ma, x)
+
+    if (!is.null(dim(ma))) {
+      colnames(ma) <- "ZLEMA"
+    }
+
+    return(ma)
   }
-
-  # If ratio is specified, and n is not, set n to approx 'correct'
-  # value backed out from ratio
-  if(missing(n) && !missing(ratio))
-    n <- NULL
-
-  # Call C routine
-  ma <- .Call(C_zlema, x, n, ratio)
-
-  # Convert back to original class
-  ma <- reclass(ma,x)
-
-  if(!is.null(dim(ma))) {
-    colnames(ma) <- "ZLEMA"
-  }
-
-  return(ma)
-}
 
 #-------------------------------------------------------------------------#
 
 #' @rdname MovingAverages
 "VWAP" <- "VWMA" <-
-function(price, volume, n=10, ...) {
+  function(price, volume, n = 10, ...) {
+    # Volume-weighted average price
+    # Volume-weighted moving average
 
-  # Volume-weighted average price
-  # Volume-weighted moving average
+    res <- WMA(price, n = n, volume)
 
-  res <- WMA(price, n=n, volume)
+    if (!is.null(dim(res))) {
+      colnames(res) <- "VWAP"
+    }
 
-  if(!is.null(dim(res))) {
-    colnames(res) <- "VWAP"
+    return(res)
   }
-
-  return(res)
-}
 
 #-------------------------------------------------------------------------#
 
 #' @rdname MovingAverages
 "HMA" <-
-function(x, n=20, ...) {
+  function(x, n = 20, ...) {
+    # Hull Moving Average
 
-  # Hull Moving Average
+    madiff <- 2 * WMA(x, n = trunc(n / 2), ...) - WMA(x, n = n, ...)
 
-  madiff <- 2 * WMA(x, n = trunc(n / 2), ...) - WMA(x, n = n, ...)
+    hma <- WMA(madiff, n = trunc(sqrt(n)), ...)
 
-  hma <- WMA(madiff, n = trunc(sqrt(n)), ...)
+    if (!is.null(dim(hma))) {
+      colnames(hma) <- "HMA"
+    }
 
-  if(!is.null(dim(hma))) {
-    colnames(hma) <- "HMA"
+    return(hma)
   }
-
-  return(hma)
-}
 
 #-------------------------------------------------------------------------#
 
 #' @rdname MovingAverages
 "ALMA" <-
-function(x, n=9, offset=0.85, sigma=6, ...) {
+  function(x, n = 9, offset = 0.85, sigma = 6, ...) {
+    # ALMA (Arnaud Legoux Moving Average)
+    x <- try.xts(x, error = as.matrix)
 
-  # ALMA (Arnaud Legoux Moving Average)
-  x <- try.xts(x, error=as.matrix)
+    if (offset < 0 || offset > 1) {
+      stop("Please ensure 0 <= offset <= 1")
+    }
+    if (sigma <= 0) {
+      stop("sigma must be > 0")
+    }
 
-  if(offset < 0 || offset > 1) {
-    stop("Please ensure 0 <= offset <= 1")
+    m <- floor(offset * (n - 1))
+    s <- n / sigma
+    wts <- exp(-((seq(0, n - 1) - m)^2) / (2 * s * s))
+    sumWeights <- sum(wts)
+    if (sumWeights != 0) {
+      wts <- wts / sumWeights
+    }
+
+    alma <- x * NA_real_
+    for (i in seq_len(NCOL(x))) {
+      alma[, i] <- WMA(x[, i], n, wts)
+    }
+
+    if (!is.null(dim(alma))) {
+      colnames(alma) <- "ALMA"
+    }
+
+    reclass(alma, x)
   }
-  if(sigma <= 0)
-    stop("sigma must be > 0")
-
-  m <- floor(offset*(n-1))
-  s <- n/sigma
-  wts <- exp(-((seq(0,n-1)-m)^2)/(2*s*s))
-  sumWeights <- sum(wts)
-  if(sumWeights != 0)
-    wts <- wts/sumWeights
-
-  alma <- x * NA_real_
-  for(i in seq_len(NCOL(x))) {
-    alma[,i] <- WMA(x[,i], n, wts)
-  }
-
-  if(!is.null(dim(alma))) {
-    colnames(alma) <- "ALMA"
-  }
-
-  reclass(alma, x)
-}

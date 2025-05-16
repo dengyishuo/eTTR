@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@
 #' @section Warning: The last value of the ZigZag indicator is unstable (i.e.
 #' unknown) until the turning point actually occurs. Therefore this indicator
 #' isn't well-suited for use for systematic trading strategies.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @references The following site(s) were used to code/document this
 #' indicator:\cr
 #' \url{https://www.fmlabs.com/reference/default.htm?url=ZigZag.htm}\cr
@@ -54,44 +54,44 @@
 #' @keywords ts
 #' @examples
 #'
-#'  ## Get Data and Indicator ##
-#'  data(ttrc)
-#'  zz <- ZigZag( ttrc[,c("High", "Low")], change=20 )
+#' ## Get Data and Indicator ##
+#' data(ttrc)
+#' zz <- ZigZag(ttrc[, c("High", "Low")], change = 20)
 #'
 "ZigZag" <-
-function( HL, change=10, percent=TRUE, retrace=FALSE, lastExtreme=TRUE ) {
+  function(HL, change = 10, percent = TRUE, retrace = FALSE, lastExtreme = TRUE) {
+    # Zig Zag Indicator
+    # Adapted from Alberto Santini's code
 
-  # Zig Zag Indicator
-  # Adapted from Alberto Santini's code
+    HL <- try.xts(HL, error = as.matrix)
+    HL.na <- naCheck(HL, 0)
 
-  HL <- try.xts(HL, error=as.matrix)
-  HL.na <- naCheck(HL,0)
+    # Calculation if HL series is given
+    if (NCOL(HL) == 2) {
+      high <- HL[HL.na$nonNA, 1]
+      low <- HL[HL.na$nonNA, 2]
+    } else
 
-  # Calculation if HL series is given
-  if(NCOL(HL)==2) {
-    high  <- HL[HL.na$nonNA,1]
-    low   <- HL[HL.na$nonNA,2]
-  } else
+    # Calculation if price vector is given
+    if (NCOL(HL.na) == 1) {
+      high <- HL[HL.na$nonNA]
+      low <- HL[HL.na$nonNA]
+    } else {
+      stop("Price series must be either High-Low, or Univariate")
+    }
 
-  # Calculation if price vector is given
-  if(NCOL(HL.na)==1) {
-    high  <- HL[HL.na$nonNA]
-    low   <- HL[HL.na$nonNA]
-  } else
+    # Call C routine
+    zz <- .Call(
+      C_ettr_zigzag, as.numeric(high), as.numeric(low),
+      as.numeric(change), as.logical(percent), as.logical(retrace),
+      as.logical(lastExtreme)
+    )
 
-  stop("Price series must be either High-Low, or Univariate")
+    # Interpolate results
+    zz <- na.approx(zz, na.rm = FALSE)
 
-  # Call C routine
-  zz <- .Call(C_ttr_zigzag, as.numeric(high), as.numeric(low),
-              as.numeric(change), as.logical(percent), as.logical(retrace),
-              as.logical(lastExtreme))
+    # Prepend NAs from original data
+    zz <- c(rep(NA, HL.na$NAs), zz)
 
-  # Interpolate results
-  zz <- na.approx(zz, na.rm = FALSE)
-
-  # Prepend NAs from original data
-  zz <- c( rep( NA, HL.na$NAs ), zz )
-
-  reclass( zz, HL )
-}
-
+    reclass(zz, HL)
+  }

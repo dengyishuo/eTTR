@@ -35,8 +35,8 @@ There are several ways to interpret the CMO:
 }
 \examples{
 
- data(ttrc)
- cmo <- CMO(ttrc[,"Close"])
+data(ttrc)
+cmo <- CMO(ttrc[, "Close"])
 
 }
 \references{
@@ -47,6 +47,6 @@ indicator:\cr \url{https://www.fmlabs.com/reference/CMO.htm}\cr
 See \code{\link{RSI}}.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@
 #' series by centering the moving average. Centering the moving average causes it
 #' to include future data. Therefore, even though this indicator looks like a
 #' classic oscillator, it should not be used for trading rule signals.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
 #' options; and note Warning section.  See \code{\link{MACD}} for a general
 #' oscillator.
@@ -53,31 +53,30 @@
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  priceDPO <- DPO(ttrc[,"Close"])
-#'  volumeDPO <- DPO(ttrc[,"Volume"])
+#' data(ttrc)
+#' priceDPO <- DPO(ttrc[, "Close"])
+#' volumeDPO <- DPO(ttrc[, "Volume"])
 #'
 "DPO" <-
-function(x, n=10, maType, shift=n/2+1, percent=FALSE, ...) {
+  function(x, n = 10, maType, shift = n / 2 + 1, percent = FALSE, ...) {
+    # De-Trended Price Oscillator
 
-  # De-Trended Price Oscillator
+    x <- try.xts(x, error = as.matrix)
 
-  x <- try.xts(x, error=as.matrix)
+    maArgs <- list(n = n, ...)
+    # Default MA
+    if (missing(maType)) {
+      maType <- "SMA"
+    }
 
-  maArgs <- list(n=n, ...)
-  # Default MA
-  if(missing(maType)) {
-    maType <- 'SMA'
+    mavg <- do.call(maType, c(list(x), maArgs))
+    mavg <- lag.xts(mavg, -shift)
+
+    if (percent) {
+      DPO <- 100 * (x[, 1] / mavg - 1)
+    } else {
+      DPO <- x[, 1] - mavg
+    }
+
+    reclass(DPO, x)
   }
-
-  mavg <- do.call( maType, c( list(x), maArgs ) )
-  mavg <- lag.xts(mavg, -shift)
-
-  if(percent) {
-    DPO <- 100 * ( x[,1] / mavg - 1 )
-  } else {
-    DPO <- x[,1] - mavg
-  }
-
-  reclass( DPO, x )
-}

@@ -1,5 +1,5 @@
 /*
- *  TTR: Technical Trading Rules
+ *  eTTR: Enhanced Technical Trading Rules
  *
  *  Copyright (C) 2007-2013  Joshua M. Ulrich
  *
@@ -17,7 +17,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ttr.h"
+#include "ettr.h"
 
 SEXP aroon_max (SEXP x, SEXP n) {
 

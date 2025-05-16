@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@
 #' @note When Chaikin Money Flow is above/below +/- 0.25 it is a bullish/bearish
 #' signal.  If Chaikin Money Flow remains below zero while the price is rising,
 #' it indicates a probable reversal.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{CLV}}, and \code{\link{chaikinAD}}.
 #' @references The following site(s) were used to code/document this
 #' indicator:\cr \url{https://www.fmlabs.com/reference/ChaikinMoneyFlow.htm}\cr
@@ -46,24 +46,23 @@
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  cmf <- CMF(ttrc[,c("High","Low","Close")], ttrc[,"Volume"])
+#' data(ttrc)
+#' cmf <- CMF(ttrc[, c("High", "Low", "Close")], ttrc[, "Volume"])
 #'
 "CMF" <-
-function(HLC, volume, n=20) {
+  function(HLC, volume, n = 20) {
+    # Chaikin Money Flow
 
-  # Chaikin Money Flow
+    HLC <- try.xts(HLC, error = as.matrix)
+    volume <- try.xts(volume, error = as.matrix)
 
-  HLC <- try.xts(HLC, error=as.matrix)
-  volume <- try.xts(volume, error=as.matrix)
+    if (!(is.xts(HLC) && is.xts(volume))) {
+      clv <- CLV(as.matrix(HLC))
+      volume <- as.matrix(volume)
+    }
+    clv <- CLV(HLC)
 
-  if(!(is.xts(HLC) && is.xts(volume))) {
-    clv <- CLV(as.matrix(HLC))
-    volume <- as.matrix(volume)
+    cmf <- runSum(clv * volume, n) / runSum(volume, n)
+
+    reclass(cmf, HLC)
   }
-  clv <- CLV(HLC)
-
-  cmf <- runSum(clv*volume, n) / runSum(volume, n)
-
-  reclass(cmf, HLC)
-}

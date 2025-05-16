@@ -1,7 +1,7 @@
 /*
- *  TTR: Technical Trading Rules
+ *  eTTR: Enhanced Technical Trading Rules
  *
- *  Copyright (C) 2007-2017  Joshua M. Ulrich
+ *  Copyright (C) 2025-2030  DengYishuo
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  */
 
 /* Includes and defines from WRE Section 5.4.2 */
-#include "ttr.h"
+#include "ettr.h"
 #include <R.h>
 #include <stdlib.h>  /* for NULL */
 #include <R_ext/Rdynload.h>
@@ -34,8 +34,8 @@ static const R_CallMethodDef CallEntries[] = {
   CALLDEF(ema,                  4),
   CALLDEF(evwma,                3),
   CALLDEF(sar,                  3),
-  CALLDEF(ttr_rollPercentRank,  4),
-  CALLDEF(ttr_zigzag,           6),
+  CALLDEF(ettr_rollPercentRank, 4),
+  CALLDEF(ettr_zigzag,          6),
   CALLDEF(wilderSum,            2),
   CALLDEF(wma,                  3),
   CALLDEF(zlema,                3),
@@ -49,7 +49,7 @@ static const R_CallMethodDef CallEntries[] = {
 };
 
 /* Restrict .Call etc to use only registered symbols */
-void R_init_TTR(DllInfo *dll)
+void R_init_eTTR(DllInfo *dll)
 {
   R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
   R_useDynamicSymbols(dll, FALSE);

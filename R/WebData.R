@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -67,7 +67,7 @@
 #'
 #' \code{getYahooData} has only been tested on daily data.  It isn't known if
 #' the function correctly adjusts data for any other frequency.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @keywords ts
 #' @examples
 #'

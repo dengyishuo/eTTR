@@ -39,7 +39,7 @@ is positive and, short when it is negative.
 \examples{
 
 data(ttrc)
-cti <- CTI(ttrc[,"Close"], n = 20)
+cti <- CTI(ttrc[, "Close"], n = 20)
 
 }
 \references{

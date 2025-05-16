@@ -2,52 +2,47 @@
 % Please edit documentation in R/VHF.R
 \name{VHF}
 \alias{VHF}
-\title{Vertical Horizontal Filter}
+\title{Vertical Horizontal Filter (Optimized)}
 \usage{
-VHF(price, n = 28)
+VHF(price, n = 28, na.rm = TRUE, inf.replace = NA, zero.replace = NA)
 }
 \arguments{
 \item{price}{Object that is coercible to xts or matrix and contains a Close
 price series, or a High-Low-Close price series.}
 
-\item{n}{Number of periods to use.}
+\item{n}{Number of periods to use. Default is 28.}
+
+\item{na.rm}{Logical. Should NA values be removed during calculations? Default is TRUE.}
+
+\item{inf.replace}{Numeric value to replace INF/-INF values. Default is NA.}
+
+\item{zero.replace}{Numeric value to replace division by zero results. Default is NA.}
 }
 \value{
 A object of the same class as \code{price} or a vector (if
-\code{try.xts} fails) containing the VHF values.
+\code{try.xts} fails) containing the VHF values with NA/INF values handled.
 }
 \description{
 The Vertical Horizontal Filter (VHF) attempts to identify starting and ending
-trends.  Developed by Adam White.
-}
-\details{
-The VHF is calculated by subtracting the \code{n}-period lowest low from the
-\code{n}-period highest high and dividing that result by the \code{n}-period
-rolling sum of the close price changes.
+trends. This optimized version includes safeguards against NA and INF values.
 }
 \note{
 If Close prices are given, the function calculates the max/min using
-only those prices (the default).  If HLC prices are given, the function
-calculates the max/min using the high/low prices (added for flexibility).
+only those prices. If HLC prices are given, the function uses high/low prices.
 }
 \examples{
-
- data(ttrc)
- vhf.close <- VHF(ttrc[,"Close"])
- vhf.hilow <- VHF(ttrc[,c("High","Low","Close")])
-
+data(ttrc)
+vhf_close <- VHF(ttrc[, "Close"], na.rm = TRUE)
+vhf_hlc <- VHF(ttrc[, c("High", "Low", "Close")], inf.replace = 10)
 }
 \references{
-The following site(s) were used to code/document this
-indicator:\cr
-\url{https://www.metastock.com/Customer/Resources/TAAZ/?p=119}\cr
+\url{https://www.metastock.com/Customer/Resources/TAAZ/?p=119}
 }
 \seealso{
 See \code{\link{aroon}}, \code{\link{CCI}}, \code{\link{ADX}},
-\code{\link{TDI}}, \code{\link{GMMA}} for other indicators that measure trend
-direction/strength.
+\code{\link{TDI}}, \code{\link{GMMA}} for other trend indicators.
 }
 \author{
-Joshua Ulrich
+Deng Yishuo
 }
 \keyword{ts}

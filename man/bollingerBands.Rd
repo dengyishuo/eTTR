@@ -53,12 +53,12 @@ simple moving average.
 }
 \examples{
 
- ## The examples below show the differences between using a
- ## High-Low-Close series, and just a close series when
- ## calculating Bollinger Bands.
- data(ttrc)
- bbands.HLC <- BBands( ttrc[,c("High","Low","Close")] )
- bbands.close <- BBands( ttrc[,"Close"] )
+## The examples below show the differences between using a
+## High-Low-Close series, and just a close series when
+## calculating Bollinger Bands.
+data(ttrc)
+bbands.HLC <- BBands(ttrc[, c("High", "Low", "Close")])
+bbands.close <- BBands(ttrc[, "Close"])
 }
 \references{
 The following site(s) were used to code/document this
@@ -74,6 +74,6 @@ See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
 options; and note Warning section.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

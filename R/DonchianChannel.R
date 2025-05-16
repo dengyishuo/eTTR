@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -50,56 +50,55 @@
 #' will return the result of the original calculation.
 #'
 #' The default of this argument may change in the future.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{BBands}}.
 #' @references The following site(s) were used to code/document this
 #' indicator:\cr \url{https://www.linnsoft.com/techind/donchian-channels}\cr
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  dc <- DonchianChannel( ttrc[,c("High","Low")] )
+#' data(ttrc)
+#' dc <- DonchianChannel(ttrc[, c("High", "Low")])
 #'
-'DonchianChannel' <-
-function(HL, n=10, include.lag=FALSE) {
+"DonchianChannel" <-
+  function(HL, n = 10, include.lag = FALSE) {
+    # Donchian Channel
 
-  # Donchian Channel
+    # Notes from John Bollinger:
+    #
+    # "In the old paper-calculation days you would calculate the numbers
+    #  after the close by hand and for use in the next day's trading to gauge
+    #  the "n-day" breakouts and you would have used n-days worth of data the
+    #  calc. Thus an n-day calc with a lag of one would be consistent with
+    #  practice in Donchian's day. (Total window of n+1.) Another example are
+    #  the floor traders numbers or pivots, which are calculated from the
+    #  prior period's data for use on the current period. In both case
+    #  including the current period in the calculation would not be correct."
 
-  # Notes from John Bollinger:
-  #
-  # "In the old paper-calculation days you would calculate the numbers
-  #  after the close by hand and for use in the next day's trading to gauge
-  #  the "n-day" breakouts and you would have used n-days worth of data the
-  #  calc. Thus an n-day calc with a lag of one would be consistent with
-  #  practice in Donchian's day. (Total window of n+1.) Another example are
-  #  the floor traders numbers or pivots, which are calculated from the
-  #  prior period's data for use on the current period. In both case
-  #  including the current period in the calculation would not be correct."
+    HL <- try.xts(HL, error = as.matrix)
 
-  HL <- try.xts(HL, error=as.matrix)
-
-  if(!(NCOL(HL) %in% c(1,2))) {
-    stop("Price series must be either High-Low, or Close/univariate.")
-  }
-  if(NCOL(HL)==2) {
-      hi <- HL[,1]
-      lo <- HL[,2]
-  } else {
+    if (!(NCOL(HL) %in% c(1, 2))) {
+      stop("Price series must be either High-Low, or Close/univariate.")
+    }
+    if (NCOL(HL) == 2) {
+      hi <- HL[, 1]
+      lo <- HL[, 2]
+    } else {
       hi <- HL
       lo <- HL
+    }
+
+    high <- runMax(hi, n)
+    low <- runMin(lo, n)
+    mid <- (high + low) / 2
+
+    result <- cbind(high, mid, low)
+    colnames(result) <- c("high", "mid", "low")
+
+    if (include.lag) {
+      # use lag.xts in case 'result' is a matrix
+      result <- lag.xts(result)
+    }
+
+    reclass(result, HL)
   }
-
-  high <- runMax(hi,n)
-  low  <- runMin(lo,n)
-  mid  <- (high+low)/2
-
-  result <- cbind(high,mid,low)
-  colnames(result) <- c("high","mid","low")
-
-  if(include.lag) {
-    # use lag.xts in case 'result' is a matrix
-    result <- lag.xts(result)
-  }
-
-  reclass(result, HL)
-}

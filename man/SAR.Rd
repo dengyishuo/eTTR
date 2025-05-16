@@ -31,8 +31,8 @@ position or vice versa.
 }
 \examples{
 
- data(ttrc)
- sar <- SAR(ttrc[,c("High","Low")])
+data(ttrc)
+sar <- SAR(ttrc[, c("High", "Low")])
 
 }
 \references{
@@ -48,6 +48,6 @@ See \code{\link{ATR}} and \code{\link{ADX}}, which were also
 developed by Welles Wilder.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

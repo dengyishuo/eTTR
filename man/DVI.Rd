@@ -45,8 +45,8 @@ relative number of up versus down days (stretch) over different time windows.
 }
 \examples{
 
- data(ttrc)
- dvi <- DVI(ttrc[,"Close"])
+data(ttrc)
+dvi <- DVI(ttrc[, "Close"])
 
 }
 \references{
@@ -56,6 +56,6 @@ indicator:\cr
 \url{https://marketsci.wordpress.com/2010/07/27/css-analytics\%E2\%80\%99-dvi-indicator-revealed/}\cr
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

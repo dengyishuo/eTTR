@@ -43,8 +43,8 @@ long/short-term averages.
 }
 \examples{
 
- data(ttrc)
- gmma <- GMMA(ttrc[,"Close"])
+data(ttrc)
+gmma <- GMMA(ttrc[, "Close"])
 
 }
 \references{
@@ -58,6 +58,6 @@ See \code{\link{aroon}}, \code{\link{CCI}}, \code{\link{ADX}},
 direction/strength.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

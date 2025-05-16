@@ -35,6 +35,6 @@ Create split and dividend adjustment ratio vectors.
  }
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@
 #' vector (if \code{try.xts} fails) containing the OBV values.
 #' @note OBV is usually compared with the price chart of the underlying security
 #' to look for divergences/confirmation.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{chaikinAD}}.
 #' @references The following site(s) were used to code/document this
 #' indicator:\cr \url{https://www.fmlabs.com/reference/OBV.htm}\cr

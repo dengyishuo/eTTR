@@ -35,11 +35,11 @@ observations, while the momentum indicator simply provides the difference.
 }
 \examples{
 
- data(ttrc)
- roc <- ROC(ttrc[,"Close"])
- mom <- momentum(ttrc[,"Close"])
+data(ttrc)
+roc <- ROC(ttrc[, "Close"])
+mom <- momentum(ttrc[, "Close"])
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

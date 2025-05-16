@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -106,7 +106,7 @@
 #' @param \dots Arguments to be passed to/from other methods.
 #' @return A object of the same class as \code{OHLC} or a vector (if
 #' \code{try.xts} fails) containing the chosen volatility estimator values.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{TR}} and \code{\link{chaikinVolatility}} for other
 #' volatility measures.
 #' @references The following sites were used to code/document these

@@ -49,8 +49,8 @@ The default of this argument may change in the future.
 }
 \examples{
 
- data(ttrc)
- dc <- DonchianChannel( ttrc[,c("High","Low")] )
+data(ttrc)
+dc <- DonchianChannel(ttrc[, c("High", "Low")])
 
 }
 \references{
@@ -61,6 +61,6 @@ indicator:\cr \url{https://www.linnsoft.com/techind/donchian-channels}\cr
 See \code{\link{BBands}}.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

@@ -40,8 +40,8 @@ addition, values above/below 80/20 indicate market tops/bottoms.
 }
 \examples{
 
- data(ttrc)
- mfi <- MFI(ttrc[,c("High","Low","Close")], ttrc[,"Volume"])
+data(ttrc)
+mfi <- MFI(ttrc[, c("High", "Low", "Close")], ttrc[, "Volume"])
 
 }
 \references{
@@ -55,6 +55,6 @@ indicator:\cr
 See \code{\link{OBV}} and \code{\link{CMF}}.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

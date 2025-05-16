@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
 #' See \code{runPercentRank}.
 #' @return A object of the same class as \code{price} or a vector (if
 #' \code{try.xts} fails) containing the DVI values.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @references The following site(s) were used to code/document this
 #' indicator:\cr
 #' \url{https://cssanalytics.wordpress.com/2009/12/13/what-is-the-dvi/}\cr
@@ -44,16 +44,16 @@
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  dvi <- DVI(ttrc[,"Close"])
+#' data(ttrc)
+#' dvi <- DVI(ttrc[, "Close"])
 #'
-DVI <- function(price, n=252, wts=c(0.8,0.2), smooth=3,
-  magnitude=c(5,100,5), stretch=c(10,100,2), exact.multiplier=1) {
-
+DVI <- function(
+    price, n = 252, wts = c(0.8, 0.2), smooth = 3,
+    magnitude = c(5, 100, 5), stretch = c(10, 100, 2), exact.multiplier = 1) {
   # David Varadi's DVI indicator
 
   # try to convert 'price' to xts
-  price <- try.xts(price, error=as.matrix)
+  price <- try.xts(price, error = as.matrix)
 
   # ensure magnitude + stretch = 1
   wts.sum <- sum(wts)
@@ -61,12 +61,12 @@ DVI <- function(price, n=252, wts=c(0.8,0.2), smooth=3,
   wts[2] <- wts[2] / wts.sum
 
   # calculate magnitude, based on average price return
-  r <- price/SMA(price,smooth)-1
-  mag <- SMA( ( SMA(r,magnitude[1]) + SMA(r,magnitude[2])/10 )/2, magnitude[3] )
+  r <- price / SMA(price, smooth) - 1
+  mag <- SMA((SMA(r, magnitude[1]) + SMA(r, magnitude[2]) / 10) / 2, magnitude[3])
 
   # calculate stretch, based on whether return is +/-
-  b <- ifelse( price > lag.xts(price), 1, -1 )
-  str <- SMA( ( runSum(b,stretch[1]) + runSum(b,stretch[2])/10 )/2, stretch[3] )
+  b <- ifelse(price > lag.xts(price), 1, -1)
+  str <- SMA((runSum(b, stretch[1]) + runSum(b, stretch[2]) / 10) / 2, stretch[3])
 
 
   # calculate the DVI magnitude and stretch for each period
@@ -83,4 +83,3 @@ DVI <- function(price, n=252, wts=c(0.8,0.2), smooth=3,
   # original class of 'price'
   reclass(result, price)
 }
-

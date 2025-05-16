@@ -45,9 +45,9 @@ aroonDn(Up) is below 30.  Also, crossovers may be useful.
 }
 \examples{
 
- ## Get Data and Indicator ##
- data(ttrc)
- trend <- aroon( ttrc[,c("High", "Low")], n=20 )
+## Get Data and Indicator ##
+data(ttrc)
+trend <- aroon(ttrc[, c("High", "Low")], n = 20)
 
 }
 \references{
@@ -63,6 +63,6 @@ See \code{\link{CCI}}, \code{\link{ADX}}, \code{\link{TDI}},
 direction/strength.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

@@ -1,5 +1,5 @@
 /*
- *  TTR: Technical Trading Rules
+ *  eTTR: Enhanced Technical Trading Rules
  *
  *  Copyright (C) 2007-2013  Joshua M. Ulrich
  *
@@ -17,10 +17,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ttr.h"
+#include "ettr.h"
 
 SEXP ema (SEXP x, SEXP n, SEXP ratio, SEXP wilder) {
-    
+
     /* Initialize loop and PROTECT counters */
     int i, P=0;
 
@@ -95,7 +95,7 @@ SEXP ema (SEXP x, SEXP n, SEXP ratio, SEXP wilder) {
 }
 
 SEXP evwma (SEXP pr, SEXP vo, SEXP n) {
-    
+
     /* Initialize loop and PROTECT counters */
     int i, P=0;
 
@@ -112,7 +112,7 @@ SEXP evwma (SEXP pr, SEXP vo, SEXP n) {
     double *d_pr = REAL(pr);
     double *d_vo = REAL(vo);
     int i_n = asInteger(n);
-    
+
     /* Input object length */
     int nr = nrows(pr);
 

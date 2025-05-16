@@ -80,6 +80,6 @@ options; and note Warning section.  See \code{\link{CMO}} for a variation on
 RSI.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

@@ -121,6 +121,6 @@ IPOyear, Sector, and Industry. All the columns still appear in the results,#' bu
  }
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

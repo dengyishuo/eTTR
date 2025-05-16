@@ -93,6 +93,6 @@ A object of the same class as \code{x} and \code{y} or a vector (if
 Various functions to analyze data over a moving window of periods.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

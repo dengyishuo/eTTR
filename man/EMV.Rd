@@ -46,8 +46,8 @@ volume, and the price is not moving easily.
 }
 \examples{
 
- data(ttrc)
- emv <- EMV(ttrc[,c("High","Low")], ttrc[,"Volume"])
+data(ttrc)
+emv <- EMV(ttrc[, c("High", "Low")], ttrc[, "Volume"])
 
 }
 \references{
@@ -61,6 +61,6 @@ See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
 options; and note Warning section.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

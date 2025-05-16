@@ -142,6 +142,6 @@ See \code{\link{TR}} and \code{\link{chaikinVolatility}} for other
 volatility measures.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

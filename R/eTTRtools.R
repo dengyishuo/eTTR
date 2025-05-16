@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -40,69 +40,65 @@
 #' @note In \code{growth} you can specify the number of periods and type of
 #' compounding to use when calculating returns of the price series via the
 #' \code{'\dots'} argument.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @keywords ts
-#' @rdname TTRtools
+#' @rdname eTTRtools
 "lags" <-
-function(x, n=1) {
+  function(x, n = 1) {
+    # .Deprecated(c("xts::lag.xts","quantmod::Lag"),"eTTR")
 
-  #.Deprecated(c("xts::lag.xts","quantmod::Lag"),"TTR")
+    # Calculate lags of a series
 
-  # Calculate lags of a series
+    x <- as.matrix(x)
+    if (is.null(colnames(x))) colnames(x) <- paste("V", 1:NCOL(x), sep = "")
 
-  x <- as.matrix(x)
-  if( is.null(colnames(x)) ) colnames(x) <- paste("V",1:NCOL(x),sep="")
+    out <- embed(x, n + 1)
+    if (n == 1) lag.names <- 1 else if (NCOL(x) == 1) lag.names <- 1:n else lag.names <- rep(1:n, NCOL(x))
 
-  out <- embed(x, n+1)
-  if(n==1)       lag.names <- 1    else
-  if(NCOL(x)==1) lag.names <- 1:n  else  lag.names <- rep(1:n,NCOL(x))
+    colnames(out) <- c(colnames(x), paste(colnames(x), sort(lag.names), sep = "."))
 
-  colnames(out) <- c( colnames(x), paste(colnames(x), sort(lag.names), sep=".") )
-
-  return( out )
-}
+    return(out)
+  }
 
 #-------------------------------------------------------------------------#
-#' @rdname TTRtools
+#' @rdname eTTRtools
 "growth" <-
-function(price, signals, ...) {
+  function(price, signals, ...) {
+    # Calculate growth of $1 for a series of returns (and signals).
 
-  # Calculate growth of $1 for a series of returns (and signals).
+    if (missing(signals)) {
+      signals <- rep(1, NROW(price))
+    } else {
+      signals <- as.vector(signals)
+    }
+    price <- as.vector(price)
+    growth <- cumprod(1 + ROC(price, ...) * signals)
 
-  if(missing(signals)) {
-    signals <- rep(1,NROW(price))
-  } else {
-    signals <- as.vector(signals)
+    return(growth)
   }
-  price  <- as.vector(price)
-  growth <- cumprod( 1 + ROC(price, ...) * signals )
-
-  return( growth )
-}
 
 #-------------------------------------------------------------------------#
 
-#' @rdname TTRtools
-'naCheck' <-
-function(x, n=0) {
+#' @rdname eTTRtools
+"naCheck" <-
+  function(x, n = 0) {
+    # Ensure NAs are only at beginning of data.
+    if (is.null(dim(x)[2])) {
+      NAs <- sum(is.na(x))
+      if (NAs > 0) {
+        if (any(is.na(x[-(1:NAs)]))) stop("Series contains non-leading NAs")
+      }
+    } else {
+      NAs <- sum(rowSums(is.na(x)) > 0)
+      if (NAs > 0) {
+        if (any(is.na(x[-(1:NAs), ]))) stop("Series contains non-leading NAs")
+      }
+    }
 
-  # Ensure NAs are only at beginning of data.
-  if(is.null(dim(x)[2])) {
-    NAs <- sum(is.na(x))
-    if( NAs > 0 ) {
-      if( any( is.na(x[-(1:NAs)]) ) ) stop("Series contains non-leading NAs")
-    }
-  } else {
-    NAs <- sum( rowSums(is.na(x)) > 0 )
-    if( NAs > 0 ) {
-      if( any( is.na(x[-(1:NAs),]) ) ) stop("Series contains non-leading NAs")
-    }
+    res <- list()
+    res$NAs <- NAs
+    res$nonNA <- (1 + NAs):NROW(x)
+    res$beg <- n + NAs
+
+    invisible(res)
   }
-
-  res <- list()
-  res$NAs <- NAs
-  res$nonNA <- (1+NAs):NROW(x)
-  res$beg <- n+NAs
-
-  invisible(res)
-}

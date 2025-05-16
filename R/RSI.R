@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@
 #'
 #' You can calculate a stochastic RSI by using the function \code{\link{stoch}}
 #' on RSI values.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
 #' options; and note Warning section.  See \code{\link{CMO}} for a variation on
 #' RSI.

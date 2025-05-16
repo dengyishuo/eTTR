@@ -58,11 +58,12 @@ used exponential constants of 0.075 and 0.15, which are closer to
 }
 \examples{
 
- data(ttrc)
+data(ttrc)
 
- macd  <- MACD( ttrc[,"Close"], 12, 26, 9, maType="EMA" )
- macd2 <- MACD( ttrc[,"Close"], 12, 26, 9,
-          maType=list(list(SMA), list(EMA, wilder=TRUE), list(SMA)) )
+macd <- MACD(ttrc[, "Close"], 12, 26, 9, maType = "EMA")
+macd2 <- MACD(ttrc[, "Close"], 12, 26, 9,
+  maType = list(list(SMA), list(EMA, wilder = TRUE), list(SMA))
+)
 
 }
 \references{
@@ -87,6 +88,6 @@ See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
 options; and note Warning section.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

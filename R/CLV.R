@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 #' @return A object of the same class as \code{HLC} or a vector (if
 #' \code{try.xts} fails) containing the Close Location Values of a
 #' High-Low-Close price series.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{chaikinAD}}, which uses CLV.
 #' @references The following site(s) were used to code/document this
 #' indicator:\cr
@@ -38,20 +38,19 @@
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  clv <- CLV(ttrc[,c("High","Low","Close")])
+#' data(ttrc)
+#' clv <- CLV(ttrc[, c("High", "Low", "Close")])
 #'
 "CLV" <-
-function(HLC) {
+  function(HLC) {
+    # Close Location Value
 
-  # Close Location Value
+    HLC <- try.xts(HLC, error = as.matrix)
+    clv <- ((HLC[, 3] - HLC[, 2]) - (HLC[, 1] - HLC[, 3])) / (HLC[, 1] - HLC[, 2])
 
-  HLC <- try.xts(HLC, error=as.matrix)
-  clv <- ((HLC[,3]-HLC[,2]) - (HLC[,1]-HLC[,3])) / (HLC[,1]-HLC[,2])
+    # Account for H=L=C
+    clv[is.nan(clv) | is.infinite(clv)] <- 0
 
-  # Account for H=L=C
-  clv[is.nan(clv) | is.infinite(clv)] <- 0
-
-  if(is.xts(clv)) colnames(clv) <- 'clv'
-  reclass( clv, HLC )
-}
+    if (is.xts(clv)) colnames(clv) <- "clv"
+    reclass(clv, HLC)
+  }

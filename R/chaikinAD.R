@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
 #' values.
 #' @note The Accumulation/Distribution Line is interpreted by looking for a
 #' divergence in the direction of the indicator relative to price.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{OBV}}, and \code{\link{CLV}}.
 #' @references The following site(s) were used to code/document this
 #' indicator:\cr \url{https://www.fmlabs.com/reference/AccumDist.htm}\cr
@@ -46,27 +46,26 @@
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  ad <- chaikinAD(ttrc[,c("High","Low","Close")], ttrc[,"Volume"])
+#' data(ttrc)
+#' ad <- chaikinAD(ttrc[, c("High", "Low", "Close")], ttrc[, "Volume"])
 #'
 "chaikinAD" <-
-function(HLC, volume) {
+  function(HLC, volume) {
+    # Chaikin Accumulation / Distribution
 
-  # Chaikin Accumulation / Distribution
+    HLC <- try.xts(HLC, error = as.matrix)
+    volume <- try.xts(volume, error = as.matrix)
 
-  HLC <- try.xts(HLC, error=as.matrix)
-  volume <- try.xts(volume, error=as.matrix)
+    if (!(is.xts(HLC) && is.xts(volume))) {
+      HLC <- as.matrix(HLC)
+      volume <- as.matrix(volume)
+    }
 
-  if(!(is.xts(HLC) && is.xts(volume))) {
-    HLC <- as.matrix(HLC)
-    volume <- as.matrix(volume)
+    ad <- CLV(HLC) * volume
+
+    ad.na <- naCheck(ad)
+    ad <- cumsum(ad[ad.na$nonNA])
+    ad <- c(rep(NA, ad.na$NAs), ad)
+
+    reclass(ad, HLC)
   }
-
-  ad  <- CLV(HLC) * volume
-
-  ad.na <- naCheck(ad)
-  ad <- cumsum( ad[ad.na$nonNA] )
-  ad <- c( rep( NA, ad.na$NAs ), ad )
-
-  reclass(ad, HLC)
-}

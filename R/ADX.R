@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@
 #' -/+DI, when the DX/ADX signals a strong trend.  A high/low DX signals a
 #' strong/weak trend.  DX is usually smoothed with a moving average (i.e. the
 #' ADX).
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
 #' options; and note Warning section.  The DX calculation uses
 #' \code{\link{ATR}}.  See \code{\link{aroon}}, \code{\link{CCI}},
@@ -61,44 +61,43 @@
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  dmi.adx <- ADX(ttrc[,c("High","Low","Close")])
+#' data(ttrc)
+#' dmi.adx <- ADX(ttrc[, c("High", "Low", "Close")])
 #'
 "ADX" <-
-function(HLC, n=14, maType, ...) {
+  function(HLC, n = 14, maType, ...) {
+    # Welles Wilder's Directional Movement Index
 
-  # Welles Wilder's Directional Movement Index
+    HLC <- try.xts(HLC, error = as.matrix)
+    dH <- momentum(HLC[, 1])
+    dL <- -momentum(HLC[, 2])
 
-  HLC <- try.xts(HLC, error=as.matrix)
-  dH  <- momentum(HLC[,1])
-  dL  <- -momentum(HLC[,2])
+    DMIp <- ifelse(dH == dL | (dH < 0 & dL < 0), 0, ifelse(dH > dL, dH, 0))
+    DMIn <- ifelse(dH == dL | (dH < 0 & dL < 0), 0, ifelse(dH < dL, dL, 0))
 
-  DMIp <- ifelse( dH==dL | (dH< 0 & dL< 0), 0, ifelse( dH >dL, dH, 0 ) )
-  DMIn <- ifelse( dH==dL | (dH< 0 & dL< 0), 0, ifelse( dH <dL, dL, 0 ) )
+    tr <- TR(HLC)[, "tr"]
+    TRsum <- wilderSum(tr, n = n)
 
-  tr    <- TR(HLC)[,"tr"]
-  TRsum <- wilderSum(tr, n=n)
+    DIp <- 100 * wilderSum(DMIp, n = n) / TRsum
+    DIn <- 100 * wilderSum(DMIn, n = n) / TRsum
 
-  DIp <- 100 * wilderSum(DMIp, n=n) / TRsum
-  DIn <- 100 * wilderSum(DMIn, n=n) / TRsum
+    DX <- 100 * (abs(DIp - DIn) / (DIp + DIn))
 
-  DX  <- 100 * ( abs(DIp - DIn) / (DIp + DIn) )
+    maArgs <- list(n = n, ...)
 
-  maArgs <- list(n=n, ...)
-
-  # Default Welles Wilder EMA
-  if(missing(maType)) {
-    maType <- 'EMA'
-    if(is.null(maArgs$wilder)) {
-      # do not overwrite user-provided value
-      maArgs$wilder <- TRUE
+    # Default Welles Wilder EMA
+    if (missing(maType)) {
+      maType <- "EMA"
+      if (is.null(maArgs$wilder)) {
+        # do not overwrite user-provided value
+        maArgs$wilder <- TRUE
+      }
     }
+
+    ADX <- do.call(maType, c(list(DX), maArgs))
+
+    result <- cbind(DIp, DIn, DX, ADX)
+    colnames(result) <- c("DIp", "DIn", "DX", "ADX")
+
+    reclass(result, HLC)
   }
-
-  ADX <- do.call( maType, c( list(DX), maArgs ) )
-
-  result <- cbind( DIp, DIn, DX, ADX )
-  colnames(result) <- c( "DIp", "DIn", "DX", "ADX" )
-
-  reclass(result, HLC)
-}

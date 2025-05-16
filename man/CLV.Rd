@@ -25,8 +25,8 @@ low.
 }
 \examples{
 
- data(ttrc)
- clv <- CLV(ttrc[,c("High","Low","Close")])
+data(ttrc)
+clv <- CLV(ttrc[, c("High", "Low", "Close")])
 
 }
 \references{
@@ -38,6 +38,6 @@ indicator:\cr
 See \code{\link{chaikinAD}}, which uses CLV.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

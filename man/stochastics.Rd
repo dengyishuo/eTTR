@@ -149,6 +149,6 @@ options; and note Warning section.  See \code{\link{WPR}} to compare it's
 results to fast \%K.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

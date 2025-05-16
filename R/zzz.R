@@ -1,5 +1,5 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
 #   Copyright (C) 2017  Joshua M. Ulrich
 #
@@ -19,5 +19,5 @@
 .env <- new.env()
 
 .onUnload <- function(libpath) {
-  library.dynam.unload("TTR", libpath)
+  library.dynam.unload("eTTR", libpath)
 }

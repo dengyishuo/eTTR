@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -62,13 +62,15 @@
 #' indicator:\cr \url{https://en.wikipedia.org/wiki/Percentile_rank}\cr
 #'
 #' @keywords ts
-runPercentRank <- function(x, n=260, cumulative = FALSE, exact.multiplier = 0.5) {
+runPercentRank <- function(x, n = 260, cumulative = FALSE, exact.multiplier = 0.5) {
   x <- try.xts(x, error = as.matrix)
 
-  if (n < 1 || n > NROW(x))
+  if (n < 1 || n > NROW(x)) {
     stop(sprintf("n = %d is outside valid range: [1, %d]", n, NROW(x)))
-  if (exact.multiplier < 0 || exact.multiplier > 1)
+  }
+  if (exact.multiplier < 0 || exact.multiplier > 1) {
     stop(sprintf("exact.multiplier = %d is outside valid range: [0, 1]", exact.multiplier))
+  }
 
   NAs <- sum(is.na(x))
   if (NAs > 0) {
@@ -79,8 +81,10 @@ runPercentRank <- function(x, n=260, cumulative = FALSE, exact.multiplier = 0.5)
     result <- double(NROW(x))
     result[] <- exact.multiplier
   } else {
-    result <- .Call(C_ttr_rollPercentRank, x, n, isTRUE(cumulative),
-                    exact.multiplier)
+    result <- .Call(
+      C_ettr_rollPercentRank, x, n, isTRUE(cumulative),
+      exact.multiplier
+    )
   }
 
   reclass(result, x)

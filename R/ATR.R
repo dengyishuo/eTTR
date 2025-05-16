@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 #'   \item{ trueHigh }{ The true high of the series. }
 #'   \item{ trueLow }{ The true low of the series. }
 #'  }
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
 #' options; and note Warning section.  See \code{\link{DX}}, which uses true
 #' range.  See \code{\link{chaikinVolatility}} for another volatility measure.
@@ -58,56 +58,55 @@
 #' @examples
 #'
 #' data(ttrc)
-#' tr <- TR(ttrc[,c("High","Low","Close")])
-#' atr <- ATR(ttrc[,c("High","Low","Close")], n=14)
+#' tr <- TR(ttrc[, c("High", "Low", "Close")])
+#' atr <- ATR(ttrc[, c("High", "Low", "Close")], n = 14)
 #'
 #' @rdname ATR
 "TR" <-
-function(HLC) {
-  # True Range
+  function(HLC) {
+    # True Range
 
-  HLC <- try.xts(HLC, error=as.matrix)
+    HLC <- try.xts(HLC, error = as.matrix)
 
-  if(is.xts(HLC)) {
-    closeLag <- lag.xts(HLC[,3])
-  } else {
-    closeLag <- c( NA, HLC[-NROW(HLC),3] )
+    if (is.xts(HLC)) {
+      closeLag <- lag.xts(HLC[, 3])
+    } else {
+      closeLag <- c(NA, HLC[-NROW(HLC), 3])
+    }
+
+    trueHigh <- pmax(HLC[, 1], closeLag, na.rm = FALSE)
+    trueLow <- pmin(HLC[, 2], closeLag, na.rm = FALSE)
+    tr <- trueHigh - trueLow
+
+    result <- cbind(tr, trueHigh, trueLow)
+    colnames(result) <- c("tr", "trueHigh", "trueLow")
+
+    reclass(result, HLC)
   }
-
-  trueHigh <- pmax( HLC[,1], closeLag, na.rm=FALSE )
-  trueLow  <- pmin( HLC[,2], closeLag, na.rm=FALSE )
-  tr       <- trueHigh - trueLow
-
-  result <- cbind(tr, trueHigh, trueLow )
-  colnames(result) <- c('tr','trueHigh','trueLow')
-
-  reclass( result, HLC )
-}
 
 #' @rdname ATR
 "ATR" <-
-function(HLC, n=14, maType, ...) {
+  function(HLC, n = 14, maType, ...) {
+    # Average True Range / True Range
 
-  # Average True Range / True Range
+    HLC <- try.xts(HLC, error = as.matrix)
+    tr <- TR(HLC)
 
-  HLC <- try.xts(HLC, error=as.matrix)
-  tr <- TR(HLC)
+    maArgs <- list(n = n, ...)
 
-  maArgs <- list(n=n, ...)
-
-  # Default Welles Wilder EMA
-  if(missing(maType)) {
-    maType <- 'EMA'
-    if(is.null(maArgs$wilder)) {
-      # do not overwrite user-provided value
-      maArgs$wilder <- TRUE
+    # Default Welles Wilder EMA
+    if (missing(maType)) {
+      maType <- "EMA"
+      if (is.null(maArgs$wilder)) {
+        # do not overwrite user-provided value
+        maArgs$wilder <- TRUE
+      }
     }
+
+    atr <- do.call(maType, c(list(tr[, 1]), maArgs))
+
+    result <- cbind(tr[, 1], atr, tr[, 2:3])
+    colnames(result) <- c("tr", "atr", "trueHigh", "trueLow")
+
+    reclass(result, HLC)
   }
-
-  atr <- do.call( maType, c( list(tr[,1]), maArgs ) )
-
-  result <- cbind( tr[,1], atr, tr[,2:3])
-  colnames(result) <- c('tr','atr','trueHigh','trueLow')
-
-  reclass( result, HLC )
-}

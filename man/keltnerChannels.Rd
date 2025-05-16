@@ -58,7 +58,7 @@ provided, it will be used instead.
 \examples{
 
 data(ttrc)
-kc <- keltnerChannels(ttrc[,c("High","Low","Close")])
+kc <- keltnerChannels(ttrc[, c("High", "Low", "Close")])
 
 }
 \references{

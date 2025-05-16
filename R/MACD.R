@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@
 #' periods for the MACD are often given as 26 and 12, but the original formula
 #' used exponential constants of 0.075 and 0.15, which are closer to
 #' 25.6667 and 12.3333 periods.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
 #' options; and note Warning section.
 #' @references The following site(s) were used to code/document this
@@ -76,75 +76,74 @@
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
+#' data(ttrc)
 #'
-#'  macd  <- MACD( ttrc[,"Close"], 12, 26, 9, maType="EMA" )
-#'  macd2 <- MACD( ttrc[,"Close"], 12, 26, 9,
-#'           maType=list(list(SMA), list(EMA, wilder=TRUE), list(SMA)) )
+#' macd <- MACD(ttrc[, "Close"], 12, 26, 9, maType = "EMA")
+#' macd2 <- MACD(ttrc[, "Close"], 12, 26, 9,
+#'   maType = list(list(SMA), list(EMA, wilder = TRUE), list(SMA))
+#' )
 #'
 "MACD" <-
-function(x, nFast=12, nSlow=26, nSig=9, maType, percent=TRUE, ...) {
+  function(x, nFast = 12, nSlow = 26, nSig = 9, maType, percent = TRUE, ...) {
+    # Oscillators
 
-  # Oscillators
+    # WISHLIST:
+    # Add capability to allow 'ma.slow' and 'ma.fast' to be vectors
+    # containing MAs, which would allow the oscillator to be constructed
+    # using MAs of different prices.
 
-  # WISHLIST:
-  # Add capability to allow 'ma.slow' and 'ma.fast' to be vectors
-  # containing MAs, which would allow the oscillator to be constructed
-  # using MAs of different prices.
-
-  # Default MA
-  if(missing(maType)) {
-    maType <- 'EMA'
-  }
-
-  # Case of two different 'maType's for both MAs.
-  if( is.list(maType) ) {
-
-    # Make sure maType is a list of lists
-    maTypeInfo <- sapply(maType,is.list)
-    if( !(all(maTypeInfo) && length(maTypeInfo) == 3) ) {
-      stop("If \'maType\' is a list, you must specify\n ",
-      "*three* MAs (see Examples section of ?MACD)")
+    # Default MA
+    if (missing(maType)) {
+      maType <- "EMA"
     }
 
-    # If MA function has 'n' arg, see if it's populated in maType;
-    # if it isn't, populate it with function's formal 'n'
-    if( !is.null( formals(maType[[1]][[1]])$n ) && is.null( maType[[1]]$n ) ) {
-      maType[[1]]$n <- nFast
+    # Case of two different 'maType's for both MAs.
+    if (is.list(maType)) {
+      # Make sure maType is a list of lists
+      maTypeInfo <- sapply(maType, is.list)
+      if (!(all(maTypeInfo) && length(maTypeInfo) == 3)) {
+        stop(
+          "If \'maType\' is a list, you must specify\n ",
+          "*three* MAs (see Examples section of ?MACD)"
+        )
+      }
+
+      # If MA function has 'n' arg, see if it's populated in maType;
+      # if it isn't, populate it with function's formal 'n'
+      if (!is.null(formals(maType[[1]][[1]])$n) && is.null(maType[[1]]$n)) {
+        maType[[1]]$n <- nFast
+      }
+      if (!is.null(formals(maType[[2]][[1]])$n) && is.null(maType[[2]]$n)) {
+        maType[[2]]$n <- nSlow
+      }
+      if (!is.null(formals(maType[[3]][[1]])$n) && is.null(maType[[3]]$n)) {
+        maType[[3]]$n <- nSig
+      }
+
+      mavg.fast <- do.call(maType[[1]][[1]], c(list(x), maType[[1]][-1]))
+      mavg.slow <- do.call(maType[[2]][[1]], c(list(x), maType[[2]][-1]))
     }
-    if( !is.null( formals(maType[[2]][[1]])$n ) && is.null( maType[[2]]$n ) ) {
-      maType[[2]]$n <- nSlow
+
+    # Case of one 'maType' for both MAs.
+    else {
+      mavg.fast <- do.call(maType, c(list(x), list(n = nFast, ...)))
+      mavg.slow <- do.call(maType, c(list(x), list(n = nSlow, ...)))
     }
-    if( !is.null( formals(maType[[3]][[1]])$n ) && is.null( maType[[3]]$n ) ) {
-      maType[[3]]$n <- nSig
+
+    if (percent) {
+      macd <- 100 * (mavg.fast / mavg.slow - 1)
+    } else {
+      macd <- mavg.fast - mavg.slow
     }
 
-    mavg.fast <- do.call( maType[[1]][[1]], c( list(x), maType[[1]][-1] ) )
-    mavg.slow <- do.call( maType[[2]][[1]], c( list(x), maType[[2]][-1] ) )
+    if (is.list(maType)) {
+      signal <- do.call(maType[[3]][[1]], c(list(macd), maType[[3]][-1]))
+    } else {
+      signal <- do.call(maType, c(list(macd), list(n = nSig, ...)))
+    }
 
+    result <- cbind(macd, signal)
+    colnames(result) <- c("macd", "signal")
+
+    return(result)
   }
-
-  # Case of one 'maType' for both MAs.
-  else {
-
-    mavg.fast <- do.call( maType, c( list(x), list(n=nFast, ...) ) )
-    mavg.slow <- do.call( maType, c( list(x), list(n=nSlow, ...) ) )
-
-  }
-
-  if(percent) {
-    macd <- 100 * ( mavg.fast / mavg.slow - 1 )
-  } else {
-    macd <- mavg.fast - mavg.slow
-  }
-
-  if( is.list(maType) ) {
-    signal <- do.call( maType[[3]][[1]], c( list( macd ), maType[[3]][-1] ) )
-  } else
-    signal <- do.call( maType, c( list( macd ), list(n=nSig, ...) ) )
-
-  result <- cbind( macd, signal )
-  colnames(result) <- c( "macd", "signal" )
-
-  return( result )
-}

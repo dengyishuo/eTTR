@@ -63,11 +63,12 @@ respectively.
 }
 \examples{
 
- data(ttrc)
- kst <- KST(ttrc[,"Close"])
+data(ttrc)
+kst <- KST(ttrc[, "Close"])
 
- kst4MA <- KST(ttrc[,"Close"],
-   maType=list(list(SMA),list(EMA),list(DEMA),list(WMA)))
+kst4MA <- KST(ttrc[, "Close"],
+  maType = list(list(SMA), list(EMA), list(DEMA), list(WMA))
+)
 
 }
 \references{
@@ -82,6 +83,6 @@ options; and note Warning section.  See \code{\link{ROC}} for the
 rate-of-change function.  See \code{\link{MACD}} for a generic oscillator.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

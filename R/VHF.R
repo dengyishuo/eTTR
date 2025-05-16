@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2007-2013  Deng Yishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -17,66 +17,82 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Vertical Horizontal Filter
+#' Vertical Horizontal Filter (Optimized)
 #'
 #' The Vertical Horizontal Filter (VHF) attempts to identify starting and ending
-#' trends.  Developed by Adam White.
-#'
-#' The VHF is calculated by subtracting the \code{n}-period lowest low from the
-#' \code{n}-period highest high and dividing that result by the \code{n}-period
-#' rolling sum of the close price changes.
+#' trends. This optimized version includes safeguards against NA and INF values.
 #'
 #' @param price Object that is coercible to xts or matrix and contains a Close
 #' price series, or a High-Low-Close price series.
-#' @param n Number of periods to use.
+#' @param n Number of periods to use. Default is 28.
+#' @param na.rm Logical. Should NA values be removed during calculations? Default is TRUE.
+#' @param inf.replace Numeric value to replace INF/-INF values. Default is NA.
+#' @param zero.replace Numeric value to replace division by zero results. Default is NA.
 #' @return A object of the same class as \code{price} or a vector (if
-#' \code{try.xts} fails) containing the VHF values.
+#' \code{try.xts} fails) containing the VHF values with NA/INF values handled.
 #' @note If Close prices are given, the function calculates the max/min using
-#' only those prices (the default).  If HLC prices are given, the function
-#' calculates the max/min using the high/low prices (added for flexibility).
-#' @author Joshua Ulrich
+#' only those prices. If HLC prices are given, the function uses high/low prices.
+#' @author Deng Yishuo
 #' @seealso See \code{\link{aroon}}, \code{\link{CCI}}, \code{\link{ADX}},
-#' \code{\link{TDI}}, \code{\link{GMMA}} for other indicators that measure trend
-#' direction/strength.
-#' @references The following site(s) were used to code/document this
-#' indicator:\cr
-#' \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=119}\cr
+#' \code{\link{TDI}}, \code{\link{GMMA}} for other trend indicators.
+#' @references \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=119}
 #' @keywords ts
 #' @examples
-#'
-#'  data(ttrc)
-#'  vhf.close <- VHF(ttrc[,"Close"])
-#'  vhf.hilow <- VHF(ttrc[,c("High","Low","Close")])
-#'
-"VHF" <-
-function(price, n=28) {
+#' data(ttrc)
+#' vhf_close <- VHF(ttrc[, "Close"], na.rm = TRUE)
+#' vhf_hlc <- VHF(ttrc[, c("High", "Low", "Close")], inf.replace = 10)
+"VHF" <- function(price, n = 28, na.rm = TRUE, inf.replace = NA, zero.replace = NA) {
+  # Convert input to xts or matrix
+  price <- try.xts(price, error = as.matrix)
 
-  # Vertical Horizontal Filter
+  # Validate input dimensions
+  if (NCOL(price) != 1 && NCOL(price) != 3) {
+    stop("Price series must be either Close, or High-Low-Close")
+  }
 
-  price <- try.xts(price, error=as.matrix)
+  # Extract price components
+  if (NCOL(price) == 1) {
+    high <- low <- close <- price
+  } else {
+    high <- price[, 1]
+    low <- price[, 2]
+    close <- price[, 3]
+  }
 
-  # Calculation if price series is given
-  if(NCOL(price)==1) {
-    high  <- price
-    low   <- price
-    close <- price
-  } else
+  # Handle NA values in input
+  if (na.rm) {
+    high <- na.omit(high)
+    low <- na.omit(low)
+    close <- na.omit(close)
+  }
 
-  # Calculation if HLC series is given
-  if(NCOL(price)==3) {
-    high  <- price[,1]
-    low   <- price[,2]
-    close <- price[,3]
-  } else
+  # Calculate highest high and lowest low with NA handling
+  hmax <- runMax(high, n)
+  lmin <- runMin(low, n)
 
-  stop("Price series must be either Close, or High-Low-Close")
+  # Calculate price changes and sum with NA handling
+  price_diff <- abs(momentum(close, n = 1, na.pad = TRUE))
+  denom <- runSum(price_diff, n)
 
-  # Find highest max, and lowest min of price series
-  hmax  <- runMax( high, n)
-  lmin  <- runMin(  low, n)
-  denom <- abs( momentum(close, n=1, na.pad=TRUE) )
+  # Handle division by zero cases
+  zero_mask <- denom == 0
+  if (any(zero_mask, na.rm = TRUE)) {
+    denom[zero_mask] <- NA
+  }
 
-  VHF <- ( hmax - lmin ) / runSum(denom, n)
+  # Calculate VHF and handle INF/NA values
+  VHF <- (hmax - lmin) / denom
 
+  # Replace INF values
+  if (!is.na(inf.replace)) {
+    VHF[is.infinite(VHF)] <- inf.replace
+  }
+
+  # Replace division by zero results
+  if (!is.na(zero.replace)) {
+    VHF[zero_mask] <- zero.replace
+  }
+
+  # Preserve original class and index
   reclass(VHF, price)
 }

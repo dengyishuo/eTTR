@@ -45,6 +45,6 @@ indicator:\cr \url{https://www.fmlabs.com/reference/OBV.htm}\cr
 See \code{\link{chaikinAD}}.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

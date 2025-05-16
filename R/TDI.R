@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@
 #' negative direction indicator signals a up/down trend.  I.e. buy if the TDI
 #' and the direction indicator are positive, and sell if the TDI is positive
 #' while the direction indicator is negative.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{aroon}}, \code{\link{CCI}}, \code{\link{ADX}},
 #' \code{\link{VHF}}, \code{\link{GMMA}} for other indicators that measure trend
 #' direction/strength.

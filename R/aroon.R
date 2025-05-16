@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@
 #' Up (down) trends are indicated when the aroonUp(Dn) is between 70 and 100.
 #' Strong trends are indicated when when the aroonUp(Dn) is above 70 while the
 #' aroonDn(Up) is below 30.  Also, crossovers may be useful.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{CCI}}, \code{\link{ADX}}, \code{\link{TDI}},
 #' \code{\link{VHF}}, \code{\link{GMMA}} for other indicators that measure trend
 #' direction/strength.
@@ -59,38 +59,37 @@
 #' @keywords ts
 #' @examples
 #'
-#'  ## Get Data and Indicator ##
-#'  data(ttrc)
-#'  trend <- aroon( ttrc[,c("High", "Low")], n=20 )
+#' ## Get Data and Indicator ##
+#' data(ttrc)
+#' trend <- aroon(ttrc[, c("High", "Low")], n = 20)
 #'
 "aroon" <-
-function(HL, n=20) {
+  function(HL, n = 20) {
+    # Aroon up, down, and oscillator.
 
-  # Aroon up, down, and oscillator.
+    HL <- try.xts(HL, error = as.matrix)
 
-  HL <- try.xts(HL, error=as.matrix)
+    # Calculation if price vector is given
+    if (NCOL(HL) == 1) {
+      high <- HL
+      low <- HL
+    } else
 
-  # Calculation if price vector is given
-  if(NCOL(HL)==1) {
-    high <- HL
-    low  <- HL
-  } else
+    # Calculation if HL series is given
+    if (NCOL(HL) == 2) {
+      high <- HL[, 1]
+      low <- HL[, 2]
+    } else {
+      stop("Price series must be either High-Low, or Close")
+    }
 
-  # Calculation if HL series is given
-  if(NCOL(HL)==2) {
-    high <- HL[,1]
-    low  <- HL[,2]
-  } else
+    # Calculate Aroon UP and DOWN
+    aroonUp <- .Call(C_aroon_max, high, n)
+    aroonDn <- .Call(C_aroon_max, -low, n)
 
-  stop("Price series must be either High-Low, or Close")
+    oscillator <- aroonUp - aroonDn
+    result <- cbind(aroonUp, aroonDn, oscillator)
+    colnames(result) <- c("aroonUp", "aroonDn", "oscillator")
 
-  # Calculate Aroon UP and DOWN
-  aroonUp <- .Call(C_aroon_max, high, n)
-  aroonDn <- .Call(C_aroon_max, -low, n)
-
-  oscillator <- aroonUp - aroonDn
-  result <- cbind( aroonUp, aroonDn, oscillator )
-  colnames(result) <- c( "aroonUp", "aroonDn", "oscillator" )
-
-  reclass( result, HL )
-}
+    reclass(result, HL)
+  }

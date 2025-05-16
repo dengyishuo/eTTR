@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@
 #' \code{try.xts} fails) containing the Chaikin Volatility values.
 #' @note A rapid increase in Chaikin Volatility indicates an approaching bottom.
 #' A slow decrease in Chaikin Volatility indicates an approaching top.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
 #' options; and note Warning section.  See \code{\link{TR}} for another
 #' volatility measure.
@@ -44,25 +44,24 @@
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  volatility <- chaikinVolatility(ttrc[,c("High","Low")])
+#' data(ttrc)
+#' volatility <- chaikinVolatility(ttrc[, c("High", "Low")])
 #'
 "chaikinVolatility" <-
-function(HL, n=10, maType, ...) {
+  function(HL, n = 10, maType, ...) {
+    # Chaikin Volatility
 
-  # Chaikin Volatility
+    HL <- try.xts(HL, error = as.matrix)
 
-  HL <- try.xts(HL, error=as.matrix)
+    maArgs <- list(n = n, ...)
+    # Default MA
+    if (missing(maType)) {
+      maType <- "EMA"
+    }
 
-  maArgs <- list(n=n, ...)
-  # Default MA
-  if(missing(maType)) {
-    maType <- 'EMA'
+    mavg <- do.call(maType, c(list(HL[, 1] - HL[, 2]), maArgs))
+
+    volatility <- ROC(mavg, n, type = "discrete")
+
+    reclass(volatility, HL)
   }
-
-  mavg <- do.call( maType, c( list(HL[,1]-HL[,2]), maArgs ) )
-
-  volatility <- ROC( mavg, n, type="discrete" )
-
-  reclass(volatility, HL)
-}

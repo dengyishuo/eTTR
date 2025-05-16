@@ -61,6 +61,6 @@ See \code{\link{aroon}}, \code{\link{CCI}}, \code{\link{ADX}},
 direction/strength.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

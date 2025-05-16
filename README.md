@@ -4,27 +4,16 @@ TTR is an [R](https://www.r-project.org) package that provides the most popular
 technical analysis functions for financial market data. Many of these functions
 are used as components of systematic trading strategies and financial charts.
 
-### Supporting TTR development
-
-If you are interested in supporting the ongoing development and maintenance of TTR, please consider [becoming a sponsor](https://github.com/sponsors/joshuaulrich).
-
 ### Installation
 
-The current release is available on [CRAN](https://CRAN.R-project.org/package=TTR),
-which you can install via:
-
-```r
-install.packages("TTR")
-```
-
-To install the development version, you need to clone the repository and build
+The current release is not available on CRAN. To install the development version, you need to clone the repository and build
 from source, or run one of:
 
 ```r
 # lightweight
-remotes::install_github("joshuaulrich/TTR")
+remotes::install_github("dengyishuo/eTTR")
 # or
-devtools::install_github("joshuaulrich/TTR")
+devtools::install_github("dengyishuo/eTTR")
 ```
 
 You will need tools to compile C/C++ code. See the relevant
@@ -40,7 +29,7 @@ for your operating system:
 Here are a few examples of some of the more well-known indicators:
 
 ```r
-# "TTR Composite" (simulated data)
+# "eTTR Composite" (simulated data)
 data(ttrc)
 hlc <- ttrc[, c("High", "Low", "Close")]
 
@@ -64,7 +53,7 @@ rsi <- RSI(ttrc[,"Close"])
 stochOsc <- stoch(hlc)
 ```
 
-TTR works with the `chartSeries()` function in [quantmod](https://github.com/joshuaulrich/quantmod). Here's an example that uses `chartSeries()` and adds TTR-calculated indicators and overlays to the chart.
+eTTR works with the `chartSeries()` function in [quantmod](https://github.com/joshuaulrich/quantmod). Here's an example that uses `chartSeries()` and adds TTR-calculated indicators and overlays to the chart.
 
 ```r
 library(quantmod)
@@ -78,17 +67,12 @@ addBBands()
 addRSI()
 ```
 
-![](https://drive.google.com/uc?export=view&id=1TrgoZujgcI9GCMEWHlDgzkQQvBItyLwq)
-
 ### Have a question?
 
 Ask your question on [Stack Overflow](https://stackoverflow.com/questions/tagged/r)
 or the [R-SIG-Finance](https://stat.ethz.ch/mailman/listinfo/r-sig-finance)
 mailing list (you must subscribe to post).
 
-### Contributing
-
-Please see the [Contributing Guide](https://github.com/joshuaulrich/TTR/wiki/Contributing-Guide).
 
 ### See Also
 
@@ -98,5 +82,5 @@ on [zoo](https://CRAN.R-project.org/package=zoo)
 
 ### Author
 
-[Joshua Ulrich](https://about.me/joshuaulrich)
+[DengYishuo](https://gewutang.com/about/)
 

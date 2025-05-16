@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
 #'     over a n-period moving window.}
 #'  }
 #'
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @references The following site(s) were used to code/document this
 #' indicator:
 #' \url{https://en.wikipedia.org/wiki/Simple_linear_regression}\cr

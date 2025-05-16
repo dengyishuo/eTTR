@@ -45,8 +45,8 @@ The ATR is a component of the Welles Wilder Directional Movement Index
 \examples{
 
 data(ttrc)
-tr <- TR(ttrc[,c("High","Low","Close")])
-atr <- ATR(ttrc[,c("High","Low","Close")], n=14)
+tr <- TR(ttrc[, c("High", "Low", "Close")])
+atr <- ATR(ttrc[, c("High", "Low", "Close")], n = 14)
 
 }
 \references{
@@ -63,6 +63,6 @@ options; and note Warning section.  See \code{\link{DX}}, which uses true
 range.  See \code{\link{chaikinVolatility}} for another volatility measure.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

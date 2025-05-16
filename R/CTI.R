@@ -1,5 +1,5 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
 #   Copyright (C) 2020  Joshua M. Ulrich
 #
@@ -51,22 +51,21 @@
 #' @examples
 #'
 #' data(ttrc)
-#' cti <- CTI(ttrc[,"Close"], n = 20)
+#' cti <- CTI(ttrc[, "Close"], n = 20)
 #'
 CTI <-
-function(price, n = 20, slope = 1)
-{
-  x <- try.xts(price, error = as.matrix)
-  y <- slope * seq_along(x)
+  function(price, n = 20, slope = 1) {
+    x <- try.xts(price, error = as.matrix)
+    y <- slope * seq_along(x)
 
-  f <- function(.) {
-    cor(.[,1], .[,2], method = "spearman")
+    f <- function(.) {
+      cor(.[, 1], .[, 2], method = "spearman")
+    }
+    cti <- rollapplyr(cbind(x, y), n, f, by.column = FALSE, fill = NA)
+
+    if (!is.null(dim(cti))) {
+      colnames(cti) <- "cti"
+    }
+
+    reclass(cti, x)
   }
-  cti <- rollapplyr(cbind(x, y), n, f, by.column = FALSE, fill = NA)
-
-  if(!is.null(dim(cti))) {
-    colnames(cti) <- "cti"
-  }
-
-  reclass(cti, x)
-}

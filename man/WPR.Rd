@@ -70,6 +70,6 @@ indicator:\cr
 See \code{\link{stoch}}.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

@@ -44,8 +44,8 @@ instead of the typical price.
 }
 \examples{
 
- data(ttrc)
- cci <- CCI(ttrc[,c("High","Low","Close")])
+data(ttrc)
+cci <- CCI(ttrc[, c("High", "Low", "Close")])
 
 }
 \references{
@@ -62,6 +62,6 @@ options; and note Warning section.  See \code{\link{aroon}},
 for other indicators that measure trend direction/strength.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

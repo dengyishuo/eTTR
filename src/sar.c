@@ -1,5 +1,5 @@
 /*
- *  TTR: Technical Trading Rules
+ *  eTTR: Enhanced Technical Trading Rules
  *
  *  Copyright (C) 2007-2013  Joshua M. Ulrich
  *
@@ -124,7 +124,7 @@ SEXP sar (SEXP hi, SEXP lo, SEXP xl) {
         d_sar[i] = xpt0;  /* set sar value */
       }
     }
-    
+
     /* UNPROTECT R objects and return result */
     UNPROTECT(P);
     return(sar);

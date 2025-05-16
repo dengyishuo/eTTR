@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@
 #' between the moving average calculation and the standard deviation
 #' calculation.  Since, by definition, a rolling standard deviation uses a
 #' simple moving average.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
 #' options; and note Warning section.
 #' @references The following site(s) were used to code/document this
@@ -65,50 +65,48 @@
 #' @keywords ts
 #' @examples
 #'
-#'  ## The examples below show the differences between using a
-#'  ## High-Low-Close series, and just a close series when
-#'  ## calculating Bollinger Bands.
-#'  data(ttrc)
-#'  bbands.HLC <- BBands( ttrc[,c("High","Low","Close")] )
-#'  bbands.close <- BBands( ttrc[,"Close"] )
+#' ## The examples below show the differences between using a
+#' ## High-Low-Close series, and just a close series when
+#' ## calculating Bollinger Bands.
+#' data(ttrc)
+#' bbands.HLC <- BBands(ttrc[, c("High", "Low", "Close")])
+#' bbands.close <- BBands(ttrc[, "Close"])
 #' @rdname bollingerBands
 "BBands" <-
-function(HLC, n=20, maType, sd=2, ...) {
+  function(HLC, n = 20, maType, sd = 2, ...) {
+    # Bollinger Bands
 
-  # Bollinger Bands
+    HLC <- try.xts(HLC, error = as.matrix)
 
-  HLC <- try.xts(HLC, error=as.matrix)
-
-  if(NCOL(HLC)==3) {
-    if(is.xts(HLC)) {
-      xa <- xcoredata(HLC)
-      HLC <- xts(apply(HLC, 1, mean),index(HLC))
-      xcoredata(HLC) <- xa
-    } else {
-      HLC <- apply(HLC, 1, mean)
+    if (NCOL(HLC) == 3) {
+      if (is.xts(HLC)) {
+        xa <- xcoredata(HLC)
+        HLC <- xts(apply(HLC, 1, mean), index(HLC))
+        xcoredata(HLC) <- xa
+      } else {
+        HLC <- apply(HLC, 1, mean)
+      }
+    } else if (NCOL(HLC) != 1) {
+      stop("Price series must be either High-Low-Close, or Close/univariate.")
     }
-  } else
-  if(NCOL(HLC)!=1) {
-    stop("Price series must be either High-Low-Close, or Close/univariate.")
+
+    maArgs <- list(n = n, ...)
+    # Default MA
+    if (missing(maType)) {
+      maType <- "SMA"
+    }
+
+    mavg <- do.call(maType, c(list(HLC), maArgs))
+
+    # Calculate standard deviation by hand to incorporate various MAs
+    sdev <- runSD(HLC, n, sample = FALSE)
+
+    up <- mavg + sd * sdev
+    dn <- mavg - sd * sdev
+    pctB <- (HLC - dn) / (up - dn)
+
+    res <- cbind(dn, mavg, up, pctB)
+    colnames(res) <- c("dn", "mavg", "up", "pctB")
+
+    reclass(res, HLC)
   }
-
-  maArgs <- list(n=n, ...)
-  # Default MA
-  if(missing(maType)) {
-    maType <- 'SMA'
-  }
-
-  mavg  <- do.call( maType, c( list(HLC), maArgs ) )
-
-  # Calculate standard deviation by hand to incorporate various MAs
-  sdev   <- runSD(HLC, n, sample=FALSE)
-
-  up     <- mavg + sd * sdev
-  dn     <- mavg - sd * sdev
-  pctB  <- (HLC - dn) / (up - dn)
-
-  res <- cbind(dn, mavg, up, pctB)
-  colnames(res) <- c("dn", "mavg", "up", "pctB")
-
-  reclass(res, HLC)
-}

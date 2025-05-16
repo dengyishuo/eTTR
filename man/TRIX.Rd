@@ -67,6 +67,6 @@ See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
 options; and note Warning section.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

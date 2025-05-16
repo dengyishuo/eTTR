@@ -1,5 +1,5 @@
 /*
- *  TTR: Technical Trading Rules
+ *  eTTR: Enhanced Technical Trading Rules
  *
  *  Copyright (C) 2012-2017  Charlie Friedemann, Joshua M. Ulrich
  *
@@ -37,7 +37,7 @@ double calc_n_less(double* x, double mult, int i, int j1)
 
 /* Calculate a running/rolling percent rank,
  * or a cumulative version */
-SEXP ttr_rollPercentRank(SEXP _x, SEXP _n, SEXP _cumul, SEXP _mult)
+SEXP ettr_rollPercentRank(SEXP _x, SEXP _n, SEXP _cumul, SEXP _mult)
 {
   int i, P = 0;
 

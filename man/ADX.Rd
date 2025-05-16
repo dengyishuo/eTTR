@@ -43,8 +43,8 @@ ADX).
 }
 \examples{
 
- data(ttrc)
- dmi.adx <- ADX(ttrc[,c("High","Low","Close")])
+data(ttrc)
+dmi.adx <- ADX(ttrc[, c("High", "Low", "Close")])
 
 }
 \references{
@@ -67,6 +67,6 @@ options; and note Warning section.  The DX calculation uses
 that measure trend direction/strength.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

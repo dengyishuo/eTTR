@@ -34,8 +34,8 @@ divergence in the direction of the indicator relative to price.
 }
 \examples{
 
- data(ttrc)
- ad <- chaikinAD(ttrc[,c("High","Low","Close")], ttrc[,"Volume"])
+data(ttrc)
+ad <- chaikinAD(ttrc[, c("High", "Low", "Close")], ttrc[, "Volume"])
 
 }
 \references{
@@ -49,6 +49,6 @@ indicator:\cr \url{https://www.fmlabs.com/reference/AccumDist.htm}\cr
 See \code{\link{OBV}}, and \code{\link{CLV}}.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

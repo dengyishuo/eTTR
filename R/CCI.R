@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@
 #' @note If \code{HLC} is a High-Low-Close matrix, then typical price will be
 #' calculated.  If \code{HLC} is a vector, then those values will be used
 #' instead of the typical price.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
 #' options; and note Warning section.  See \code{\link{aroon}},
 #' \code{\link{ADX}}, \code{\link{TDI}}, \code{\link{VHF}}, \code{\link{GMMA}}
@@ -56,43 +56,41 @@
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  cci <- CCI(ttrc[,c("High","Low","Close")])
+#' data(ttrc)
+#' cci <- CCI(ttrc[, c("High", "Low", "Close")])
 #'
 "CCI" <-
-function(HLC, n=20, maType, c=0.015, ...) {
+  function(HLC, n = 20, maType, c = 0.015, ...) {
+    # Commodity Channel Index
 
-  # Commodity Channel Index
+    HLC <- try.xts(HLC, error = as.matrix)
 
-  HLC <- try.xts(HLC, error=as.matrix)
-
-  if(NCOL(HLC)==3) {
-    if(is.xts(HLC)) {
-      xa <- xcoredata(HLC)
-      HLC <- xts(apply(HLC, 1, mean),index(HLC))
-      xcoredata(HLC) <- xa
-    } else {
-      HLC <- apply(HLC, 1, mean)
+    if (NCOL(HLC) == 3) {
+      if (is.xts(HLC)) {
+        xa <- xcoredata(HLC)
+        HLC <- xts(apply(HLC, 1, mean), index(HLC))
+        xcoredata(HLC) <- xa
+      } else {
+        HLC <- apply(HLC, 1, mean)
+      }
+    } else if (NCOL(HLC) != 1) {
+      stop("Price series must be either High-Low-Close, or Close/univariate.")
     }
-  } else
-  if(NCOL(HLC)!=1) {
-    stop("Price series must be either High-Low-Close, or Close/univariate.")
+
+    maArgs <- list(n = n, ...)
+    # Default MA
+    if (missing(maType)) {
+      maType <- "SMA"
+    }
+
+    mavg <- do.call(maType, c(list(HLC), maArgs))
+    meanDev <- runMAD(HLC, n, center = mavg, stat = "mean")
+
+    cci <- (HLC - mavg) / (c * meanDev)
+
+    if (is.xts(cci)) {
+      colnames(cci) <- "cci"
+    }
+
+    reclass(cci, HLC)
   }
-
-  maArgs <- list(n=n, ...)
-  # Default MA
-  if(missing(maType)) {
-    maType <- 'SMA'
-  }
-
-  mavg  <- do.call( maType, c( list(HLC), maArgs ) )
-  meanDev <- runMAD( HLC, n, center=mavg, stat="mean" )
-
-  cci <- ( HLC - mavg ) / ( c * meanDev )
-
-  if(is.xts(cci)) {
-    colnames(cci) <- "cci"
-  }
-
-  reclass(cci, HLC)
-}

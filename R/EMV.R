@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 #' @note A buy/sell signal is generated when the EMV crosses above/below zero.
 #' When the EMV hovers around zero, there are small price movements and/or high
 #' volume, and the price is not moving easily.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
 #' options; and note Warning section.
 #' @references The following site(s) were used to code/document this
@@ -54,40 +54,40 @@
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  emv <- EMV(ttrc[,c("High","Low")], ttrc[,"Volume"])
+#' data(ttrc)
+#' emv <- EMV(ttrc[, c("High", "Low")], ttrc[, "Volume"])
 #'
 "EMV" <-
-function(HL, volume, n=9, maType, vol.divisor=10000, ...) {
+  function(HL, volume, n = 9, maType, vol.divisor = 10000, ...) {
+    # Arms' Ease of Movement Value
 
-  # Arms' Ease of Movement Value
+    if (missing(HL) || missing(volume)) {
+      stop("High-Low matrix (HL) and volume vector must be specified.")
+    }
 
-  if( missing(HL) || missing(volume) )
-    stop("High-Low matrix (HL) and volume vector must be specified.")
+    HL <- try.xts(HL, error = as.matrix)
+    volume <- try.xts(volume, error = as.matrix)
 
-  HL <- try.xts(HL, error=as.matrix)
-  volume <- try.xts(volume, error=as.matrix)
+    if (!(is.xts(HL) && is.xts(volume))) {
+      HL <- as.matrix(HL)
+      volume <- as.matrix(volume)
+    }
 
-  if(!(is.xts(HL) && is.xts(volume))) {
-    HL <- as.matrix(HL)
-    volume <- as.matrix(volume)
+    mid <- (HL[, 1] + HL[, 2]) / 2
+    volume <- volume / vol.divisor
+
+    emv <- momentum(mid, n = 1, na.pad = TRUE) / (volume / (HL[, 1] - HL[, 2]))
+
+    maArgs <- list(n = n, ...)
+    # Default MA
+    if (missing(maType)) {
+      maType <- "SMA"
+    }
+
+    maEMV <- do.call(maType, c(list(emv), maArgs))
+
+    result <- cbind(emv, maEMV)
+    colnames(result) <- c("emv", "maEMV")
+
+    reclass(result, HL)
   }
-
-  mid     <- ( HL[,1] + HL[,2] ) / 2
-  volume  <- volume / vol.divisor
-
-  emv    <- momentum(mid, n=1, na.pad=TRUE) / ( volume / ( HL[,1] - HL[,2] ) )
-
-  maArgs <- list(n=n, ...)
-  # Default MA
-  if(missing(maType)) {
-    maType <- 'SMA'
-  }
-
-  maEMV <- do.call( maType, c( list(emv), maArgs ) )
-
-  result <- cbind(emv,maEMV)
-  colnames(result) <- c('emv','maEMV')
-
-  reclass( result, HL )
-}

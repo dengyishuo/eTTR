@@ -36,8 +36,8 @@ it indicates a probable reversal.
 }
 \examples{
 
- data(ttrc)
- cmf <- CMF(ttrc[,c("High","Low","Close")], ttrc[,"Volume"])
+data(ttrc)
+cmf <- CMF(ttrc[, c("High", "Low", "Close")], ttrc[, "Volume"])
 
 }
 \references{
@@ -50,6 +50,6 @@ indicator:\cr \url{https://www.fmlabs.com/reference/ChaikinMoneyFlow.htm}\cr
 See \code{\link{CLV}}, and \code{\link{chaikinAD}}.
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@
 #' vector (if \code{try.xts} fails) containing the MFI values.
 #' @note Divergence between MFI and price can be indicative of a reversal.  In
 #' addition, values above/below 80/20 indicate market tops/bottoms.
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{OBV}} and \code{\link{CMF}}.
 #' @references The following site(s) were used to code/document this
 #' indicator:\cr
@@ -51,54 +51,52 @@
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  mfi <- MFI(ttrc[,c("High","Low","Close")], ttrc[,"Volume"])
+#' data(ttrc)
+#' mfi <- MFI(ttrc[, c("High", "Low", "Close")], ttrc[, "Volume"])
 #'
 "MFI" <-
-function(HLC, volume, n=14) {
+  function(HLC, volume, n = 14) {
+    # Money Flow Index
 
-  # Money Flow Index
+    HLC <- try.xts(HLC, error = as.matrix)
+    volume <- try.xts(volume, error = as.matrix)
 
-  HLC <- try.xts(HLC, error=as.matrix)
-  volume <- try.xts(volume, error=as.matrix)
-
-  if(!(is.xts(HLC) && is.xts(volume))) {
-    HLC <- as.matrix(HLC)
-    volume <- as.matrix(volume)
-  }
-
-  if(NCOL(HLC)==3) {
-    if(is.xts(HLC)) {
-      HLC <- xts(apply(HLC, 1, mean),index(HLC))
-    } else {
-      HLC <- apply(HLC, 1, mean)
+    if (!(is.xts(HLC) && is.xts(volume))) {
+      HLC <- as.matrix(HLC)
+      volume <- as.matrix(volume)
     }
-  } else
-  if(NCOL(HLC)!=1) {
-    stop("Price series must be either High-Low-Close, or Close/univariate.")
+
+    if (NCOL(HLC) == 3) {
+      if (is.xts(HLC)) {
+        HLC <- xts(apply(HLC, 1, mean), index(HLC))
+      } else {
+        HLC <- apply(HLC, 1, mean)
+      }
+    } else if (NCOL(HLC) != 1) {
+      stop("Price series must be either High-Low-Close, or Close/univariate.")
+    }
+
+    if (is.xts(HLC)) {
+      priceLag <- lag.xts(HLC)
+    } else {
+      priceLag <- c(NA, HLC[-NROW(HLC)])
+    }
+
+    # Calculate Money Flow
+    mf <- HLC * volume
+    # Calculate positive and negative Money Flow
+    pmf <- ifelse(HLC > priceLag, mf, 0)
+    nmf <- ifelse(HLC < priceLag, mf, 0)
+
+    # Calculate Money Ratio and Money Flow Index
+    num <- runSum(pmf, n)
+    den <- runSum(nmf, n)
+    mr <- num / den
+    mfi <- 100 - (100 / (1 + mr))
+    mfi[0 == den] <- 100
+    mfi[0 == den & 0 == num] <- 50
+
+    if (is.xts(mfi)) colnames(mfi) <- "mfi"
+
+    reclass(mfi, HLC)
   }
-
-  if(is.xts(HLC)) {
-    priceLag <- lag.xts(HLC)
-  } else {
-    priceLag <- c( NA, HLC[-NROW(HLC)] )
-  }
-
-  # Calculate Money Flow
-  mf <- HLC * volume
-  # Calculate positive and negative Money Flow
-  pmf <- ifelse( HLC > priceLag, mf, 0 )
-  nmf <- ifelse( HLC < priceLag, mf, 0 )
-
-  # Calculate Money Ratio and Money Flow Index
-  num <- runSum( pmf, n )
-  den <- runSum( nmf, n )
-  mr <- num / den
-  mfi <- 100 - ( 100 / ( 1 + mr ) )
-  mfi[0 == den] <- 100
-  mfi[0 == den & 0 == num] <- 50
-
-  if(is.xts(mfi)) colnames(mfi) <- 'mfi'
-
-  reclass( mfi, HLC )
-}

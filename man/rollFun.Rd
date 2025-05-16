@@ -33,6 +33,6 @@ indicator:
 \url{https://en.wikipedia.org/wiki/Simple_linear_regression}\cr
 }
 \author{
-Joshua Ulrich
+DengYishuo
 }
 \keyword{ts}

@@ -1,7 +1,7 @@
 #
-#   TTR: Technical Trading Rules
+#   eTTR: Enhanced Technical Trading Rules
 #
-#   Copyright (C) 2007-2013  Joshua M. Ulrich
+#   Copyright (C) 2025-2030  DengYishuo
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -37,35 +37,34 @@
 #'    \item When the CMO crosses above/below a moving average of the CMO,
 #'          it is a buy/sell signal.
 #'  }
-#' @author Joshua Ulrich
+#' @author DengYishuo
 #' @seealso See \code{\link{RSI}}.
 #' @references The following site(s) were used to code/document this
 #' indicator:\cr \url{https://www.fmlabs.com/reference/CMO.htm}\cr
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  cmo <- CMO(ttrc[,"Close"])
+#' data(ttrc)
+#' cmo <- CMO(ttrc[, "Close"])
 #'
 "CMO" <-
-function(x, n=14) {
+  function(x, n = 14) {
+    # Chande Momentum Oscillator
 
-  # Chande Momentum Oscillator
+    x <- try.xts(x, error = as.matrix)
 
-  x <- try.xts(x, error=as.matrix)
+    up <- momentum(x, n = 1)
+    dn <- ifelse(up < 0, abs(up), 0)
+    up <- ifelse(up > 0, up, 0)
 
-  up <- momentum(x, n=1)
-  dn <- ifelse(up<0, abs(up), 0)
-  up <- ifelse(up>0,     up , 0)
+    up <- runSum(up, n)
+    dn <- runSum(dn, n)
 
-  up <- runSum(up, n)
-  dn <- runSum(dn, n)
+    cmo <- 100 * (up - dn) / (up + dn)
 
-  cmo <- 100 * (up-dn)/(up+dn)
+    if (!is.null(dim(cmo)) && ncol(cmo) == 1L) {
+      colnames(cmo) <- "cmo"
+    }
 
-  if (!is.null(dim(cmo)) && ncol(cmo) == 1L) {
-    colnames(cmo) <- "cmo"
+    reclass(cmo, x)
   }
-
-  reclass( cmo, x )
-}

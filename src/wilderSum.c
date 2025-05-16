@@ -1,5 +1,5 @@
 /*
- *  TTR: Technical Trading Rules
+ *  eTTR: Enhanced Technical Trading Rules
  *
  *  Copyright (C) 2007-2013  Joshua M. Ulrich
  *

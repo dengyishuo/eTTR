@@ -1,5 +1,5 @@
 /*
- *  TTR: Technical Trading Rules
+ *  eTTR: Enhanced Technical Trading Rules
  *
  *  Copyright (C) 2007-2017  Joshua M. Ulrich
  *
@@ -26,7 +26,7 @@ typedef struct {
   int index;
 } price_and_index;
 
-SEXP ttr_zigzag
+SEXP ettr_zigzag
 (SEXP _high, SEXP _low, SEXP _change, SEXP _percent, SEXP _retrace,
  SEXP _last_extreme)
 {

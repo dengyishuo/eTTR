@@ -1,5 +1,5 @@
 /*
- *  TTR: Technical Trading Rules
+ *  eTTR: Enhanced Technical Trading Rules
  *
  *  Copyright (C) 2007-2018  Joshua M. Ulrich
  *
@@ -18,7 +18,7 @@
  */
 
 #include <string.h>  /* for memcpy */
-#include "ttr.h"
+#include "ettr.h"
 
 SEXP runsum(SEXP _x, SEXP _n)
 {
@@ -199,7 +199,7 @@ tiebreaker_eq(const double a, const double b)
 }
 
 static inline double
-ttr_median(double *x, int i, int n, tiebreaker tie_func)
+ettr_median(double *x, int i, int n, tiebreaker tie_func)
 {
   /* NOTE: 'i' and 'n' are 1-based */
   int N = n-i+1;          // number of observations in the window
@@ -263,7 +263,7 @@ SEXP runmedian(SEXP _x, SEXP _n, SEXP _tiebreak, SEXP _cumulative)
     window = REAL(_window);
 
     for (i = first_i; i < nr; i++) {
-      result[i] = ttr_median(window, first+1, i+1, tie_func);
+      result[i] = ettr_median(window, first+1, i+1, tie_func);
     }
   } else {
     _window = PROTECT(allocVector(REALSXP, n)); P++;
@@ -271,7 +271,7 @@ SEXP runmedian(SEXP _x, SEXP _n, SEXP _tiebreak, SEXP _cumulative)
 
     for (i = first_i; i < nr; i++) {
       memcpy(window, &x[i-n+1], n * sizeof(double));
-      result[i] = ttr_median(window, 1, n, tie_func);
+      result[i] = ettr_median(window, 1, n, tie_func);
     }
   }
 
@@ -281,7 +281,7 @@ SEXP runmedian(SEXP _x, SEXP _n, SEXP _tiebreak, SEXP _cumulative)
 }
 
 static inline double
-ttr_mean(const double *x, const int n)
+ettr_mean(const double *x, const int n)
 {
   double mean = x[0] / n;
   int i;
@@ -357,14 +357,14 @@ SEXP runmad(SEXP _x, SEXP _center, SEXP _n, SEXP _type,
         for (j = 0; j < N; j++) {
           window[j] = fabs(x[i-j] - center[i]);
         }
-        result[i] = ttr_median(window, 1, N, tie_func);
+        result[i] = ettr_median(window, 1, N, tie_func);
       }
     } else {
       for (i = first_i; i < nr; i++) {
         for (j = 0; j <= i; j++) {
           window[j] = fabs(x[i-j] - center[i]);
         }
-        result[i] = ttr_mean(window, i+1);
+        result[i] = ettr_mean(window, i+1);
       }
     }
   } else {
@@ -376,14 +376,14 @@ SEXP runmad(SEXP _x, SEXP _center, SEXP _n, SEXP _type,
         for (j = 0; j < n; j++) {
           window[j] = fabs(x[i-j] - center[i]);
         }
-        result[i] = ttr_median(window, 1, n, tie_func);
+        result[i] = ettr_median(window, 1, n, tie_func);
       }
     } else {
       for (i = first_i; i < nr; i++) {
         for (j = 0; j < n; j++) {
           window[j] = fabs(x[i-j] - center[i]);
         }
-        result[i] = ttr_mean(window, n);
+        result[i] = ettr_mean(window, n);
       }
     }
   }
@@ -488,9 +488,9 @@ SEXP runcov(SEXP _x, SEXP _y, SEXP _n, SEXP _sample, SEXP _cumulative)
 
       for (i = first_i; i < nr; i++) {
         memcpy(window, &x[i-n+1], window_size);
-        mu_x = ttr_mean(window, n);
+        mu_x = ettr_mean(window, n);
         memcpy(window, &y[i-n+1], window_size);
-        mu_y = ttr_mean(window, n);
+        mu_y = ettr_mean(window, n);
 
         result[i] = 0.0;
         for (j = 0; j < n; j++) {
