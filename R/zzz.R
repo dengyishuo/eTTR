@@ -77,7 +77,7 @@
           tryCatch(
             {
               # 下载数据｜Download data
-              stock_data <- getSymbols(symbol, from = start_date, auto.assign = FALSE)
+              stock_data <- quantmod::getSymbols(symbol, from = start_date, auto.assign = FALSE)
 
               # 保存为正确格式｜Save in correct format
               data_path <- file.path(data_dir, paste0(tolower(symbol), ".rda"))

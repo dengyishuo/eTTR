@@ -5,8 +5,7 @@ Version: 0.0.1
 Authors@R: c(
   person(given="Yishuo", family="Deng", role=c("cre","aut"), email="dengyishuo@163.com")
   )
-Imports: xts (>= 0.13-0), zoo (>= 1.8-10), curl
-LinkingTo: xts
+Imports: xts (>= 0.13-0), zoo (>= 1.8-10), curl(>= 1.0), quantmod (>= 0.4)
 Enhances: quantmod
 Suggests: RUnit
 Description: A collection of over 50 technical indicators for creating technical trading rules. The package also provides fast implementations of common rolling-window functions, and several volatility calculations.
