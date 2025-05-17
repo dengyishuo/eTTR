@@ -18,21 +18,22 @@ Users will probably be most interested in the following functions:\cr
 \code{\link{WebData}}\cr
 }
 \examples{
-
 data(ttrc)
+data(TSLA)
+data(AAPL)
 
 # Bollinger Bands
 bbands <- BBands(ttrc[, c("High", "Low", "Close")])
 
 # Directional Movement Index
-adx <- ADX(ttrc[, c("High", "Low", "Close")])
+adx <- ADX(TSLA[, c("High", "Low", "Close")])
 
 # Moving Averages
 ema <- EMA(ttrc[, "Close"], n = 20)
 sma <- SMA(ttrc[, "Close"], n = 20)
 
 # MACD
-macd <- MACD(ttrc[, "Close"])
+macd <- MACD(AAPL[, "Close"])
 
 # RSI
 rsi <- RSI(ttrc[, "Close"])
@@ -49,7 +50,6 @@ if (interactive()) {
   # Fetch Yahoo! Finance data from the internet
   ge <- getYahooData("GE", 19990404, 20050607, adjust = FALSE)
 }
-
 }
 \references{
 The following sites were used to code/document this package:\cr
@@ -68,7 +68,5 @@ Useful links:
 }
 \author{
 DengYishuo
-
-Maintainer: DengYishuo
 }
 \keyword{package}

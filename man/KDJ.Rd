@@ -2,38 +2,26 @@
 % Please edit documentation in R/KDJ.R
 \name{KDJ}
 \alias{KDJ}
-\title{计算KDJ指标（随机指标）｜Calculate Stochastic Oscillator (KDJ) Indicator}
+\title{Calculate Stochastic Oscillator (KDJ) Indicator}
 \usage{
-KDJ(high, low, close, n = 9, m1 = 3, m2 = 3, ratio = 0.5)
+KDJ(ohlc, n = 9, m1 = 3, m2 = 3, fill_na_method = "none")
 }
 \arguments{
-\item{high}{最高价序列，通常是OHLCV数据中的最高价列｜High price series, typically the high column from OHLCV data}
+\item{ohlc}{xts object with OHLC data, must include 'high', 'low', and 'close' columns (case-insensitive).}
 
-\item{low}{最低价序列，通常是OHLCV数据中的最低价列｜Low price series, typically the low column from OHLCV data}
+\item{n}{RSV calculation period, default is 9.}
 
-\item{close}{收盘价序列，通常是OHLCV数据中的收盘价列｜Close price series, typically the close column from OHLCV data}
+\item{m1}{Smoothing factor for K line, default is 3.}
 
-\item{n}{RSV计算周期，默认为9｜RSV calculation period, default is 9}
+\item{m2}{Smoothing factor for D line, default is 3.}
 
-\item{m1}{K值平滑因子，默认为3｜Smoothing factor for K line, default is 3}
-
-\item{m2}{D值平滑因子，默认为3｜Smoothing factor for D line, default is 3}
-
-\item{ratio}{初始值填充比例，用于处理前n-1个缺失值，默认为0.5｜Initial value filling ratio for handling missing values in the first n-1 periods, default is 0.5}
+\item{fill_na_method}{Method to fill NA values: "none", "initial", "interpolate".}
 }
 \value{
-返回一个数据框，包含三列：K（K线值）、D（D线值）和J（J线值）｜Returns a data frame with three columns: K (K line values), D (D line values), and J (J line values)
+An xts object with three columns: 'K', 'D', and 'J'.
 }
 \description{
-该函数基于给定的最高价、最低价和收盘价序列计算KDJ指标。｜This function calculates the KDJ indicator based on the given high, low, and close price series.
-KDJ指标是一种技术分析工具，用于判断价格是否超买或超卖，｜The KDJ indicator is a technical analysis tool used to identify overbought or oversold conditions in the market.
-由三条曲线组成：K线、D线和J线。｜It consists of three lines: K line, D line, and J line.
-}
-\examples{
-# 使用quantmod包获取股票数据并计算KDJ指标｜Get stock data and calculate KDJ using quantmod
-library(quantmod)
-getSymbols("AAPL")
-kdj <- KDJ(high = Hi(AAPL), low = Lo(AAPL), close = Cl(AAPL))
-head(kdj)
-
+This function computes the KDJ indicator based on an OHLC (Open, High, Low, Close) xts object,
+automatically extracting required columns ('high', 'low', 'close') from the input (case-insensitive).
+The KDJ indicator helps identify overbought or oversold conditions, returning K, D, and J lines.
 }
