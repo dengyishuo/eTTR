@@ -1,6 +1,6 @@
 ### About
 
-TTR is an [R](https://www.r-project.org) package that provides the most popular
+eTTR is an [R](https://www.r-project.org) package that provides the most popular
 technical analysis functions for financial market data. Many of these functions
 are used as components of systematic trading strategies and financial charts.
 
