@@ -18,7 +18,7 @@
 KDJ <- function(ohlc, n = 9, m1 = 3, m2 = 3, fill_na_method = "none") {
   if (!is.xts(ohlc)) stop("Input 'ohlc' must be an xts object.")
 
-  # 标准化列名（全部转为小写）
+  # 标准化列名
   input_cols <- tolower(colnames(ohlc))
   required_cols <- c("high", "low", "close")
 
@@ -28,7 +28,7 @@ KDJ <- function(ohlc, n = 9, m1 = 3, m2 = 3, fill_na_method = "none") {
     stop(sprintf("Missing required columns: %s", paste(missing_cols, collapse = ", ")))
   }
 
-  # 提取必要列（使用原始列索引，避免名称匹配问题）
+  # 提取必要列
   high_idx <- which(input_cols == "high")
   low_idx <- which(input_cols == "low")
   close_idx <- which(input_cols == "close")

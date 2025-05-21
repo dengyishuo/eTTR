@@ -1,5 +1,5 @@
 #
-# RUnit tests TTR DVI
+# RUnit tests eTTR DVI
 #
 
 # Create input data

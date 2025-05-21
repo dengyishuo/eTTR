@@ -1,5 +1,5 @@
 #
-# RUnit tests TTR moving averages
+# RUnit tests eTTR moving averages
 #
 
 # test reclass works and throws error
@@ -27,7 +27,7 @@ hlc <- c("High", "Low", "Close")
 cl <- "Close"
 
 # Load output data
-load(system.file("unitTests/output.volume.rda", package = "TTR"))
+load(system.file("unitTests/output.volume.rda", package = "eTTR"))
 
 #################################################
 
