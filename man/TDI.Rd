@@ -46,8 +46,8 @@ while the direction indicator is negative.
 }
 \examples{
 
- data(ttrc)
- tdi <- TDI(ttrc[,"Close"], n=30)
+data(ttrc)
+tdi <- TDI(ttrc[, "Close"], n = 30)
 
 }
 \references{

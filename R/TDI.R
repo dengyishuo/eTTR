@@ -57,29 +57,28 @@
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  tdi <- TDI(ttrc[,"Close"], n=30)
+#' data(ttrc)
+#' tdi <- TDI(ttrc[, "Close"], n = 30)
 #'
 "TDI" <-
-function(price, n=20, multiple=2) {
+  function(price, n = 20, multiple = 2) {
+    # Trend Detection Index
 
-  # Trend Detection Index
+    price <- try.xts(price, error = as.matrix)
 
-  price <- try.xts(price, error=as.matrix)
+    mom <- momentum(price, n, na.pad = TRUE)
+    mom[is.na(mom)] <- 0
 
-  mom <- momentum(price, n, na.pad=TRUE)
-  mom[is.na(mom)] <- 0
+    di <- runSum(mom, n)
+    abs.di <- abs(di)
 
-  di  <- runSum(mom, n)
-  abs.di <- abs(di)
+    abs.mom.2n <- runSum(abs(mom), n * multiple)
+    abs.mom.1n <- runSum(abs(mom), n)
 
-  abs.mom.2n <- runSum(abs(mom), n*multiple)
-  abs.mom.1n <- runSum(abs(mom), n  )
+    tdi <- abs.di - (abs.mom.2n - abs.mom.1n)
 
-  tdi <- abs.di - (abs.mom.2n - abs.mom.1n)
+    result <- cbind(tdi, di)
+    colnames(result) <- c("tdi", "di")
 
-  result <- cbind( tdi,di )
-  colnames(result) <- c( "tdi","di" )
-
-  reclass( result, price )
-}
+    reclass(result, price)
+  }
