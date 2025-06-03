@@ -57,7 +57,7 @@
 #' data(ttrc)
 #' emv <- EMV(ttrc[, c("High", "Low")], ttrc[, "Volume"])
 #'
-"EMV" <-
+EMV <-
   function(HL, volume, n = 9, maType, vol.divisor = 10000, ...) {
     # Arms' Ease of Movement Value
 

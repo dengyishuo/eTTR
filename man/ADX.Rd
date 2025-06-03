@@ -43,8 +43,8 @@ ADX).
 }
 \examples{
 
-data(ttrc)
-dmi.adx <- ADX(ttrc[, c("High", "Low", "Close")])
+data(TSLA)
+dmi.adx <- ADX(TSLA[, c("High", "Low", "Close")])
 
 }
 \references{

@@ -32,7 +32,6 @@
 #' This gives more importance to price movements that occur with higher trading volume.
 #' @keywords EVWMA, volume weighted, technical analysis, quantmod, TTR
 #' @importFrom tibble tibble
-#' @importFrom TTR EMA
 #' @importFrom quantmod Cl Vo
 #' @importFrom dplyr bind_cols
 #' @export

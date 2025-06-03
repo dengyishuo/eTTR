@@ -41,7 +41,7 @@
 #' data(ttrc)
 #' clv <- CLV(ttrc[, c("High", "Low", "Close")])
 #'
-"CLV" <-
+CLV <-
   function(HLC) {
     # Close Location Value
 

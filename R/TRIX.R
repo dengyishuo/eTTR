@@ -58,75 +58,73 @@
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  trix  <- TRIX(ttrc[,"Close"])
-#'  trix4 <- TRIX(ttrc[,"Close"],
-#'  maType=list(list(SMA), list(EMA, wilder=TRUE), list(SMA), list(DEMA)))
+#' data(ttrc)
+#' trix <- TRIX(ttrc[, "Close"])
+#' trix4 <- TRIX(ttrc[, "Close"],
+#'   maType = list(list(SMA), list(EMA, wilder = TRUE), list(SMA), list(DEMA))
+#' )
 #'
-"TRIX" <-
-function(price, n=20, nSig=9, maType, percent=TRUE, ...) {
+TRIX <-
+  function(price, n = 20, nSig = 9, maType, percent = TRUE, ...) {
+    # Triple Smoothed Exponential Oscillator
 
-  # Triple Smoothed Exponential Oscillator
-
-  # Default MA
-  if(missing(maType)) {
-    maType <- 'EMA'
-  }
-
-  # Case of different 'maType's for all MAs.
-  if( is.list(maType) ) {
-
-    # Make sure maType is a list of lists
-    maTypeInfo <- sapply(maType,is.list)
-    if( !(all(maTypeInfo) && length(maTypeInfo) == 4) ) {
-      stop("If \'maType\' is a list, you must specify\n ",
-      "*four* MAs (see Examples section of ?TRIX)")
+    # Default MA
+    if (missing(maType)) {
+      maType <- "EMA"
     }
 
-    # If MA function has 'n' arg, see if it's populated in maType;
-    # if it isn't, populate it with function's formal 'n'
-    if( !is.null( formals(maType[[1]][[1]])$n ) && is.null( maType[[1]]$n ) ) {
-      maType[[1]]$n <- n
+    # Case of different 'maType's for all MAs.
+    if (is.list(maType)) {
+      # Make sure maType is a list of lists
+      maTypeInfo <- sapply(maType, is.list)
+      if (!(all(maTypeInfo) && length(maTypeInfo) == 4)) {
+        stop(
+          "If \'maType\' is a list, you must specify\n ",
+          "*four* MAs (see Examples section of ?TRIX)"
+        )
+      }
+
+      # If MA function has 'n' arg, see if it's populated in maType;
+      # if it isn't, populate it with function's formal 'n'
+      if (!is.null(formals(maType[[1]][[1]])$n) && is.null(maType[[1]]$n)) {
+        maType[[1]]$n <- n
+      }
+      if (!is.null(formals(maType[[2]][[1]])$n) && is.null(maType[[2]]$n)) {
+        maType[[2]]$n <- n
+      }
+      if (!is.null(formals(maType[[3]][[1]])$n) && is.null(maType[[3]]$n)) {
+        maType[[3]]$n <- n
+      }
+      if (!is.null(formals(maType[[4]][[1]])$n) && is.null(maType[[4]]$n)) {
+        maType[[4]]$n <- nSig
+      }
+
+      mavg1 <- do.call(maType[[1]][[1]], c(list(price), maType[[1]][-1]))
+      mavg2 <- do.call(maType[[2]][[1]], c(list(mavg1), maType[[2]][-1]))
+      mavg3 <- do.call(maType[[3]][[1]], c(list(mavg2), maType[[3]][-1]))
     }
-    if( !is.null( formals(maType[[2]][[1]])$n ) && is.null( maType[[2]]$n ) ) {
-      maType[[2]]$n <- n
-    }
-    if( !is.null( formals(maType[[3]][[1]])$n ) && is.null( maType[[3]]$n ) ) {
-      maType[[3]]$n <- n
-    }
-    if( !is.null( formals(maType[[4]][[1]])$n ) && is.null( maType[[4]]$n ) ) {
-      maType[[4]]$n <- nSig
+
+    # Case of one 'maType' for all MAs.
+    else {
+      mavg1 <- do.call(maType, c(list(price), list(n = n, ...)))
+      mavg2 <- do.call(maType, c(list(mavg1), list(n = n, ...)))
+      mavg3 <- do.call(maType, c(list(mavg2), list(n = n, ...)))
     }
 
-    mavg1 <- do.call( maType[[1]][[1]], c( list(price), maType[[1]][-1] ) )
-    mavg2 <- do.call( maType[[2]][[1]], c( list(mavg1), maType[[2]][-1] ) )
-    mavg3 <- do.call( maType[[3]][[1]], c( list(mavg2), maType[[3]][-1] ) )
+    if (percent) {
+      TRIX <- 100 * ROC(mavg3, n = 1, na.pad = TRUE, type = "discrete")
+    } else {
+      TRIX <- momentum(mavg3, n = 1, na.pad = TRUE)
+    }
 
+    if (is.list(maType)) {
+      signal <- do.call(maType[[4]][[1]], c(list(TRIX), maType[[4]][-1]))
+    } else {
+      signal <- do.call(maType, c(list(TRIX), list(n = nSig, ...)))
+    }
+
+    result <- cbind(TRIX, signal)
+    colnames(result) <- c("TRIX", "signal")
+
+    return(result)
   }
-
-  # Case of one 'maType' for all MAs.
-  else {
-
-    mavg1 <- do.call( maType, c( list(price), list(n=n, ...) ) )
-    mavg2 <- do.call( maType, c( list(mavg1), list(n=n, ...) ) )
-    mavg3 <- do.call( maType, c( list(mavg2), list(n=n, ...) ) )
-
-  }
-
-  if(percent) {
-    TRIX <- 100 * ROC(mavg3, n=1, na.pad=TRUE, type="discrete")
-  } else {
-    TRIX <- momentum( mavg3, n=1, na.pad=TRUE )
-  }
-
-  if( is.list(maType) ) {
-    signal <- do.call( maType[[4]][[1]], c( list(TRIX), maType[[4]][-1] ) )
-  } else {
-    signal <- do.call( maType, c( list(TRIX), list(n=nSig, ...) ) )
-  }
-
-  result <- cbind( TRIX, signal )
-  colnames(result) <- c( "TRIX", "signal" )
-
-  return( result )
-}

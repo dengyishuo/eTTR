@@ -61,10 +61,10 @@
 #' @keywords ts
 #' @examples
 #'
-#' data(ttrc)
-#' dmi.adx <- ADX(ttrc[, c("High", "Low", "Close")])
+#' data(TSLA)
+#' dmi.adx <- ADX(TSLA[, c("High", "Low", "Close")])
 #'
-"ADX" <-
+ADX <-
   function(HLC, n = 14, maType, ...) {
     # Welles Wilder's Directional Movement Index
 

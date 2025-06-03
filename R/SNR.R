@@ -45,9 +45,9 @@
 #' Opportunity Set for Trend Following.
 #'
 SNR <- function(HLC, n, ...) {
-  HLC <- try.xts(HLC, error=as.matrix)
+  HLC <- try.xts(HLC, error = as.matrix)
 
-  snr <- abs(HLC[,3] - lag.xts(HLC[,3], n)) / ATR(HLC, n, ...)[,"atr"]
+  snr <- abs(HLC[, 3] - lag.xts(HLC[, 3], n)) / ATR(HLC, n, ...)[, "atr"]
 
   return(reclass(snr, HLC))
 }

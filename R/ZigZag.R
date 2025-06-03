@@ -58,7 +58,7 @@
 #' data(ttrc)
 #' zz <- ZigZag(ttrc[, c("High", "Low")], change = 20)
 #'
-"ZigZag" <-
+ZigZag <-
   function(HL, change = 10, percent = TRUE, retrace = FALSE, lastExtreme = TRUE) {
     # Zig Zag Indicator
     # Adapted from Alberto Santini's code

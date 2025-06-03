@@ -40,22 +40,24 @@ with the usual scaling.
 }
 \examples{
 
- data(ttrc)
- hlc <- ttrc[,c("High","Low","Close")]
- stochOsc <- stoch(hlc)
- stochWPR <- WPR(hlc)
+data(ttrc)
+hlc <- ttrc[, c("High", "Low", "Close")]
+stochOsc <- stoch(hlc)
+stochWPR <- WPR(hlc)
 
- # WPR is a transformation of stochastics' fastK
- all.equal(stochWPR, 1-stochOsc[,'fastK'])  # TRUE
+# WPR is a transformation of stochastics' fastK
+all.equal(stochWPR, 1 - stochOsc[, "fastK"]) # TRUE
 
- # WPR converted to the usual scaling between 0 and -100
- scaledWPR <- WPR(hlc, scale=TRUE)
+# WPR converted to the usual scaling between 0 and -100
+scaledWPR <- WPR(hlc, scale = TRUE)
 
- plot(tail(stochOsc[,"fastK"], 100), type="l",
-     main="Fast \%K and Williams \%R", ylab="",
-     ylim=range(cbind(stochOsc, stochWPR), na.rm=TRUE) )
- lines(tail(stochWPR, 100), col="blue")
- lines(tail(1-stochWPR, 100), col="red", lty="dashed")
+plot(tail(stochOsc[, "fastK"], 100),
+  type = "l",
+  main = "Fast \%K and Williams \%R", ylab = "",
+  ylim = range(cbind(stochOsc, stochWPR), na.rm = TRUE)
+)
+lines(tail(stochWPR, 100), col = "blue")
+lines(tail(1 - stochWPR, 100), col = "red", lty = "dashed")
 
 }
 \references{

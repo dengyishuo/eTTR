@@ -41,7 +41,7 @@
 #' data(ttrc)
 #' vhf_close <- VHF(ttrc[, "Close"], na.rm = TRUE)
 #' vhf_hlc <- VHF(ttrc[, c("High", "Low", "Close")], inf.replace = 10)
-"VHF" <- function(price, n = 28, na.rm = TRUE, inf.replace = NA, zero.replace = NA) {
+VHF <- function(price, n = 28, na.rm = TRUE, inf.replace = NA, zero.replace = NA) {
   # Convert input to xts or matrix
   price <- try.xts(price, error = as.matrix)
 

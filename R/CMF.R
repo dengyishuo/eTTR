@@ -49,7 +49,7 @@
 #' data(ttrc)
 #' cmf <- CMF(ttrc[, c("High", "Low", "Close")], ttrc[, "Volume"])
 #'
-"CMF" <-
+CMF <-
   function(HLC, volume, n = 20) {
     # Chaikin Money Flow
 

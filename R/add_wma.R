@@ -40,7 +40,6 @@
 #' appended to the original data or returned as a standalone tibble.
 #' @keywords WMA, stock data, technical analysis, quantmod, TTR
 #' @importFrom tibble tibble
-#' @importFrom TTR WMA
 #' @importFrom quantmod Cl
 #' @importFrom dplyr bind_cols rename
 #' @export

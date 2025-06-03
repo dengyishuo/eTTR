@@ -47,7 +47,7 @@
 #' data(ttrc)
 #' cmo <- CMO(ttrc[, "Close"])
 #'
-"CMO" <-
+CMO <-
   function(x, n = 14) {
     # Chande Momentum Oscillator
 

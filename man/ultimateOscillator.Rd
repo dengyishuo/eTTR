@@ -24,7 +24,7 @@ Created by Larry Williams in 1976.
 \examples{
 
 data(ttrc)
-ult.osc <- ultimateOscillator(ttrc[,c("High","Low","Close")])
+ult.osc <- ultimateOscillator(ttrc[, c("High", "Low", "Close")])
 
 }
 \references{

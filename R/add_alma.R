@@ -67,7 +67,7 @@
 #' @keywords ALMA, Arnaud Legoux, technical analysis, quantmod
 #' @importFrom tibble tibble
 #' @importFrom quantmod Cl
-#' @importFrom zoo rollapplyr
+#' @importFrom zoo rollapply
 #' @importFrom dplyr bind_cols
 #' @export
 #' @examples

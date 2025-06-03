@@ -35,7 +35,6 @@
 #' 3. Compute a WMA of the difference between the two previous WMAs with period sqrt(n)
 #' @keywords HMA, Hull Moving Average, technical analysis, quantmod, TTR
 #' @importFrom tibble tibble
-#' @importFrom TTR WMA
 #' @importFrom quantmod Cl
 #' @importFrom dplyr bind_cols
 #' @export

@@ -48,6 +48,7 @@
 #' and the direction indicator are positive, and sell if the TDI is positive
 #' while the direction indicator is negative.
 #' @author DengYishuo
+#' @export
 #' @seealso See \code{\link{aroon}}, \code{\link{CCI}}, \code{\link{ADX}},
 #' \code{\link{VHF}}, \code{\link{GMMA}} for other indicators that measure trend
 #' direction/strength.
@@ -60,7 +61,7 @@
 #' data(ttrc)
 #' tdi <- TDI(ttrc[, "Close"], n = 30)
 #'
-"TDI" <-
+TDI <-
   function(price, n = 20, multiple = 2) {
     # Trend Detection Index
 

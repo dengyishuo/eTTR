@@ -83,7 +83,7 @@
 #'   maType = list(list(SMA), list(EMA, wilder = TRUE), list(SMA))
 #' )
 #'
-"MACD" <-
+MACD <-
   function(x, nFast = 12, nSlow = 26, nSig = 9, maType, percent = TRUE, ...) {
     # Oscillators
 

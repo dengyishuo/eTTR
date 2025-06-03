@@ -54,7 +54,7 @@
 #' data(ttrc)
 #' mfi <- MFI(ttrc[, c("High", "Low", "Close")], ttrc[, "Volume"])
 #'
-"MFI" <-
+MFI <-
   function(HLC, volume, n = 14) {
     # Money Flow Index
 

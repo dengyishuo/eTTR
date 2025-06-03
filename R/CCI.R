@@ -59,7 +59,7 @@
 #' data(ttrc)
 #' cci <- CCI(ttrc[, c("High", "Low", "Close")])
 #'
-"CCI" <-
+CCI <-
   function(HLC, n = 20, maType, c = 0.015, ...) {
     # Commodity Channel Index
 

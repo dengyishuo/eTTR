@@ -41,27 +41,26 @@
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  ad <- williamsAD(ttrc[,c("High","Low","Close")])
+#' data(ttrc)
+#' ad <- williamsAD(ttrc[, c("High", "Low", "Close")])
 #'
-"williamsAD" <-
-function(HLC) {
+williamsAD <-
+  function(HLC) {
+    # Williams Accumulation/Distribution
 
-  # Williams Accumulation/Distribution
+    HLC <- try.xts(HLC, error = as.matrix)
 
-  HLC <- try.xts(HLC, error=as.matrix)
+    # Calculate change in close, and true high/low
+    dCl <- momentum(HLC[, 3], 1)
+    atr <- ATR(HLC)
 
-  # Calculate change in close, and true high/low
-  dCl <- momentum(HLC[,3], 1)
-  atr <- ATR(HLC)
+    # Calculate AD
+    ad <- HLC[, 3] - ifelse(dCl > 0, atr[, "trueLow"], atr[, "trueHigh"])
+    ad[dCl == 0] <- 0
 
-  # Calculate AD
-  ad <- HLC[,3] - ifelse( dCl > 0, atr[,"trueLow"], atr[,"trueHigh"] )
-  ad[ dCl == 0 ] <- 0
+    ad.na <- naCheck(ad)
+    ad <- cumsum(ad[ad.na$nonNA])
+    ad <- c(rep(NA, ad.na$NAs), ad)
 
-  ad.na <- naCheck(ad)
-  ad <- cumsum( ad[ad.na$nonNA] )
-  ad <- c( rep( NA, ad.na$NAs ), ad )
-
-  reclass(ad, HLC)
-}
+    reclass(ad, HLC)
+  }

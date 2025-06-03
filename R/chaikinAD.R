@@ -49,7 +49,7 @@
 #' data(ttrc)
 #' ad <- chaikinAD(ttrc[, c("High", "Low", "Close")], ttrc[, "Volume"])
 #'
-"chaikinAD" <-
+chaikinAD <-
   function(HLC, volume) {
     # Chaikin Accumulation / Distribution
 

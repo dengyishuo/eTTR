@@ -214,7 +214,7 @@ runRegression <- function(x, n = 14, include.intercept = TRUE, output = "all") {
 #' @return The input object is returned invisibly.
 #'         输入对象以不可见方式返回。
 #' @importFrom xts xts
-#' @importFrom util tail
+#' @importFrom utils tail
 #' @export
 #' @method print runRegression
 #'

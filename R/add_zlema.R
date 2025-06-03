@@ -32,7 +32,6 @@
 #' The modification involves adjusting the current price by subtracting a lagged price value.
 #' @keywords ZLEMA, zero-lag, technical analysis, quantmod, TTR
 #' @importFrom tibble tibble
-#' @importFrom TTR EMA
 #' @importFrom quantmod Cl
 #' @importFrom dplyr bind_cols
 #' @export

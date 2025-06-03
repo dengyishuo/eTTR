@@ -17,8 +17,9 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Relative Strength Index
+#' @title Relative Strength Index
 #'
+#' @description
 #' The Relative Strength Index (RSI) calculates a ratio of the recent upward
 #' price movements to the absolute price movement.  Developed by J. Welles
 #' Wilder.
@@ -65,75 +66,73 @@
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  price <- ttrc[,"Close"]
+#' data(ttrc)
+#' price <- ttrc[, "Close"]
 #'
-#'  # Default case
-#'  rsi <- RSI(price)
+#' # Default case
+#' rsi <- RSI(price)
 #'
-#'  # Case of one 'maType' for both MAs
-#'  rsiMA1 <- RSI(price, n=14, maType="WMA", wts=ttrc[,"Volume"])
+#' # Case of one 'maType' for both MAs
+#' rsiMA1 <- RSI(price, n = 14, maType = "WMA", wts = ttrc[, "Volume"])
 #'
-#'  # Case of two different 'maType's for both MAs
-#'  rsiMA2 <- RSI(price, n=14, maType=list(maUp=list(EMA),maDown=list(WMA)))
+#' # Case of two different 'maType's for both MAs
+#' rsiMA2 <- RSI(price, n = 14, maType = list(maUp = list(EMA), maDown = list(WMA)))
 #'
-#'
-"RSI" <-
-function(price, n=14, maType, ...) {
+RSI <-
+  function(price, n = 14, maType, ...) {
+    price <- try.xts(price, error = as.matrix)
 
-  price <- try.xts(price, error=as.matrix)
+    up <- momentum(price, n = 1, na.pad = TRUE)
+    which.dn <- which(up < 0)
+    dn <- up * 0
+    dn[which.dn] <- -up[which.dn]
+    up[which.dn] <- 0
 
-  up <- momentum(price, n=1, na.pad=TRUE)
-  which.dn <- which(up < 0)
-  dn <- up*0
-  dn[which.dn] <- -up[which.dn]
-  up[which.dn] <- 0
-
-  maArgs <- list(n=n, ...)
-  # Default Welles Wilder EMA
-  if(missing(maType)) {
-    maType <- 'EMA'
-    if(is.null(maArgs$wilder)) {
-      # do not overwrite user-provided value
-      maArgs$wilder <- TRUE
-    }
-  }
-
-  # Case of two different 'maType's for both MAs.
-  # e.g. RSI(price, n=14, maType=list(maUp=list(EMA,ratio=1/5), maDown=list(WMA,wts=1:10)) )
-  if( is.list(maType) ) {
-
-    # Make sure maType is a list of lists
-    maTypeInfo <- sapply(maType,is.list)
-    if( !(all(maTypeInfo) && length(maTypeInfo) == 2) ) {
-      stop("If \'maType\' is a list, you must specify\n ",
-      "*two* MAs (see Examples section of ?RSI)")
-    }
-
-    # If MA function has 'n' arg, see if it's populated in maType;
-    # if it isn't, populate it with RSI's formal 'n'
-    for(i in 1:length(maType)) {
-      if( !is.null( formals(maType[[i]][[1]])$n ) && is.null( maType[[i]]$n ) ) {
-        maType[[i]]$n <- n
+    maArgs <- list(n = n, ...)
+    # Default Welles Wilder EMA
+    if (missing(maType)) {
+      maType <- "EMA"
+      if (is.null(maArgs$wilder)) {
+        # do not overwrite user-provided value
+        maArgs$wilder <- TRUE
       }
-      mavgUp <- do.call( maType[[1]][[1]], c( list(up), maType[[1]][-1] ) )
-      mavgDn <- do.call( maType[[2]][[1]], c( list(dn), maType[[2]][-1] ) )
     }
+
+    # Case of two different 'maType's for both MAs.
+    # e.g. RSI(price, n=14, maType=list(maUp=list(EMA,ratio=1/5), maDown=list(WMA,wts=1:10)) )
+    if (is.list(maType)) {
+      # Make sure maType is a list of lists
+      maTypeInfo <- sapply(maType, is.list)
+      if (!(all(maTypeInfo) && length(maTypeInfo) == 2)) {
+        stop(
+          "If \'maType\' is a list, you must specify\n ",
+          "*two* MAs (see Examples section of ?RSI)"
+        )
+      }
+
+      # If MA function has 'n' arg, see if it's populated in maType;
+      # if it isn't, populate it with RSI's formal 'n'
+      for (i in 1:length(maType)) {
+        if (!is.null(formals(maType[[i]][[1]])$n) && is.null(maType[[i]]$n)) {
+          maType[[i]]$n <- n
+        }
+        mavgUp <- do.call(maType[[1]][[1]], c(list(up), maType[[1]][-1]))
+        mavgDn <- do.call(maType[[2]][[1]], c(list(dn), maType[[2]][-1]))
+      }
+    }
+
+    # Case of one 'maType' for both MAs.
+    # e.g. RSI(price, n=14, maType="WMA", wts=volume )
+    else {
+      mavgUp <- do.call(maType, c(list(up), maArgs))
+      mavgDn <- do.call(maType, c(list(dn), maArgs))
+    }
+
+    rsi <- 100 * mavgUp / (mavgUp + mavgDn)
+
+    if (!is.null(dim(rsi)) && ncol(rsi) == 1L) {
+      colnames(rsi) <- "rsi"
+    }
+
+    reclass(rsi, price)
   }
-
-  # Case of one 'maType' for both MAs.
-  # e.g. RSI(price, n=14, maType="WMA", wts=volume )
-  else {
-
-    mavgUp <- do.call( maType, c( list(up), maArgs ) )
-    mavgDn <- do.call( maType, c( list(dn), maArgs ) )
-  }
-
-  rsi <- 100 * mavgUp / ( mavgUp + mavgDn )
-
-  if (!is.null(dim(rsi)) && ncol(rsi) == 1L) {
-    colnames(rsi) <- "rsi"
-  }
-
-  reclass( rsi, price )
-}

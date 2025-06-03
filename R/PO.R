@@ -41,7 +41,6 @@
 #'
 #' @return A PO indicator series of the same type as the input price series.
 #'         返回与输入价格序列相同类型的PO指标序列。
-#' @importFrom stats coef is.ts lm pf setNames
 #' @importFrom utils head
 #' @importFrom xts xts
 #' @export

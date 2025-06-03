@@ -36,35 +36,35 @@
 #' @examples
 #'
 #' data(ttrc)
-#' ult.osc <- ultimateOscillator(ttrc[,c("High","Low","Close")])
+#' ult.osc <- ultimateOscillator(ttrc[, c("High", "Low", "Close")])
 #'
 ultimateOscillator <-
-function(HLC, n=c(7,14,28), wts=c(4,2,1)) {
+  function(HLC, n = c(7, 14, 28), wts = c(4, 2, 1)) {
+    # Ultimate Oscillator
 
-  # Ultimate Oscillator
+    if (length(n) != 3 || length(wts) != 3) {
+      stop("length(n) and length(wts) must both be 3")
+    }
 
-  if(length(n) != 3 || length(wts) != 3)
-    stop("length(n) and length(wts) must both be 3")
+    HLC <- try.xts(HLC, error = as.matrix)
 
-  HLC <- try.xts(HLC, error=as.matrix)
+    # avoid reclassing in ATR and runSum
+    HLC.RECLASS <- attr(HLC, ".RECLASS")
+    attr(HLC, ".RECLASS") <- FALSE
 
-  # avoid reclassing in ATR and runSum
-  HLC.RECLASS <- attr(HLC, ".RECLASS")
-  attr(HLC, ".RECLASS") <- FALSE
+    # only need 'tr' and 'trueLow'
+    atr <- ATR(HLC, n = 1)
 
-  # only need 'tr' and 'trueLow'
-  atr <- ATR(HLC, n=1)
+    buyPressure <- HLC[, 3] - atr[, "trueLow"]
 
-  buyPressure <- HLC[,3] - atr[,'trueLow']
+    osc <- buyPressure * 0.0
+    for (i in 1:3) {
+      osc <- osc + wts[i] * (runSum(buyPressure, n[i]) / runSum(atr[, "tr"], n[i]))
+    }
+    osc <- 100.0 * osc / sum(wts)
 
-  osc <- buyPressure * 0.0
-  for(i in 1:3) {
-    osc <- osc + wts[i] * (runSum(buyPressure, n[i]) / runSum(atr[,'tr'], n[i]))
+    # restore HLC .RECLASS attribute
+    attr(HLC, ".RECLASS") <- HLC.RECLASS
+
+    reclass(osc, HLC)
   }
-  osc <- 100.0 * osc / sum(wts)
-
-  # restore HLC .RECLASS attribute
-  attr(HLC, ".RECLASS") <- HLC.RECLASS
-
-  reclass(osc, HLC)
-}

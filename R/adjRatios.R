@@ -39,10 +39,10 @@
 #'      NROW(close))}.
 #'    \item \code{close} is required if \code{dividends} is provided.
 #'  }
-#'
 #' @author DengYishuo
 #' @keywords ts
-"adjRatios" <-
+#' @useDynLib eTTR, .registration = TRUE
+adjRatios <-
   function(splits, dividends, close) {
     if (!missing(dividends) &&
       missing(close)) {

@@ -30,8 +30,7 @@ A object of the same class as \code{price} or a vector (if
 The Relative Strength Index (RSI) calculates a ratio of the recent upward
 price movements to the absolute price movement.  Developed by J. Welles
 Wilder.
-}
-\details{
+
 The RSI calculation is \code{RSI = 100 - 100 / ( 1 + RS )}, where \code{RS}
 is the smoothed ratio of 'average' gains over 'average' losses.  The
 'averages' aren't true averages, since they're divided by the value of
@@ -48,18 +47,17 @@ on RSI values.
 }
 \examples{
 
- data(ttrc)
- price <- ttrc[,"Close"]
+data(ttrc)
+price <- ttrc[, "Close"]
 
- # Default case
- rsi <- RSI(price)
+# Default case
+rsi <- RSI(price)
 
- # Case of one 'maType' for both MAs
- rsiMA1 <- RSI(price, n=14, maType="WMA", wts=ttrc[,"Volume"])
+# Case of one 'maType' for both MAs
+rsiMA1 <- RSI(price, n = 14, maType = "WMA", wts = ttrc[, "Volume"])
 
- # Case of two different 'maType's for both MAs
- rsiMA2 <- RSI(price, n=14, maType=list(maUp=list(EMA),maDown=list(WMA)))
-
+# Case of two different 'maType's for both MAs
+rsiMA2 <- RSI(price, n = 14, maType = list(maUp = list(EMA), maDown = list(WMA)))
 
 }
 \references{

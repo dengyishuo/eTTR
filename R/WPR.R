@@ -53,55 +53,56 @@
 #' @keywords ts
 #' @examples
 #'
-#'  data(ttrc)
-#'  hlc <- ttrc[,c("High","Low","Close")]
-#'  stochOsc <- stoch(hlc)
-#'  stochWPR <- WPR(hlc)
+#' data(ttrc)
+#' hlc <- ttrc[, c("High", "Low", "Close")]
+#' stochOsc <- stoch(hlc)
+#' stochWPR <- WPR(hlc)
 #'
-#'  # WPR is a transformation of stochastics' fastK
-#'  all.equal(stochWPR, 1-stochOsc[,'fastK'])  # TRUE
+#' # WPR is a transformation of stochastics' fastK
+#' all.equal(stochWPR, 1 - stochOsc[, "fastK"]) # TRUE
 #'
-#'  # WPR converted to the usual scaling between 0 and -100
-#'  scaledWPR <- WPR(hlc, scale=TRUE)
+#' # WPR converted to the usual scaling between 0 and -100
+#' scaledWPR <- WPR(hlc, scale = TRUE)
 #'
-#'  plot(tail(stochOsc[,"fastK"], 100), type="l",
-#'      main="Fast %K and Williams %R", ylab="",
-#'      ylim=range(cbind(stochOsc, stochWPR), na.rm=TRUE) )
-#'  lines(tail(stochWPR, 100), col="blue")
-#'  lines(tail(1-stochWPR, 100), col="red", lty="dashed")
+#' plot(tail(stochOsc[, "fastK"], 100),
+#'   type = "l",
+#'   main = "Fast %K and Williams %R", ylab = "",
+#'   ylim = range(cbind(stochOsc, stochWPR), na.rm = TRUE)
+#' )
+#' lines(tail(stochWPR, 100), col = "blue")
+#' lines(tail(1 - stochWPR, 100), col = "red", lty = "dashed")
 #'
-"WPR" <-
-function(HLC, n=14, scale=FALSE) {
+WPR <-
+  function(HLC, n = 14, scale = FALSE) {
+    # William's Percent R (similar to Stochastics' fast %K)
 
-  # William's Percent R (similar to Stochastics' fast %K)
+    HLC <- try.xts(HLC, error = as.matrix)
 
-  HLC <- try.xts(HLC, error=as.matrix)
+    # Calculation if HLC series is given
+    if (NCOL(HLC) == 3) {
+      high <- HLC[, 1]
+      low <- HLC[, 2]
+      close <- HLC[, 3]
+    } else
 
-  # Calculation if HLC series is given
-  if(NCOL(HLC)==3) {
-    high  <- HLC[,1]
-    low   <- HLC[,2]
-    close <- HLC[,3]
-  } else
+    # Calculation if price vector is given
+    if (NCOL(HLC) == 1) {
+      high <- HLC
+      low <- HLC
+      close <- HLC
+    } else {
+      stop("Price series must be either High-Low-Close, or Close")
+    }
 
-  # Calculation if price vector is given
-  if(NCOL(HLC)==1) {
-    high  <- HLC
-    low   <- HLC
-    close <- HLC
-  } else
+    hmax <- runMax(high, n)
+    lmin <- runMin(low, n)
 
-  stop("Price series must be either High-Low-Close, or Close")
+    pctR <- (hmax - close) / (hmax - lmin)
+    pctR[is.nan(pctR)] <- 0.5
 
-  hmax <- runMax(high, n)
-  lmin <- runMin( low, n)
-
-  pctR <- (hmax - close) / (hmax - lmin)
-  pctR[is.nan(pctR)] <- 0.5
-
-  if(isTRUE(scale)) {
+    if (isTRUE(scale)) {
       pctR <- -100 * pctR
-  }
+    }
 
-  reclass( pctR, HLC )
-}
+    reclass(pctR, HLC)
+  }

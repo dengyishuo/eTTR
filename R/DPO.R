@@ -57,7 +57,7 @@
 #' priceDPO <- DPO(ttrc[, "Close"])
 #' volumeDPO <- DPO(ttrc[, "Volume"])
 #'
-"DPO" <-
+DPO <-
   function(x, n = 10, maType, shift = n / 2 + 1, percent = FALSE, ...) {
     # De-Trended Price Oscillator
 

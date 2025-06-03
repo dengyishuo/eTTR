@@ -35,6 +35,7 @@
 #' factor.
 #' @return A object of the same class as \code{HL} or a vector (if
 #' \code{try.xts} fails) containing the Parabolic Stop and Reverse values.
+#' @export
 #' @author DengYishuo
 #' @seealso See \code{\link{ATR}} and \code{\link{ADX}}, which were also
 #' developed by Welles Wilder.
@@ -50,7 +51,7 @@
 #' data(ttrc)
 #' sar <- SAR(ttrc[, c("High", "Low")])
 #'
-"SAR" <-
+SAR <-
   function(HL, accel = c(.02, .2)) {
     # Parabolic Stop-and-Reverse (SAR)
     # ----------------------------------------------
