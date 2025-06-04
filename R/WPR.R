@@ -16,7 +16,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title William's \%R
 #' @description
 #' William's \% R.
@@ -32,7 +31,8 @@
 #' @param scale Scale the result to be between 0 and -100.
 #' @return A object of the same class as \code{HLC} or a vector (if
 #' \code{try.xts} fails) containing the William's \%R values.
-#' @note The William's \%R calculation is similar to stochastics' fast \%K,
+#' @note
+#' The William's \%R calculation is similar to stochastics' fast \%K,
 #' and the result of \code{WPR} is equal to \code{1-fastK}.
 #'
 #' The value for William's \%R will be 0.5 whenever the highest high and
@@ -44,7 +44,8 @@
 #'
 #' @author DengYishuo
 #' @seealso See \code{\link{stoch}}.
-#' @references The following site(s) were used to code/document this
+#' @references
+#' The following site(s) were used to code/document this
 #' indicator:\cr
 #' \url{https://www.fmlabs.com/reference/WilliamsR.htm}\cr
 #' \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=126}\cr

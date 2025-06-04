@@ -24,10 +24,10 @@ used.  See details.}
 A object of the same class as \code{HLC} or a matrix (if
 \code{try.xts} fails) containing the columns:
 \describe{
-\item{ dn }{ The lower Bollinger Band. }
-\item{ mavg }{ The middle Moving Average (see notes). }
-\item{ up }{ The upper Bollinger Band. }
-\item{ pctB }{ The \\%B calculation. }
+\item{dn}{The lower Bollinger Band.}
+\item{mavg}{The middle Moving Average (see notes).}
+\item{up}{The upper Bollinger Band.}
+\item{pctB}{The \\%B calculation.}
 }
 }
 \description{
@@ -37,8 +37,9 @@ over a period of time.  Developed by John Bollinger.
 \details{
 Bollinger Bands consist of three lines:
 
-The middle band is generally a 20-period SMA of the typical price (\link[=high +
-low + close]{high + low + close}/3).  The upper and lower bands are \code{sd} standard deviations
+The middle band is generally a 20-period SMA of the typical price
+(\\eqn{\\frac{high + low + close}{3}}).
+The upper and lower bands are \\code{sd} standard deviations
 (generally 2) above and below the MA.
 
 The middle band is usually calculated using the typical price, but if a
@@ -52,7 +53,6 @@ calculation.  Since, by definition, a rolling standard deviation uses a
 simple moving average.
 }
 \examples{
-
 ## The examples below show the differences between using a
 ## High-Low-Close series, and just a close series when
 ## calculating Bollinger Bands.
@@ -62,7 +62,8 @@ bbands.close <- BBands(TSLA[, "Close"])
 }
 \references{
 The following site(s) were used to code/document this
-indicator:\cr \url{https://www.fmlabs.com/reference/Bollinger.htm}\cr
+indicator:\cr
+\url{https://www.fmlabs.com/reference/Bollinger.htm}\cr
 \url{https://www.fmlabs.com/reference/BollingerWidth.htm}\cr
 \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=36}\cr
 \url{https://www.linnsoft.com/techind/bollinger-bands}\cr
@@ -72,8 +73,5 @@ indicator:\cr \url{https://www.fmlabs.com/reference/Bollinger.htm}\cr
 \seealso{
 See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
 options; and note Warning section.
-}
-\author{
-DengYishuo
 }
 \keyword{ts}

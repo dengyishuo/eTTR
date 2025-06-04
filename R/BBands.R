@@ -22,12 +22,13 @@
 #' @description
 #' Bollinger Bands are a way to compare a security's volatility and price levels
 #' over a period of time.  Developed by John Bollinger.
-#' @details
 #'
+#' @details
 #' Bollinger Bands consist of three lines:
 #'
-#' The middle band is generally a 20-period SMA of the typical price ([high +
-#' low + close]/3).  The upper and lower bands are \code{sd} standard deviations
+#' The middle band is generally a 20-period SMA of the typical price
+#' (\\eqn{\\frac{high + low + close}{3}}).
+#' The upper and lower bands are \\code{sd} standard deviations
 #' (generally 2) above and below the MA.
 #'
 #' The middle band is usually calculated using the typical price, but if a
@@ -42,32 +43,39 @@
 #' @param maType A function or a string naming the function to be called.
 #' @param sd The number of standard deviations to use.
 #' @param \dots Other arguments to be passed to the \code{maType} function.
+#'
 #' @return A object of the same class as \code{HLC} or a matrix (if
 #' \code{try.xts} fails) containing the columns:
 #'  \describe{
-#'   \item{ dn }{ The lower Bollinger Band. }
-#'   \item{ mavg }{ The middle Moving Average (see notes). }
-#'   \item{ up }{ The upper Bollinger Band. }
-#'   \item{ pctB }{ The \%B calculation. }
+#'   \item{dn}{The lower Bollinger Band.}
+#'   \item{mavg}{The middle Moving Average (see notes).}
+#'   \item{up}{The upper Bollinger Band.}
+#'   \item{pctB}{The \%B calculation.}
 #'  }
-#' @note Using any moving average other than SMA will result in inconsistencies
+#'
+#' @note
+#' Using any moving average other than SMA will result in inconsistencies
 #' between the moving average calculation and the standard deviation
 #' calculation.  Since, by definition, a rolling standard deviation uses a
 #' simple moving average.
-#' @author DengYishuo
-#' @seealso See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
+#'
+#' @seealso
+#' See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
 #' options; and note Warning section.
-#' @references The following site(s) were used to code/document this
-#' indicator:\cr \url{https://www.fmlabs.com/reference/Bollinger.htm}\cr
+#'
+#' @references
+#' The following site(s) were used to code/document this
+#' indicator:\cr
+#' \url{https://www.fmlabs.com/reference/Bollinger.htm}\cr
 #' \url{https://www.fmlabs.com/reference/BollingerWidth.htm}\cr
 #' \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=36}\cr
 #' \url{https://www.linnsoft.com/techind/bollinger-bands}\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:bollinger_bands}\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:bollinger_band_width}\cr
+#'
 #' @keywords ts
 #' @export
 #' @examples
-#'
 #' ## The examples below show the differences between using a
 #' ## High-Low-Close series, and just a close series when
 #' ## calculating Bollinger Bands.

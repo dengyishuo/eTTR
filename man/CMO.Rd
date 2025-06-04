@@ -19,9 +19,8 @@ fails) containing Chande Momentum Oscillator values.
 The Chande Momentum Oscillator (CMO) is a modified RSI.  Developed by Tushar
 S. Chande.
 
-The CMO divides the total movement by the net movement (\link{up - down} / \link[=up +
-down]{up + down}), where RSI divides the upward movement by the net movement (up / \link[=up +
-down]{up + down}).
+The CMO divides the total movement by the net movement ((up - down) / (up + down)),
+where RSI divides the upward movement by the net movement (up / (up + down)).
 }
 \note{
 There are several ways to interpret the CMO:

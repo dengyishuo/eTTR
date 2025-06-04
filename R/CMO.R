@@ -16,15 +16,13 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Chande Momentum Oscillator
 #' @description
 #' The Chande Momentum Oscillator (CMO) is a modified RSI.  Developed by Tushar
 #' S. Chande.
 #'
-#' The CMO divides the total movement by the net movement ([up - down] / [up +
-#' down]), where RSI divides the upward movement by the net movement (up / [up +
-#' down]).
+#' The CMO divides the total movement by the net movement ((up - down) / (up + down)),
+#' where RSI divides the upward movement by the net movement (up / (up + down)).
 #'
 #' @param x Price, volume, etc. series that is coercible to xts or matrix.
 #' @param n Number of periods to use.

@@ -16,8 +16,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
-#' Calculate and add Arnaud Legoux Moving Averages (ALMA) to stock data
+#' @title Calculate and add Arnaud Legoux Moving Averages (ALMA) to stock data
 #' @description This function calculates ALMA, a highly efficient moving average
 #' that uses a Gaussian distribution to weight data points, reducing lag and
 #' providing excellent noise reduction.
@@ -38,28 +37,28 @@
 #' maintaining smoothness. The calculation steps are:
 #'
 #' 1. **Determine the peak position (m)**:
-#'    \[
+#'    \deqn{
 #'    m = \text{floor}(\text{offset} \cdot (n-1))
-#'    \]
+#'    }
 #'    where \code{n} is the period and \code{offset} controls the weight
 #'    distribution center (0.85 by default, favoring recent prices).
 #'
 #' 2. **Compute Gaussian weights**:
-#'    \[
+#'    \deqn{
 #'    w_i = \exp\left(-\frac{(i - m)^2}{2\sigma^2}\right)
-#'    \]
+#'    }
 #'    for each data point \code{i} in the window, where \code{\sigma}
 #'    (default 6.0) controls the width of the distribution.
 #'
 #' 3. **Normalize weights**:
-#'    \[
+#'    \deqn{
 #'    \text{Normalized } w_i = \frac{w_i}{\sum_{i=0}^{n-1} w_i}
-#'    \]
+#'    }
 #'
 #' 4. **Calculate weighted average**:
-#'    \[
+#'    \deqn{
 #'    \text{ALMA}_t = \sum_{i=0}^{n-1} (\text{Normalized } w_i \cdot \text{Price}_{t-i})
-#'    \]
+#'    }
 #'
 #' Higher \code{offset} values prioritize recent prices, reducing lag but
 #' increasing sensitivity to noise. Lower \code{sigma} values create a

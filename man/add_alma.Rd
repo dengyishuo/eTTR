@@ -40,25 +40,25 @@ This allows the moving average to react quickly to price changes while
 maintaining smoothness. The calculation steps are:
 \enumerate{
 \item \strong{Determine the peak position (m)}:
-[
-m = \text{floor}(\text{offset} \cdot (n-1))
-]
+\deqn{
+   m = \text{floor}(\text{offset} \cdot (n-1))
+   }
 where \code{n} is the period and \code{offset} controls the weight
 distribution center (0.85 by default, favoring recent prices).
 \item \strong{Compute Gaussian weights}:
-[
-w_i = \exp\left(-\frac{(i - m)^2}{2\sigma^2}\right)
-]
+\deqn{
+   w_i = \exp\left(-\frac{(i - m)^2}{2\sigma^2}\right)
+   }
 for each data point \code{i} in the window, where \code{\sigma}
 (default 6.0) controls the width of the distribution.
 \item \strong{Normalize weights}:
-[
-\text{Normalized } w_i = \frac{w_i}{\sum_{i=0}^{n-1} w_i}
-]
+\deqn{
+   \text{Normalized } w_i = \frac{w_i}{\sum_{i=0}^{n-1} w_i}
+   }
 \item \strong{Calculate weighted average}:
-[
-\text{ALMA}\emph{t = \sum}{i=0}^{n-1} (\text{Normalized } w_i \cdot \text{Price}_{t-i})
-]
+\deqn{
+   \text{ALMA}_t = \sum_{i=0}^{n-1} (\text{Normalized } w_i \cdot \text{Price}_{t-i})
+   }
 }
 
 Higher \code{offset} values prioritize recent prices, reducing lag but
