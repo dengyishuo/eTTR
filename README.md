@@ -29,9 +29,9 @@ for your operating system:
 Here are a few examples of some of the more well-known indicators:
 
 ```r
-# "eTTR Composite" (simulated data)
-data(ttrc)
-hlc <- ttrc[, c("High", "Low", "Close")]
+# "eTTR TSLA" 
+data(TSLA)
+hlc <- TSLA[, c("High", "Low", "Close")]
 
 # Bollinger Bands
 bbands <- BBands(hlc)
@@ -40,14 +40,14 @@ bbands <- BBands(hlc)
 adx <- ADX(hlc)
 
 # Moving Averages
-ema <- EMA(ttrc[, "Close"], n = 20)
-sma <- SMA(ttrc[, "Close"], n = 20)
+ema <- EMA(TSLA[, "Close"], n = 20)
+sma <- SMA(TSLA[, "Close"], n = 20)
 
 # MACD
-macd <- MACD(ttrc[,"Close"])
+macd <- MACD(TSLA[,"Close"])
 
 # RSI
-rsi <- RSI(ttrc[,"Close"])
+rsi <- RSI(TSLA[,"Close"])
 
 # Stochastics
 stochOsc <- stoch(hlc)
@@ -57,12 +57,10 @@ eTTR works with the `chartSeries()` function in [quantmod](https://github.com/jo
 
 ```r
 library(quantmod)
-data(ttrc)
+data(TSLA)
 
-# create an xts object
-x <- as.xts(ttrc)
 
-chartSeries(x, subset = "2006-09/", theme = "white")
+chartSeries(TSLA, subset = "2020-09/", theme = "white")
 addBBands()
 addRSI()
 ```
