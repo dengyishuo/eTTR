@@ -32,8 +32,8 @@ An xts or matrix object with columns: SMI, signal.
 Calculates the SMI value and its signal line.
 }
 \examples{
-data(ttrc)
-smi_values <- SMI(ttrc[, c("High", "Low", "Close")])
+data(TSLA)
+smi_values <- SMI(TSLA[, c("High", "Low", "Close")])
 plot(tail(smi_values[, "SMI"], 100),
   type = "l",
   main = "Stochastic Momentum Index", ylab = "SMI"

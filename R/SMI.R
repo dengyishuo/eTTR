@@ -37,8 +37,8 @@
 #' @keywords ts momentum indicator
 #'
 #' @examples
-#' data(ttrc)
-#' smi_values <- SMI(ttrc[, c("High", "Low", "Close")])
+#' data(TSLA)
+#' smi_values <- SMI(TSLA[, c("High", "Low", "Close")])
 #' plot(tail(smi_values[, "SMI"], 100),
 #'   type = "l",
 #'   main = "Stochastic Momentum Index", ylab = "SMI"
@@ -46,7 +46,6 @@
 #' abline(h = c(20, 80), col = "gray", lty = 2)
 #'
 #' @importFrom xts try.xts reclass
-#' @importFrom TTR runMax runMin
 #'
 #' @export
 
