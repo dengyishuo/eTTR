@@ -49,7 +49,7 @@ distribution center (0.85 by default, favoring recent prices).
 \deqn{
    w_i = \exp\left(-\frac{(i - m)^2}{2\sigma^2}\right)
    }
-for each data point \code{i} in the window, where \code{\sigma}
+for each data point \code{i} in the window, where \eqn{\sigma}
 (default 6.0) controls the width of the distribution.
 \item \strong{Normalize weights}:
 \deqn{

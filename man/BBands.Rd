@@ -36,12 +36,10 @@ over a period of time.  Developed by John Bollinger.
 }
 \details{
 Bollinger Bands consist of three lines:
-
 The middle band is generally a 20-period SMA of the typical price
 (\\eqn{\\frac{high + low + close}{3}}).
 The upper and lower bands are \\code{sd} standard deviations
 (generally 2) above and below the MA.
-
 The middle band is usually calculated using the typical price, but if a
 univariate series (e.g. Close, Weighted Close, Median Price, etc.) is
 provided, it will be used instead.

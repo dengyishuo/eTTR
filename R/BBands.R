@@ -16,25 +16,19 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Bollinger Bands
-#'
 #' @description
 #' Bollinger Bands are a way to compare a security's volatility and price levels
 #' over a period of time.  Developed by John Bollinger.
-#'
 #' @details
 #' Bollinger Bands consist of three lines:
-#'
 #' The middle band is generally a 20-period SMA of the typical price
 #' (\\eqn{\\frac{high + low + close}{3}}).
 #' The upper and lower bands are \\code{sd} standard deviations
 #' (generally 2) above and below the MA.
-#'
 #' The middle band is usually calculated using the typical price, but if a
 #' univariate series (e.g. Close, Weighted Close, Median Price, etc.) is
 #' provided, it will be used instead.
-#'
 #' @aliases bollingerBands BBands
 #' @param HLC Object that is coercible to xts or matrix and contains
 #' High-Low-Close prices.  If only a univariate series is given, it will be
@@ -43,7 +37,6 @@
 #' @param maType A function or a string naming the function to be called.
 #' @param sd The number of standard deviations to use.
 #' @param \dots Other arguments to be passed to the \code{maType} function.
-#'
 #' @return A object of the same class as \code{HLC} or a matrix (if
 #' \code{try.xts} fails) containing the columns:
 #'  \describe{
@@ -52,17 +45,14 @@
 #'   \item{up}{The upper Bollinger Band.}
 #'   \item{pctB}{The \%B calculation.}
 #'  }
-#'
 #' @note
 #' Using any moving average other than SMA will result in inconsistencies
 #' between the moving average calculation and the standard deviation
 #' calculation.  Since, by definition, a rolling standard deviation uses a
 #' simple moving average.
-#'
 #' @seealso
 #' See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
 #' options; and note Warning section.
-#'
 #' @references
 #' The following site(s) were used to code/document this
 #' indicator:\cr
@@ -72,7 +62,6 @@
 #' \url{https://www.linnsoft.com/techind/bollinger-bands}\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:bollinger_bands}\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:bollinger_band_width}\cr
-#'
 #' @keywords ts
 #' @export
 #' @examples

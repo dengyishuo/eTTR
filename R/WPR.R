@@ -19,11 +19,9 @@
 #' @title William's \%R
 #' @description
 #' William's \% R.
-#'
 #' If an High-Low-Close series is provided, the indicator is calculated using
 #' the high/low values.  If a vector is provided, the calculation only uses that
 #' series.
-#'
 #' @param HLC Object that is coercible to xts or matrix and contains
 #' High-Low-Close prices.  If only a univariate series is given, it will be
 #' used.  See details.
@@ -34,14 +32,11 @@
 #' @note
 #' The William's \%R calculation is similar to stochastics' fast \%K,
 #' and the result of \code{WPR} is equal to \code{1-fastK}.
-#'
 #' The value for William's \%R will be 0.5 whenever the highest high and
 #' lowest low are the same over the last \code{n} periods.
-#'
 #' William's \%R is usually scaled to be between 0 and -100, which is not what
 #' \code{WPR} returns by default. Set \code{scale = TRUE} to return the result
 #' with the usual scaling.
-#'
 #' @author DengYishuo
 #' @seealso See \code{\link{stoch}}.
 #' @references
@@ -54,7 +49,6 @@
 #' @keywords ts
 #' @export
 #' @examples
-#'
 #' data(TSLA)
 #' hlc <- TSLA[, c("High", "Low", "Close")]
 #' stochOsc <- stoch(hlc)
