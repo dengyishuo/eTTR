@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Donchian Channel
-#'
+#' @title Donchian Channel
+#' @description
 #' Donchian Channels were created by Richard Donchian and were used to generate
 #' buy and sell signals for the Turtle Trading system.
 #'
@@ -55,10 +55,11 @@
 #' @references The following site(s) were used to code/document this
 #' indicator:\cr \url{https://www.linnsoft.com/techind/donchian-channels}\cr
 #' @keywords ts
+#' @export
 #' @examples
 #'
-#' data(ttrc)
-#' dc <- DonchianChannel(ttrc[, c("High", "Low")])
+#' data(TSLA)
+#' dc <- DonchianChannel(TSLA[, c("High", "Low")])
 #'
 DonchianChannel <-
   function(HL, n = 10, include.lag = FALSE) {

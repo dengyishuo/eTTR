@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Double Exponential Moving Average (DEMA)
-#'
+#' @title Double Exponential Moving Average (DEMA)
+#' @description
 #' Calculate a double exponential moving average to reduce lag.
 #'
 #' @param x Price series that is coercible to xts or matrix.
@@ -31,8 +31,8 @@
 #' @keywords ts
 #' @export
 #' @examples
-#' data(ttrc)
-#' dema_20 <- DEMA(ttrc[, "Close"], 20)
+#' data(TSLA)
+#' dema_20 <- DEMA(TSLA[, "Close"], 20)
 #' head(dema_20)
 DEMA <- function(x, n = 10, v = 1, wilder = FALSE, ratio = NULL) {
   # Double Exponential Moving Average

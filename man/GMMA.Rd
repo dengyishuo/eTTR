@@ -22,10 +22,10 @@ GMMA(
 
 \item{maType}{Either:
 \enumerate{
-  \item A function or a string naming the function to be called.
-  \item A \emph{list} with the first component like (1) above, and
-    additional parameters specified as \emph{named} components.
-    See Examples.
+\item A function or a string naming the function to be called.
+\item A \emph{list} with the first component like (1) above, and
+additional parameters specified as \emph{named} components.
+See Examples.
 }}
 }
 \value{
@@ -34,8 +34,7 @@ A object of the same class as \code{x} or \code{price} or a vector
 }
 \description{
 Calculate the Guppy Multiple Moving Average of a series.
-}
-\details{
+
 The Guppy Multiple Moving Average signals a changing trend when the
 \code{short} and \code{long} groups of moving averages intersect.  An up/down
 trend exists when the short/long-term moving averages are greater than the
@@ -43,8 +42,8 @@ long/short-term averages.
 }
 \examples{
 
-data(ttrc)
-gmma <- GMMA(ttrc[, "Close"])
+data(TSLA)
+gmma <- GMMA(TSLA[, "Close"])
 
 }
 \references{

@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Guppy Multiple Moving Averages
-#'
+#' @title Guppy Multiple Moving Averages
+#' @description
 #' Calculate the Guppy Multiple Moving Average of a series.
 #'
 #' The Guppy Multiple Moving Average signals a changing trend when the
@@ -47,12 +47,13 @@
 #' indicator:\cr
 #' \url{https://www.investopedia.com/terms/g/guppy-multiple-moving-average.asp}\cr
 #' @keywords ts
+#' @export
 #' @examples
 #'
-#' data(ttrc)
-#' gmma <- GMMA(ttrc[, "Close"])
+#' data(TSLA)
+#' gmma <- GMMA(TSLA[, "Close"])
 #'
-"GMMA" <-
+GMMA <-
   function(x, short = c(3, 5, 8, 10, 12, 15), long = c(30, 35, 40, 45, 50, 60), maType) {
     # Guppy Multiple Moving Average
 

@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' William's \%R
-#'
+#' @title William's \%R
+#' @description
 #' William's \% R.
 #'
 #' If an High-Low-Close series is provided, the indicator is calculated using
@@ -51,10 +51,11 @@
 #' \url{https://www.linnsoft.com/techind/williams-r-wpr}\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:williams_r}\cr
 #' @keywords ts
+#' @export
 #' @examples
 #'
-#' data(ttrc)
-#' hlc <- ttrc[, c("High", "Low", "Close")]
+#' data(TSLA)
+#' hlc <- TSLA[, c("High", "Low", "Close")]
 #' stochOsc <- stoch(hlc)
 #' stochWPR <- WPR(hlc)
 #'

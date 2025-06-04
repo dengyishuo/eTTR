@@ -17,14 +17,12 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Calculate Investment Growth
-#'
+#' @title Calculate Investment Growth
+#' @description
 #' This function computes the growth of an investment based on given prices
 #' and trading signals. It assumes an initial investment of $1 and applies
 #' the provided signals to determine positions (long, short, or none).
 #'
-#' @title Investment Growth Calculation
-#' @description Computes the cumulative growth of an investment using prices and signals.
 #'
 #' @param price Price series that is coercible to xts or matrix.
 #' @param signals Signals to use (defaults to vector of ones). Use '0' for no position,
@@ -43,7 +41,6 @@
 #'
 #' @export
 #'
-#' @importFrom TTR ROC
 #'
 #' @note You can specify the number of periods and type of compounding
 #'       via the '...' argument when calculating returns.

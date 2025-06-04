@@ -112,5 +112,4 @@ NULL
 #'   # Fetch Yahoo! Finance data from the internet
 #'   ge <- getYahooData("GE", 19990404, 20050607, adjust = FALSE)
 #' }
-#' @rdname eTTR
 "_PACKAGE"

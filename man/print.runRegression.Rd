@@ -16,7 +16,7 @@ runRegression对象的打印方法}
 }
 \value{
 The input object is returned invisibly.
-        输入对象以不可见方式返回。
+输入对象以不可见方式返回。
 }
 \description{
 Prints a summary of the sliding window regression results.

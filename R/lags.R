@@ -16,12 +16,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
-#' Calculate Lags of a Time Series
-#'
-#' This function computes lagged values of a given time series or matrix.
-#' It is useful for creating lagged predictors in time series analysis.
-#'
+#
 #' @title Lags Calculation
 #' @description Computes lagged values of a time series or matrix.
 #'

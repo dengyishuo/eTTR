@@ -24,8 +24,8 @@ An object of the same class as \code{x} with correlation values.
 Calculate the correlation over a moving window of periods.
 }
 \examples{
-data(ttrc)
-cor_20 <- runCor(ttrc[, "Close"], ttrc[, "Volume"], 20)
+data(TSLA)
+cor_20 <- runCor(TSLA[, "Close"], TSLA[, "Volume"], 20)
 head(cor_20)
 }
 \keyword{ts}

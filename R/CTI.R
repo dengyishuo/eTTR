@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Ehler's Correlation Trend Indicator
-#'
+#' @title Ehler's Correlation Trend Indicator
+#' @description
 #' Ehler's Correlation Trend Indicator (CTI) measures the Spearman correlation
 #' of the price with the ideal trend line: a straight line with increasing
 #' slope.
@@ -48,6 +48,7 @@
 #' The following site(s) were used to code/document this indicator:\cr
 #' \url{https://financial-hacker.com/petra-on-programming-a-unique-trend-indicator/}\cr
 #' @keywords ts
+#' @export
 #' @examples
 #'
 #' data(ttrc)

@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Moving Window Standard Deviation (runSD)
-#'
+#' @title Moving Window Standard Deviation (runSD)
+#' @description
 #' Calculate the standard deviation over a moving window of periods.
 #'
 #' @param x Object coercible to xts or matrix.
@@ -29,8 +29,8 @@
 #' @keywords ts
 #' @export
 #' @examples
-#' data(ttrc)
-#' sd_20 <- runSD(ttrc[, "Close"], 20)
+#' data(TSLA)
+#' sd_20 <- runSD(TSLA[, "Close"], 20)
 #' head(sd_20)
 runSD <- function(x, n = 10, sample = TRUE, cumulative = FALSE) {
   result <- sqrt(runCov(x, x, n, sample = sample, cumulative = cumulative))

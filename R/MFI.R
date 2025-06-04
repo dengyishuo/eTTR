@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Money Flow Index
-#'
+#' @title Money Flow Index
+#' @description
 #' The MFI is a ratio of positive and negative money flow over time.
 #'
 #' Money Flow (MF) is the product of price and volume.  Positive/negative MF
@@ -49,10 +49,11 @@
 #' \url{https://www.linnsoft.com/techind/money-flow-index-mfi}\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:money_flow_index_mfi}\cr
 #' @keywords ts
+#' @export
 #' @examples
 #'
-#' data(ttrc)
-#' mfi <- MFI(ttrc[, c("High", "Low", "Close")], ttrc[, "Volume"])
+#' data(TSLA)
+#' mfi <- MFI(TSLA[, c("High", "Low", "Close")], TSLA[, "Volume"])
 #'
 MFI <-
   function(HLC, volume, n = 14) {

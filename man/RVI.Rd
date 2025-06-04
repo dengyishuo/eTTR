@@ -22,7 +22,7 @@ RVI(price, n = 14, ema.n = 3, keepNA = TRUE)
 }
 \value{
 An object of the same type as the input (vector or xts) containing RVI values.
-        返回与输入相同类型的对象(向量或xts)，包含RVI值。
+返回与输入相同类型的对象(向量或xts)，包含RVI值。
 }
 \description{
 Computes the Relative Vigor Index (RVI), a momentum oscillator that measures the
@@ -33,16 +33,20 @@ considered bullish when above its signal line and bearish when below.
 }
 \details{
 The RVI is calculated by:
-1. Separating price changes into upward and downward movements
-2. Calculating the standard deviation of these movements over a specified period
-3. Applying exponential smoothing to the standard deviations
-4. Computing the ratio of smoothed upward movements to total movements
+\enumerate{
+\item Separating price changes into upward and downward movements
+\item Calculating the standard deviation of these movements over a specified period
+\item Applying exponential smoothing to the standard deviations
+\item Computing the ratio of smoothed upward movements to total movements
+}
 
 RVI的计算方法为：
-1. 将价格变动分为上涨和下跌运动
-2. 计算指定周期内这些运动的标准差
-3. 对标准差应用指数平滑
-4. 计算平滑后的上涨运动与总运动的比率
+\enumerate{
+\item 将价格变动分为上涨和下跌运动
+\item 计算指定周期内这些运动的标准差
+\item 对标准差应用指数平滑
+\item 计算平滑后的上涨运动与总运动的比率
+}
 }
 \examples{
 # Calculate RVI with default parameters
@@ -58,8 +62,10 @@ rvi_custom <- RVI(price_xts, n = 20, ema.n = 5)
 plot(rvi_custom, main = "Custom RVI Parameters")
 }
 \references{
-1. Wilder, J. Welles (1978). New Concepts in Technical Trading Systems.
-2. Carver, Constance M. (1992). The New Technical Trader.
+\enumerate{
+\item Wilder, J. Welles (1978). New Concepts in Technical Trading Systems.
+\item Carver, Constance M. (1992). The New Technical Trader.
+}
 }
 \seealso{
 \code{\link{EMA}} for exponential moving average calculation.

@@ -17,8 +17,7 @@ A object of the same class as \code{HLC} or a vector (if
 \description{
 The Williams Accumulation / Distribution (AD) line is a measure of market
 momentum.  Developed by Larry Williams.
-}
-\details{
+
 The Williams AD line differs from OBV and chaikinAD in that it doesn't take
 volume into account.
 }
@@ -28,8 +27,8 @@ divergence in the direction of the indicator relative to price.
 }
 \examples{
 
-data(ttrc)
-ad <- williamsAD(ttrc[, c("High", "Low", "Close")])
+data(TSLA)
+ad <- williamsAD(TSLA[, c("High", "Low", "Close")])
 
 }
 \references{

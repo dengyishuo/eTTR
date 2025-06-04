@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' MACD Oscillator
-#'
+#' @title MACD Oscillator
+#' @description
 #' The MACD was developed by Gerald Appel and is probably the most popular price
 #' oscillator.  The MACD function documented in this page compares a fast moving
 #' average (MA) of a series with a slow MA of the same series.  It can be used
@@ -74,12 +74,13 @@
 #' \url{https://www.fmlabs.com/reference/PVO.htm}\cr
 #' \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=122}\cr
 #' @keywords ts
+#' @export
 #' @examples
 #'
-#' data(ttrc)
+#' data(TSLA)
 #'
-#' macd <- MACD(ttrc[, "Close"], 12, 26, 9, maType = "EMA")
-#' macd2 <- MACD(ttrc[, "Close"], 12, 26, 9,
+#' macd <- MACD(TSLA[, "Close"], 12, 26, 9, maType = "EMA")
+#' macd2 <- MACD(TSLA[, "Close"], 12, 26, 9,
 #'   maType = list(list(SMA), list(EMA, wilder = TRUE), list(SMA))
 #' )
 #'

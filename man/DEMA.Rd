@@ -11,7 +11,7 @@ DEMA(x, n = 10, v = 1, wilder = FALSE, ratio = NULL)
 
 \item{n}{Number of periods to average over. Must be between 1 and \code{nrow(x)}.}
 
-\item{v}{The 'volume factor' (a number in [0,1]); default is 1 (standard DEMA).}
+\item{v}{The 'volume factor' (a number in \link{0,1}); default is 1 (standard DEMA).}
 
 \item{wilder}{logical; if \code{TRUE}, use Welles Wilder's EMA formula.}
 
@@ -27,8 +27,8 @@ Calculate a double exponential moving average to reduce lag.
 When \code{v=1}, returns standard DEMA; \code{v=0} returns regular EMA.
 }
 \examples{
-data(ttrc)
-dema_20 <- DEMA(ttrc[, "Close"], 20)
+data(TSLA)
+dema_20 <- DEMA(TSLA[, "Close"], 20)
 head(dema_20)
 }
 \keyword{ts}

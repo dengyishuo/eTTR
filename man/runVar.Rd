@@ -24,8 +24,8 @@ An object of the same class as \code{x} with variance values.
 Calculate the variance over a moving window of periods.
 }
 \examples{
-data(ttrc)
-var_20 <- runVar(ttrc[, "Close"], 20)
+data(TSLA)
+var_20 <- runVar(TSLA[, "Close"], 20)
 head(var_20)
 }
 \keyword{ts}

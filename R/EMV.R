@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Arms' Ease of Movement Value
-#'
+#' @title Arms' Ease of Movement Value
+#' @description
 #' Arms' Ease of Movement Value (EMV) emphasizes days where the security moves
 #' easily and minimizes days where the security does not move easily.  Developed
 #' by Richard W. Arms, Jr.
@@ -52,10 +52,11 @@
 #' \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=51}\cr
 #' \url{https://www.linnsoft.com/techind/arms-ease-movement}\cr
 #' @keywords ts
+#' @export
 #' @examples
 #'
-#' data(ttrc)
-#' emv <- EMV(ttrc[, c("High", "Low")], ttrc[, "Volume"])
+#' data(TSLA)
+#' emv <- EMV(TLSA[, c("High", "Low")], TSLA[, "Volume"])
 #'
 EMV <-
   function(HL, volume, n = 9, maType, vol.divisor = 10000, ...) {

@@ -17,9 +17,9 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Sliding Window Linear Regression
+#' @title Sliding Window Linear Regression
 #' 滑动窗口线性回归
-#'
+#' @description
 #' Performs linear regression over a sliding window on a time series,
 #' providing coefficients and statistical metrics for each window.
 #' 在时间序列上执行滑动窗口线性回归，为每个窗口提供回归系数和统计指标。

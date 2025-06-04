@@ -21,12 +21,14 @@ that uses volume flow to predict changes in stock price.
 }
 \details{
 OBV is calculated by:
-1. If today's closing price is higher than yesterday's, then:
-   OBV = Previous OBV + Today's Volume
-2. If today's closing price is lower than yesterday's, then:
-   OBV = Previous OBV - Today's Volume
-3. If today's closing price equals yesterday's, then:
-   OBV = Previous OBV (no change)
+\enumerate{
+\item If today's closing price is higher than yesterday's, then:
+OBV = Previous OBV + Today's Volume
+\item If today's closing price is lower than yesterday's, then:
+OBV = Previous OBV - Today's Volume
+\item If today's closing price equals yesterday's, then:
+OBV = Previous OBV (no change)
+}
 }
 \note{
 Input data must contain closing prices (Close) and volume (Volume)

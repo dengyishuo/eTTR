@@ -24,9 +24,11 @@ identifying trends and reversals.
 }
 \details{
 HMA is calculated using a three-step process:
-1. Compute a WMA with period n
-2. Compute a WMA with period n/2
-3. Compute a WMA of the difference between the two previous WMAs with period sqrt(n)
+\enumerate{
+\item Compute a WMA with period n
+\item Compute a WMA with period n/2
+\item Compute a WMA of the difference between the two previous WMAs with period sqrt(n)
+}
 }
 \note{
 Input data must contain closing prices (Close)

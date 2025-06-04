@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Elastic Volume-Weighted Moving Average (EVWMA)
-#'
+#' @title Elastic Volume-Weighted Moving Average (EVWMA)
+#' @description
 #' Calculate a volume-weighted moving average that adjusts to trading volume.
 #'
 #' @param price Price series that is coercible to xts or matrix.
@@ -26,10 +26,11 @@
 #' @param n Number of periods to average over.
 #' @return An object of the same class as \code{price} containing the EVWMA values.
 #' @keywords ts
+#' @useDynLib eTTR, .registration = TRUE
 #' @export
 #' @examples
-#' data(ttrc)
-#' evwma_20 <- EVWMA(ttrc[, "Close"], ttrc[, "Volume"], 20)
+#' data(TSLA)
+#' evwma_20 <- EVWMA(TSLA[, "Close"], TSLA[, "Volume"], 20)
 #' head(evwma_20)
 EVWMA <- function(price, volume, n = 10) {
   # Elastic, Volume-Weighted Moving Average

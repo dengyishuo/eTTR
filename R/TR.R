@@ -16,14 +16,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
-#' True Range Calculation
-#'
-#' Computes the True Range (TR) of a financial instrument based on its High-Low-Close prices.
-#' The True Range is the greatest of the following:
-#' 1. Current high minus current low
-#' 2. Absolute value of current high minus previous close
-#' 3. Absolute value of current low minus previous close
 #'
 #' @title True Range
 #' @description Calculates the True Range of a price series.

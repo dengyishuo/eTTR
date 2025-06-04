@@ -22,8 +22,7 @@ containing the signal to noise ratio.
 The n-day SNR for a given market is calculated by taking the absolute
 price change over an n-day period and dividing it by the average
 n-day volatility.
-}
-\details{
+
 \deqn{SNR_n = \frac{|C_t - C_{t-n}|}{ATR_n}
 }{SNR = abs(Cl - lag(Cl,n)) / ATR(HLC, n)$atr}
 

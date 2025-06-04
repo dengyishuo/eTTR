@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Signal to Noise Ratio
-#'
+#' @title Signal to Noise Ratio
+#' @description
 #' The n-day SNR for a given market is calculated by taking the absolute
 #' price change over an n-day period and dividing it by the average
 #' n-day volatility.
@@ -43,6 +43,7 @@
 #' @author Peter Carl
 #' @references Skeggs, James and Hill, Alex (2015). Back in Black Part 2: The
 #' Opportunity Set for Trend Following.
+#' @export
 #'
 SNR <- function(HLC, n, ...) {
   HLC <- try.xts(HLC, error = as.matrix)

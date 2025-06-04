@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Parabolic Stop-and-Reverse
-#'
+#' @title Parabolic Stop-and-Reverse
+#' @description
 #' The Parabolic Stop-and-Reverse calculates a trailing stop.  Developed by J.
 #' Welles Wilder.
 #'
@@ -48,8 +48,8 @@
 #' @keywords ts
 #' @examples
 #'
-#' data(ttrc)
-#' sar <- SAR(ttrc[, c("High", "Low")])
+#' data(TSLA)
+#' sar <- SAR(TSLA[, c("High", "Low")])
 #'
 SAR <-
   function(HL, accel = c(.02, .2)) {

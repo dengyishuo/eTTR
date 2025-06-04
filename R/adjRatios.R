@@ -42,6 +42,7 @@
 #' @author DengYishuo
 #' @keywords ts
 #' @useDynLib eTTR, .registration = TRUE
+#' @export
 adjRatios <-
   function(splits, dividends, close) {
     if (!missing(dividends) &&

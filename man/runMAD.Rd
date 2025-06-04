@@ -36,8 +36,8 @@ An object of the same class as \code{x} with MAD values.
 Calculate the median absolute deviation over a moving window of periods.
 }
 \examples{
-data(ttrc)
-mad_20 <- runMAD(ttrc[, "Close"], 20)
+data(TSLA)
+mad_20 <- runMAD(TSLA[, "Close"], 20)
 head(mad_20)
 }
 \keyword{internal}

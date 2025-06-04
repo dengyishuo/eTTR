@@ -21,18 +21,16 @@ High-Low-Close prices.}
 \value{
 A object of the same class as \code{HLC} or a matrix (if
 \code{try.xts} fails) containing the columns:
- \describe{
-  \item{ DIp }{ The positive Direction Index. }
-  \item{ DIn }{ The negative Direction Index. }
-  \item{ DX }{ The Direction Index. }
-  \item{ ADX }{ The Average Direction Index (trend strength). }
- }
+\describe{
+\item{ DIp }{ The positive Direction Index. }
+\item{ DIn }{ The negative Direction Index. }
+\item{ DX }{ The Direction Index. }
+\item{ ADX }{ The Average Direction Index (trend strength). }
+}
 }
 \description{
 Directional Movement Index; developed by J. Welles Wilder.
-}
-\details{
-The \code{DIp}/\code{DIn} (positive/negative) is the percentage of the true
+.The \code{DIp}/\code{DIn} (positive/negative) is the percentage of the true
 range that is up/down.
 }
 \note{

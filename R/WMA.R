@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Weighted Moving Average (WMA)
-#'
+#' @title Weighted Moving Average (WMA)
+#' @description
 #' Calculate a weighted moving average with custom weights.
 #'
 #' @param x Price series that is coercible to xts or matrix.
@@ -27,9 +27,11 @@
 #' @return An object of the same class as \code{x} containing the WMA values.
 #' @keywords ts
 #' @export
+#' @useDynLib eTTR, .registration = TRUE
 #' @examples
-#' data(ttrc)
-#' wma_10 <- WMA(ttrc[, "Close"], 10)
+#'
+#' data(TSLA)
+#' wma_10 <- WMA(TSLA[, "Close"], 10)
 #' head(wma_10)
 WMA <- function(x, n = 10, wts = 1:n) {
   # Weighted Moving Average

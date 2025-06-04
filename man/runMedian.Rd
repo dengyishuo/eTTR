@@ -22,8 +22,8 @@ An object of the same class as \code{x} with median values.
 Calculate the median value over a moving window of periods.
 }
 \examples{
-data(ttrc)
-median_10 <- runMedian(ttrc[, "Close"], 10)
+data(TSLA)
+median_10 <- runMedian(TSLA[, "Close"], 10)
 head(median_10)
 }
 \keyword{internal}

@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Analysis of Running/Rolling/Moving Windows
-#'
+#' @title Analysis of Running/Rolling/Moving Windows
+#' @description
 #' Various functions to analyze data over a moving window of periods.
 #'
 #'
@@ -41,6 +41,7 @@
 #' indicator:
 #' \url{https://en.wikipedia.org/wiki/Simple_linear_regression}\cr
 #' @keywords ts
+#' @export
 rollSFM <- function(Ra, Rb, n = 60) {
   # Calculate a rolling single-factor model
   #  stopifnot(is.xts(Ra) && is.xts(Rb))

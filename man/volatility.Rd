@@ -31,8 +31,7 @@ A object of the same class as \code{OHLC} or a vector (if
 }
 \description{
 Selected volatility estimators/indicators; various authors.
-}
-\details{
+
 \itemize{
 \item Close-to-Close Volatility (\code{calc="close"})\cr
 \deqn{ \sigma_{cl} = \sqrt{\frac{N}{n-2} \sum_{i=1}^{n-1}(r_i-\bar{r})^2}
@@ -110,8 +109,8 @@ ignored, if both are provided.\cr
 }
 \examples{
 
-data(ttrc)
-ohlc <- ttrc[, c("Open", "High", "Low", "Close")]
+data(TSLA)
+ohlc <- TSLA[, c("Open", "High", "Low", "Close")]
 vClose <- volatility(ohlc, calc = "close")
 vClose0 <- volatility(ohlc, calc = "close", mean0 = TRUE)
 vGK <- volatility(ohlc, calc = "garman")

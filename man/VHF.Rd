@@ -31,9 +31,9 @@ If Close prices are given, the function calculates the max/min using
 only those prices. If HLC prices are given, the function uses high/low prices.
 }
 \examples{
-data(ttrc)
-vhf_close <- VHF(ttrc[, "Close"], na.rm = TRUE)
-vhf_hlc <- VHF(ttrc[, c("High", "Low", "Close")], inf.replace = 10)
+data(TSLA)
+vhf_close <- VHF(TSLA[, "Close"], na.rm = TRUE)
+vhf_hlc <- VHF(TSLA[, c("High", "Low", "Close")], inf.replace = 10)
 }
 \references{
 \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=119}

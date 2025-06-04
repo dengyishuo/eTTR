@@ -17,7 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Chaikin Volatility
+#' @title Chaikin Volatility
+#' @description
 #'
 #' Chaikin Volatility measures the rate of change of the security's trading
 #' range.  Developed by Marc Chaikin.
@@ -41,6 +42,7 @@
 #' @references The following site(s) were used to code/document this
 #' indicator:\cr \url{https://www.fmlabs.com/reference/ChaikinVolatility.htm}\cr
 #' \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=120}\cr
+#' @export
 #' @keywords ts
 #' @examples
 #'

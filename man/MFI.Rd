@@ -23,8 +23,7 @@ vector (if \code{try.xts} fails) containing the MFI values.
 }
 \description{
 The MFI is a ratio of positive and negative money flow over time.
-}
-\details{
+
 Money Flow (MF) is the product of price and volume.  Positive/negative MF
 occur when today's price is higher/lower than yesterday's price.  The MFI is
 calculated by dividing positive MF by negative MF for the past \code{n}
@@ -40,8 +39,8 @@ addition, values above/below 80/20 indicate market tops/bottoms.
 }
 \examples{
 
-data(ttrc)
-mfi <- MFI(ttrc[, c("High", "Low", "Close")], ttrc[, "Volume"])
+data(TSLA)
+mfi <- MFI(TSLA[, c("High", "Low", "Close")], TSLA[, "Volume"])
 
 }
 \references{

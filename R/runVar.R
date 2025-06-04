@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Moving Window Variance (runVar)
-#'
+#' @title Moving Window Variance (runVar)
+#' @description
 #' Calculate the variance over a moving window of periods.
 #'
 #' @param x Object coercible to xts or matrix.
@@ -30,8 +30,8 @@
 #' @keywords ts
 #' @export
 #' @examples
-#' data(ttrc)
-#' var_20 <- runVar(ttrc[, "Close"], 20)
+#' data(TSLA)
+#' var_20 <- runVar(TSLA[, "Close"], 20)
 #' head(var_20)
 runVar <- function(x, y = NULL, n = 10, sample = TRUE, cumulative = FALSE) {
   if (is.null(y)) y <- x

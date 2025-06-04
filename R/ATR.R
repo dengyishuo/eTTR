@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#' Calculate Average True Range (ATR)
-#'
+#' @title Calculate Average True Range (ATR)
+#' @description
 #' This function computes the Average True Range (ATR), a technical analysis indicator
 #' used to measure market volatility. It calculates the true range (TR) and applies a moving
 #' average (defaulting to Wilder's EMA) to smooth the results.

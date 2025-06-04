@@ -10,7 +10,7 @@ SAR(HL, accel = c(0.02, 0.2))
 \item{HL}{Object that is coercible to xts or matrix and contains High-Low
 prices.}
 
-\item{accel}{accel[1]: Acceleration factor.\cr accel[2]: Maximum acceleration
+\item{accel}{accel\link{1}: Acceleration factor.\cr accel\link{2}: Maximum acceleration
 factor.}
 }
 \value{
@@ -20,8 +20,7 @@ A object of the same class as \code{HL} or a vector (if
 \description{
 The Parabolic Stop-and-Reverse calculates a trailing stop.  Developed by J.
 Welles Wilder.
-}
-\details{
+
 The calculation for the SAR is quite complex.  See the URLs in the references
 section for calculation notes.
 
@@ -31,8 +30,8 @@ position or vice versa.
 }
 \examples{
 
-data(ttrc)
-sar <- SAR(ttrc[, c("High", "Low")])
+data(TSLA)
+sar <- SAR(TSLA[, c("High", "Low")])
 
 }
 \references{

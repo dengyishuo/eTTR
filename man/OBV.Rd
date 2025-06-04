@@ -14,7 +14,7 @@ corresponding to the price object.}
 }
 \value{
 A object of the same class as \code{price} and \code{volume} or a
-        vector (if \code{try.xts} fails) containing the OBV values.
+vector (if \code{try.xts} fails) containing the OBV values.
 }
 \description{
 On Balance Volume (OBV) is a momentum-based technical indicator that measures
@@ -27,7 +27,7 @@ This function is part of the eTTR (Enhanced Technical Trading Rules) package.
 }
 \note{
 OBV is typically used to confirm price trends or identify potential
-      divergences between volume flow and price movements.
+divergences between volume flow and price movements.
 }
 \section{Copyright}{
 
@@ -46,7 +46,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+along with this program.  If not, see \url{http://www.gnu.org/licenses/}.
 }
 
 \examples{
@@ -55,10 +55,12 @@ obv <- OBV(TSLA[, "Close"], ttrc[, "Volume"])
 
 }
 \references{
-- https://www.fmlabs.com/reference/OBV.htm
-- https://www.metastock.com/Customer/Resources/TAAZ/?p=82
-- https://www.linnsoft.com/techind/balance-open-interest
-- https://school.stockcharts.com/doku.php?id=technical_indicators:on_balance_volume_obv
+\itemize{
+\item https://www.fmlabs.com/reference/OBV.htm
+\item https://www.metastock.com/Customer/Resources/TAAZ/?p=82
+\item https://www.linnsoft.com/techind/balance-open-interest
+\item https://school.stockcharts.com/doku.php?id=technical_indicators:on_balance_volume_obv
+}
 }
 \seealso{
 See \code{\link{chaikinAD}} for a similar volume-based indicator.

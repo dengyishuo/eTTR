@@ -16,16 +16,15 @@ CTI(price, n = 20, slope = 1)
 \value{
 A object of the same class as \code{price} or a matrix (if
 \code{try.xts} fails) with the column:
- \describe{
-  \item{cti}{ The Correlation Trend Indicator. }
- }
+\describe{
+\item{cti}{ The Correlation Trend Indicator. }
+}
 }
 \description{
 Ehler's Correlation Trend Indicator (CTI) measures the Spearman correlation
 of the price with the ideal trend line: a straight line with increasing
 slope.
-}
-\details{
+
 The CTI measures the Spearman correlation between the price and the ideal
 trend line with slope of \code{slope}, over the past \code{n} days.
 

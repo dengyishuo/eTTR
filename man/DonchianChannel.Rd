@@ -19,17 +19,16 @@ included in the calculation? See Note.}
 \value{
 A object of the same class as \code{HL} or a matrix (if
 \code{try.xts} fails) containing the columns:
- \describe{
-  \item{ high }{ The highest high series. }
-  \item{ mid }{ The average of \code{high} and \code{low}. }
-  \item{ low }{ The lowest low series. }
- }
+\describe{
+\item{ high }{ The highest high series. }
+\item{ mid }{ The average of \code{high} and \code{low}. }
+\item{ low }{ The lowest low series. }
+}
 }
 \description{
 Donchian Channels were created by Richard Donchian and were used to generate
 buy and sell signals for the Turtle Trading system.
-}
-\details{
+
 Donchian Channels consist of two (sometimes three) lines:
 
 The top line is the highest high of the past \code{n} periods.  The bottom
@@ -49,8 +48,8 @@ The default of this argument may change in the future.
 }
 \examples{
 
-data(ttrc)
-dc <- DonchianChannel(ttrc[, c("High", "Low")])
+data(TSLA)
+dc <- DonchianChannel(TSLA[, c("High", "Low")])
 
 }
 \references{

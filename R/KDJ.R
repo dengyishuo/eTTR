@@ -14,6 +14,9 @@
 #' @importFrom xts xts is.xts
 #' @importFrom zoo rollapply na.approx index
 #' @export
+#' @examples
+#' data(TSLA)
+#' tsla_kdj <- KDJ(TSLA, n = 9, m1 = 3, m2 = 3, fill.na.method = "interpolate")
 #'
 KDJ <- function(ohlc, n = 9, m1 = 3, m2 = 3, fill_na_method = "none") {
   if (!is.xts(ohlc)) stop("Input 'ohlc' must be an xts object.")

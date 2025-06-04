@@ -23,12 +23,12 @@ used.  See details.}
 \value{
 A object of the same class as \code{HLC} or a matrix (if
 \code{try.xts} fails) containing the columns:
- \describe{
-  \item{ dn }{ The lower Bollinger Band. }
-  \item{ mavg }{ The middle Moving Average (see notes). }
-  \item{ up }{ The upper Bollinger Band. }
-  \item{ pctB }{ The \%B calculation. }
- }
+\describe{
+\item{ dn }{ The lower Bollinger Band. }
+\item{ mavg }{ The middle Moving Average (see notes). }
+\item{ up }{ The upper Bollinger Band. }
+\item{ pctB }{ The \\%B calculation. }
+}
 }
 \description{
 Bollinger Bands are a way to compare a security's volatility and price levels
@@ -37,8 +37,8 @@ over a period of time.  Developed by John Bollinger.
 \details{
 Bollinger Bands consist of three lines:
 
-The middle band is generally a 20-period SMA of the typical price ([high +
-low + close]/3).  The upper and lower bands are \code{sd} standard deviations
+The middle band is generally a 20-period SMA of the typical price (\link[=high +
+low + close]{high + low + close}/3).  The upper and lower bands are \code{sd} standard deviations
 (generally 2) above and below the MA.
 
 The middle band is usually calculated using the typical price, but if a
@@ -56,9 +56,9 @@ simple moving average.
 ## The examples below show the differences between using a
 ## High-Low-Close series, and just a close series when
 ## calculating Bollinger Bands.
-data(ttrc)
-bbands.HLC <- BBands(ttrc[, c("High", "Low", "Close")])
-bbands.close <- BBands(ttrc[, "Close"])
+data(TSLA)
+bbands.HLC <- BBands(TSLA[, c("High", "Low", "Close")])
+bbands.close <- BBands(TSLA[, "Close"])
 }
 \references{
 The following site(s) were used to code/document this

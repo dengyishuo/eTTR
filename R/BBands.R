@@ -17,10 +17,12 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Bollinger Bands
+#' @title Bollinger Bands
 #'
+#' @description
 #' Bollinger Bands are a way to compare a security's volatility and price levels
 #' over a period of time.  Developed by John Bollinger.
+#' @details
 #'
 #' Bollinger Bands consist of three lines:
 #'
@@ -63,14 +65,15 @@
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:bollinger_bands}\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:bollinger_band_width}\cr
 #' @keywords ts
+#' @export
 #' @examples
 #'
 #' ## The examples below show the differences between using a
 #' ## High-Low-Close series, and just a close series when
 #' ## calculating Bollinger Bands.
-#' data(ttrc)
-#' bbands.HLC <- BBands(ttrc[, c("High", "Low", "Close")])
-#' bbands.close <- BBands(ttrc[, "Close"])
+#' data(TSLA)
+#' bbands.HLC <- BBands(TSLA[, c("High", "Low", "Close")])
+#' bbands.close <- BBands(TSLA[, "Close"])
 BBands <-
   function(HLC, n = 20, maType, sd = 2, ...) {
     # Bollinger Bands

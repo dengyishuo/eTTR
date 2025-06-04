@@ -20,8 +20,9 @@ An object of the same class as \code{price} containing the VWAP values.
 Calculate the volume-weighted moving average price.
 }
 \examples{
-data(ttrc)
-vwap_20 <- VWAP(ttrc[, "Close"], ttrc[, "Volume"], 20)
+
+data(TSLA)
+vwap_20 <- VWAP(TSLA[, "Close"], TSLA[, "Volume"], 20)
 head(vwap_20)
 }
 \keyword{ts}

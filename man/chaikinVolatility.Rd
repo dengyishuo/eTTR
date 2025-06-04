@@ -23,8 +23,7 @@ A object of the same class as \code{HL} or a vector (if
 \description{
 Chaikin Volatility measures the rate of change of the security's trading
 range.  Developed by Marc Chaikin.
-}
-\details{
+
 The Chaikin Volatility indicator defines volatility as an increase in the
 difference between the high and low.
 }

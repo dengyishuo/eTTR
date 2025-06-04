@@ -17,10 +17,12 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Commodity Channel Index
+#' @title Commodity Channel Index
 #'
+#' @description
 #' The Commodity Channel Index (CCI) attempts to identify starting and ending
 #' trends.
+#' @details
 #'
 #' CCI relates the current price and the average of price over \code{n} periods.
 #' The CCI usually falls in a channel of -100 to 100. A basic CCI trading system
@@ -53,11 +55,13 @@
 #' \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=42}\cr
 #' \url{https://www.linnsoft.com/techind/cci-commodity-channel-index}\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:commodity_channel_index_cci}\cr
+#' @importFrom xts try.xts
+#' @export
 #' @keywords ts
 #' @examples
 #'
-#' data(ttrc)
-#' cci <- CCI(ttrc[, c("High", "Low", "Close")])
+#' data(TSLA)
+#' cci <- CCI(TSLA[, c("High", "Low", "Close")])
 #'
 CCI <-
   function(HLC, n = 20, maType, c = 0.015, ...) {

@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Zero-Lag Exponential Moving Average (ZLEMA)
-#'
+#' @title Zero-Lag Exponential Moving Average (ZLEMA)
+#' @description
 #' Calculate an exponential moving average with reduced lag.
 #'
 #' @param x Price series that is coercible to xts or matrix.
@@ -27,9 +27,11 @@
 #' @return An object of the same class as \code{x} containing the ZLEMA values.
 #' @keywords ts
 #' @export
+#' @useDynLib eTTR, .registration = TRUE
 #' @examples
-#' data(ttrc)
-#' zlema_20 <- ZLEMA(ttrc[, "Close"], 20)
+#'
+#' data(TSLA)
+#' zlema_20 <- ZLEMA(TSLA[, "Close"], 20)
 #' head(zlema_20)
 ZLEMA <- function(x, n = 10, ratio = NULL) {
   # Zero-Lag Exponential Moving Average

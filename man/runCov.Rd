@@ -24,8 +24,8 @@ An object of the same class as \code{x} with covariance values.
 Calculate the covariance over a moving window of periods.
 }
 \examples{
-data(ttrc)
-cov_20 <- runCov(ttrc[, "Close"], ttrc[, "Volume"], 20)
+data(TSLA)
+cov_20 <- runCov(TSLA[, "Close"], TSLA[, "Volume"], 20)
 head(cov_20)
 }
 \keyword{internal}

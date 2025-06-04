@@ -18,8 +18,8 @@ An object of the same class as \code{x} containing the HMA values.
 Calculate a highly responsive moving average with reduced lag.
 }
 \examples{
-data(ttrc)
-hma_20 <- HMA(ttrc[, "Close"], 20)
+data(TSLA)
+hma_20 <- HMA(TSLA[, "Close"], 20)
 head(hma_20)
 }
 \keyword{ts}

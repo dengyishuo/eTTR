@@ -22,14 +22,13 @@ fails) containing the rate-of-change values.
 }
 \description{
 Calculate the rate of change of a series over \code{n} periods.
-}
-\details{
+
 The ROC indicator provides the percentage difference of a series over two
 observations. It can be calculated using either continuous or discrete compounding.
 }
 \examples{
-data(ttrc)
-roc <- ROC(ttrc[, "Close"])
+data(TSLA)
+roc <- ROC(TSLA[, "Close"])
 }
 \author{
 DengYishuo

@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Volatility
-#'
+#' @title Volatility
+#' @description
 #' Selected volatility estimators/indicators; various authors.
 #'
 #' \itemize{
@@ -126,10 +126,11 @@
 #' \cr OHLC Volatility: Yang Zhang (\code{calc="yang.zhang"}):\cr
 #' \url{https://web.archive.org/web/20100326215050/http://www.sitmo.com/eq/409}\cr
 #' @keywords ts
+#' @export
 #' @examples
 #'
-#' data(ttrc)
-#' ohlc <- ttrc[, c("Open", "High", "Low", "Close")]
+#' data(TSLA)
+#' ohlc <- TSLA[, c("Open", "High", "Low", "Close")]
 #' vClose <- volatility(ohlc, calc = "close")
 #' vClose0 <- volatility(ohlc, calc = "close", mean0 = TRUE)
 #' vGK <- volatility(ohlc, calc = "garman")

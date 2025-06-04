@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Moving Window Covariance (runCov)
-#'
+#' @title Moving Window Covariance (runCov)
+#' @description
 #' Calculate the covariance over a moving window of periods.
 #'
 #' @param x Object coercible to xts or matrix.
@@ -31,8 +31,8 @@
 #' @keywords ts internal
 #' @export
 #' @examples
-#' data(ttrc)
-#' cov_20 <- runCov(ttrc[, "Close"], ttrc[, "Volume"], 20)
+#' data(TSLA)
+#' cov_20 <- runCov(TSLA[, "Close"], TSLA[, "Volume"], 20)
 #' head(cov_20)
 runCov <- function(x, y, n = 10, sample = TRUE, cumulative = FALSE) {
   x <- try.xts(x, error = as.matrix)

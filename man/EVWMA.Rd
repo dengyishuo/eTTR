@@ -20,8 +20,8 @@ An object of the same class as \code{price} containing the EVWMA values.
 Calculate a volume-weighted moving average that adjusts to trading volume.
 }
 \examples{
-data(ttrc)
-evwma_20 <- EVWMA(ttrc[, "Close"], ttrc[, "Volume"], 20)
+data(TSLA)
+evwma_20 <- EVWMA(TSLA[, "Close"], TSLA[, "Volume"], 20)
 head(evwma_20)
 }
 \keyword{ts}

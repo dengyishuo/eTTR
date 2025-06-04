@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' The Ultimate Oscillator
-#'
+#' @title The Ultimate Oscillator
+#' @description
 #' The Ultimate Oscillator is a momentum oscillator designed to capture momentum across three
 #' different time frames.
 #'
@@ -33,10 +33,11 @@
 #' indicator:\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:ultimate_oscillator}\cr
 #' @keywords ts
+#' @export
 #' @examples
 #'
-#' data(ttrc)
-#' ult.osc <- ultimateOscillator(ttrc[, c("High", "Low", "Close")])
+#' data(TSLA)
+#' ult.osc <- ultimateOscillator(TSLA[, c("High", "Low", "Close")])
 #'
 ultimateOscillator <-
   function(HLC, n = c(7, 14, 28), wts = c(4, 2, 1)) {

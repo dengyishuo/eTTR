@@ -15,17 +15,18 @@ High-Low price series, or a Close price series.}
 \value{
 A object of the same class as \code{HL} or a matrix (if
 \code{try.xts} fails) containing the columns:
- \describe{
-  \item{ aroonUp }{ The Aroon up indicator. }
-  \item{ aroonDn }{ The Aroon down indicator. }
-  \item{ oscillator }{ The Aroon oscillator (\code{aroonUp - aroonDn}). }
- }
+\describe{
+\item{ aroonUp }{ The Aroon up indicator. }
+\item{ aroonDn }{ The Aroon down indicator. }
+\item{ oscillator }{ The Aroon oscillator (\code{aroonUp - aroonDn}). }
+}
 }
 \description{
-The Aroon indicator attempts to identify starting trends.  The indicator
+The Aroon indicator attempts to identify starting trends.The indicator
 consists of up and down lines, which measure how long it has been since the
-highest high/lowest low has occurred in the last \code{n} periods.  Developed
-by Tushar Chande in 1995.
+highest high/lowest low has occurred in the last \code{n} periods.
+
+Developed by Tushar Chande in 1995.
 }
 \details{
 Aroon up (down) is the elapsed time, expressed as a percentage, between today
@@ -46,8 +47,8 @@ aroonDn(Up) is below 30.  Also, crossovers may be useful.
 \examples{
 
 ## Get Data and Indicator ##
-data(ttrc)
-trend <- aroon(ttrc[, c("High", "Low")], n = 20)
+data(TSLA)
+trend <- aroon(TSLA[, c("High", "Low")], n = 20)
 
 }
 \references{

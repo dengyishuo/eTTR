@@ -13,19 +13,12 @@ naCheck(x, n = 0)
 }
 \value{
 An invisible list containing:
-  \item{NAs}{Number of leading NA values.}
-  \item{nonNA}{Indices of non-NA values.}
-  \item{beg}{Starting index after accounting for NAs and offset.}
+\item{NAs}{Number of leading NA values.}
+\item{nonNA}{Indices of non-NA values.}
+\item{beg}{Starting index after accounting for NAs and offset.}
 }
 \description{
 Validates that NA values are only present at the start of a series.
-}
-\details{
-Check for Leading NA Values
-
-This function ensures that any NA values in the input data are only
-present at the beginning of the series. It is useful for validating
-time series data before analysis.
 }
 \examples{
 data <- c(NA, NA, 3, 4, 5)

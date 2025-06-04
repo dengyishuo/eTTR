@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Triple Smoothed Exponential Oscillator
-#'
+#' @title Triple Smoothed Exponential Oscillator
+#' @description
 #' The TRIX indicator calculates the rate of change of a triple exponential
 #' moving average.  Developed by Jack K. Hutson.
 #'
@@ -56,11 +56,12 @@
 #' \url{https://www.linnsoft.com/techind/trix-triple-smoothed-exponential-oscillator}\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:trix}\cr
 #' @keywords ts
+#' @export
 #' @examples
 #'
-#' data(ttrc)
-#' trix <- TRIX(ttrc[, "Close"])
-#' trix4 <- TRIX(ttrc[, "Close"],
+#' data(TSLA)
+#' trix <- TRIX(TSLA[, "Close"])
+#' trix4 <- TRIX(TSLA[, "Close"],
 #'   maType = list(list(SMA), list(EMA, wilder = TRUE), list(SMA), list(DEMA))
 #' )
 #'

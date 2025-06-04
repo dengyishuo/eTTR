@@ -16,13 +16,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
-#' Stochastic Momentum Index (SMI) Calculation
-#'
-#' The Stochastic Momentum Index (SMI) is a momentum indicator developed by
-#' William Blau, which measures the relationship between closing price and
-#' the midpoint of the high-low range. It is designed to identify momentum
-#' shifts in financial markets.
 #'
 #' @title Stochastic Momentum Index
 #' @description Calculates the SMI value and its signal line.

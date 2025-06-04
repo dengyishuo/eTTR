@@ -17,9 +17,9 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Construct (optionally further smoothed and centered ) volatility bands around
+#' @title Construct (optionally further smoothed and centered ) volatility bands around
 #' prices
-#'
+#' @description
 #' John Bollinger's famous adaptive volatility bands most often use the typical
 #' price of an HLC series, or may be calculated on a univariate price series
 #' (see \code{\link{BBands}}).
@@ -59,6 +59,7 @@
 #' @author Brian G. Peterson
 #' @seealso \code{\link{BBands}}
 #' @keywords ts
+#' @export
 #' @examples
 #'
 #' data(TSLA)

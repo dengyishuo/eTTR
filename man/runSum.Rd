@@ -20,8 +20,8 @@ An object of the same class as \code{x} with summed values.
 Calculate the sum of values over a moving window of periods.
 }
 \examples{
-data(ttrc)
-sum_10 <- runSum(ttrc[, "Close"], 10)
+data(TSLA)
+sum_10 <- runSum(TSLA[, "Close"], 10)
 head(sum_10)
 }
 \keyword{internal}

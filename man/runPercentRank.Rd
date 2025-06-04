@@ -26,8 +26,7 @@ class as \code{x} and \code{y} or a vector (if \code{try.xts} fails).
 }
 \description{
 This function computes a running/rolling percentage rank.
-}
-\details{
+
 The computation for a percentage rank can vary depending on the weight given
 to values in the window that are equal to the value being ranked. This weight
 can be set using the \code{exact.multiplier} argument which defaults to 0.5.

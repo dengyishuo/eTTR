@@ -17,7 +17,7 @@ ATR(HLC, n = 14, maType, ...)
 }
 \value{
 An xts object containing columns for the true range ("tr"), the ATR ("atr"),
-        and the true high and low values ("trueHigh", "trueLow").
+and the true high and low values ("trueHigh", "trueLow").
 }
 \description{
 This function computes the Average True Range (ATR), a technical analysis indicator

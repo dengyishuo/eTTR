@@ -17,9 +17,9 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Arnaud Legoux Moving Average (ALMA)
+#' @title Arnaud Legoux Moving Average (ALMA)
 #'
-#' Calculate a Gaussian-weighted moving average with reduced lag.
+#' @description Calculate a Gaussian-weighted moving average with reduced lag.
 #'
 #' @param x Price series that is coercible to xts or matrix.
 #' @param n Number of periods to average over.
@@ -30,9 +30,9 @@
 #' @keywords ts
 #' @export
 #' @examples
-#' data(ttrc)
-#' alma_9 <- ALMA(ttrc[, "Close"], 9)
-#' head(alma_9)
+#' data(TSLA)
+#' tsla_alma_9 <- ALMA(TSLA[, "Close"], 9)
+#' head(tsla_alma_9)
 ALMA <- function(x, n = 9, offset = 0.85, sigma = 6) {
   # Arnaud Legoux Moving Average
   x <- try.xts(x, error = as.matrix)

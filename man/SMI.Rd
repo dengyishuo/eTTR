@@ -31,14 +31,6 @@ An xts or matrix object with columns: SMI, signal.
 \description{
 Calculates the SMI value and its signal line.
 }
-\details{
-Stochastic Momentum Index (SMI) Calculation
-
-The Stochastic Momentum Index (SMI) is a momentum indicator developed by
-William Blau, which measures the relationship between closing price and
-the midpoint of the high-low range. It is designed to identify momentum
-shifts in financial markets.
-}
 \examples{
 data(ttrc)
 smi_values <- SMI(ttrc[, c("High", "Low", "Close")])

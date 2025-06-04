@@ -18,25 +18,24 @@ fails) containing Chande Momentum Oscillator values.
 \description{
 The Chande Momentum Oscillator (CMO) is a modified RSI.  Developed by Tushar
 S. Chande.
-}
-\details{
-The CMO divides the total movement by the net movement ([up - down] / [up +
-down]), where RSI divides the upward movement by the net movement (up / [up +
-down]).
+
+The CMO divides the total movement by the net movement (\link{up - down} / \link[=up +
+down]{up + down}), where RSI divides the upward movement by the net movement (up / \link[=up +
+down]{up + down}).
 }
 \note{
 There are several ways to interpret the CMO:
- \enumerate{
-   \item Values over/under +/- 50 indicate overbought/oversold conditions.
-   \item High CMO values indicate strong trends.
-   \item When the CMO crosses above/below a moving average of the CMO,
-         it is a buy/sell signal.
- }
+\enumerate{
+\item Values over/under +/- 50 indicate overbought/oversold conditions.
+\item High CMO values indicate strong trends.
+\item When the CMO crosses above/below a moving average of the CMO,
+it is a buy/sell signal.
+}
 }
 \examples{
 
-data(ttrc)
-cmo <- CMO(ttrc[, "Close"])
+data(TSLA)
+cmo <- CMO(TSLA[, "Close"])
 
 }
 \references{

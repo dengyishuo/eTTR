@@ -20,8 +20,9 @@ An object of the same class as \code{x} containing the WMA values.
 Calculate a weighted moving average with custom weights.
 }
 \examples{
-data(ttrc)
-wma_10 <- WMA(ttrc[, "Close"], 10)
+
+data(TSLA)
+wma_10 <- WMA(TSLA[, "Close"], 10)
 head(wma_10)
 }
 \keyword{ts}

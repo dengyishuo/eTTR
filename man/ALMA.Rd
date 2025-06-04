@@ -25,8 +25,8 @@ Calculate a Gaussian-weighted moving average with reduced lag.
 Higher \code{offset} emphasizes recent prices; lower \code{sigma} reduces smoothing.
 }
 \examples{
-data(ttrc)
-alma_9 <- ALMA(ttrc[, "Close"], 9)
-head(alma_9)
+data(TSLA)
+tsla_alma_9 <- ALMA(TSLA[, "Close"], 9)
+head(tsla_alma_9)
 }
 \keyword{ts}

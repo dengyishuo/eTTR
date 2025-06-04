@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Rate of Change (ROC)
-#'
+#' @title Rate of Change (ROC)
+#' @description
 #' Calculate the rate of change of a series over \code{n} periods.
 #'
 #' The ROC indicator provides the percentage difference of a series over two
@@ -34,8 +34,8 @@
 #' @author DengYishuo
 #' @keywords ts
 #' @examples
-#' data(ttrc)
-#' roc <- ROC(ttrc[, "Close"])
+#' data(TSLA)
+#' roc <- ROC(TSLA[, "Close"])
 #' @export
 ROC <-
   function(x, n = 1, type = c("continuous", "discrete"), na.pad = TRUE) {

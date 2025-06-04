@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Trend Detection Index
-#'
+#' @title Trend Detection Index
+#' @description
 #' The Trend Detection Index (TDI) attempts to identify starting and ending
 #' trends.  Developed by M. H. Pee.
 #'

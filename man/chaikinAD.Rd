@@ -22,8 +22,7 @@ values.
 The Chaikin Accumulation / Distribution (AD) line is a measure of the money
 flowing into or out of a security.  It is similar to On Balance Volume (OBV).
 Developed by Marc Chaikin.
-}
-\details{
+
 The AD line is similar to OBV; the difference is that OBV sums volume
 multiplied by +/- 1 if the close is higher/lower than the previous close,
 while the AD line multiplies volume by the close location value (CLV).
@@ -34,8 +33,8 @@ divergence in the direction of the indicator relative to price.
 }
 \examples{
 
-data(ttrc)
-ad <- chaikinAD(ttrc[, c("High", "Low", "Close")], ttrc[, "Volume"])
+data(TSLA)
+ad <- chaikinAD(TSLA[, c("High", "Low", "Close")], TSLA[, "Volume"])
 
 }
 \references{

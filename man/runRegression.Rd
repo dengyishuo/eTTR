@@ -22,10 +22,10 @@ runRegression(x, n = 14, include.intercept = TRUE, output = "all")
 }
 \value{
 If output is "slope", returns a vector or xts object containing slope values.
-        If output is "all", returns a list of class "runRegression" containing coefficients,
-        R-squared, adjusted R-squared, F-statistic, and p-value.
-        若output为"slope"，返回包含斜率值的向量或xts对象；
-        若output为"all"，返回类"runRegression"的列表，包含系数、R²、调整R²、F统计量和p值。
+If output is "all", returns a list of class "runRegression" containing coefficients,
+R-squared, adjusted R-squared, F-statistic, and p-value.
+若output为"slope"，返回包含斜率值的向量或xts对象；
+若output为"all"，返回类"runRegression"的列表，包含系数、R²、调整R²、F统计量和p值。
 }
 \description{
 Performs linear regression over a sliding window on a time series,

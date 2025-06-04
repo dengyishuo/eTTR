@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Welles Wilder Style Sum (wilderSum)
-#'
+#' @title Welles Wilder Style Sum (wilderSum)
+#' @description
 #' Calculate a weighted sum using Welles Wilder's method.
 #'
 #' @param x Object coercible to xts or matrix.
@@ -26,9 +26,11 @@
 #' @return An object of the same class as \code{x} with Wilder-style sums.
 #' @useDynLib eTTR, .registration = TRUE
 #' @keywords ts internal
+#' @export
 #' @examples
-#' data(ttrc)
-#' wilder_14 <- wilderSum(ttrc[, "High"] - ttrc[, "Low"], 14)
+#'
+#' data(TSLA)
+#' wilder_14 <- wilderSum(TSLA[, "High"] - TSLA[, "Low"], 14)
 #' head(wilder_14)
 wilderSum <- function(x, n = 10) {
   x <- try.xts(x, error = as.matrix)

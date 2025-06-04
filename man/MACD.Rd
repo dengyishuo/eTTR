@@ -18,10 +18,10 @@ volume, etc.}
 
 \item{maType}{Either:
 \enumerate{
-  \item A function or a string naming the function to be called.
-  \item A \emph{list} with the first component like (1) above, and
-    additional parameters specified as \emph{named} components.
-    See Examples.
+\item A function or a string naming the function to be called.
+\item A \emph{list} with the first component like (1) above, and
+additional parameters specified as \emph{named} components.
+See Examples.
 }}
 
 \item{percent}{logical; if \code{TRUE}, the percentage difference between the
@@ -34,18 +34,17 @@ case (1) above.}
 \value{
 A object of the same class as \code{x} or a matrix (if \code{try.xts}
 fails) containing the columns:
- \describe{
-  \item{ macd }{ The price (volume, etc.) oscillator. }
-  \item{ signal }{ The oscillator signal line (a moving average of the oscillator). }
- }
+\describe{
+\item{ macd }{ The price (volume, etc.) oscillator. }
+\item{ signal }{ The oscillator signal line (a moving average of the oscillator). }
+}
 }
 \description{
 The MACD was developed by Gerald Appel and is probably the most popular price
 oscillator.  The MACD function documented in this page compares a fast moving
 average (MA) of a series with a slow MA of the same series.  It can be used
 as a generic oscillator for any univariate series, not only price.
-}
-\details{
+
 The MACD function either subtracts the fast MA from the slow MA, or finds the
 rate of change between the fast MA and the slow MA.
 }
@@ -58,10 +57,10 @@ used exponential constants of 0.075 and 0.15, which are closer to
 }
 \examples{
 
-data(ttrc)
+data(TSLA)
 
-macd <- MACD(ttrc[, "Close"], 12, 26, 9, maType = "EMA")
-macd2 <- MACD(ttrc[, "Close"], 12, 26, 9,
+macd <- MACD(TSLA[, "Close"], 12, 26, 9, maType = "EMA")
+macd2 <- MACD(TSLA[, "Close"], 12, 26, 9,
   maType = list(list(SMA), list(EMA, wilder = TRUE), list(SMA))
 )
 

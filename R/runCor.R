@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Moving Window Correlation (runCor)
-#'
+#' @title Moving Window Correlation (runCor)
+#' @description
 #' Calculate the correlation over a moving window of periods.
 #'
 #' @param x Object coercible to xts or matrix.
@@ -30,8 +30,8 @@
 #' @keywords ts
 #' @export
 #' @examples
-#' data(ttrc)
-#' cor_20 <- runCor(ttrc[, "Close"], ttrc[, "Volume"], 20)
+#' data(TSLA)
+#' cor_20 <- runCor(TSLA[, "Close"], TSLA[, "Volume"], 20)
 #' head(cor_20)
 runCor <- function(x, y, n = 10, sample = TRUE, cumulative = FALSE) {
   result <- runCov(x, y, n, sample = sample, cumulative = cumulative) /

@@ -25,9 +25,9 @@ TSI(price, r = 13, s = 25, signal_period = 9, ...)
 }
 \value{
 An object of the same type as the input (vector or xts) containing two columns:
-        "tsi" (True Strength Index values) and "signal" (signal line values).
-        返回与输入相同类型的对象(向量或xts)，包含两列：
-        "tsi"(真实强度指数值)和"signal"(信号线值)。
+"tsi" (True Strength Index values) and "signal" (signal line values).
+返回与输入相同类型的对象(向量或xts)，包含两列：
+"tsi"(真实强度指数值)和"signal"(信号线值)。
 }
 \description{
 True Strength Index (TSI) Calculation

@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Hull Moving Average (HMA)
-#'
+#' @title Hull Moving Average (HMA)
+#' @description
 #' Calculate a highly responsive moving average with reduced lag.
 #'
 #' @param x Price series that is coercible to xts or matrix.
@@ -27,8 +27,8 @@
 #' @keywords ts
 #' @export
 #' @examples
-#' data(ttrc)
-#' hma_20 <- HMA(ttrc[, "Close"], 20)
+#' data(TSLA)
+#' hma_20 <- HMA(TSLA[, "Close"], 20)
 #' head(hma_20)
 HMA <- function(x, n = 20) {
   # Hull Moving Average

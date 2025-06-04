@@ -19,12 +19,6 @@ A matrix of lagged values with columns labeled by original names and lag periods
 \description{
 Computes lagged values of a time series or matrix.
 }
-\details{
-Calculate Lags of a Time Series
-
-This function computes lagged values of a given time series or matrix.
-It is useful for creating lagged predictors in time series analysis.
-}
 \note{
 This function is deprecated in favor of xts::lag.xts and quantmod::Lag.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/growth.R
 \name{growth}
 \alias{growth}
-\title{Investment Growth Calculation}
+\title{Calculate Investment Growth}
 \usage{
 growth(price, signals, ...)
 }
@@ -18,18 +18,13 @@ growth(price, signals, ...)
 A vector of the cumulative growth of the investment over time.
 }
 \description{
-Computes the cumulative growth of an investment using prices and signals.
-}
-\details{
-Calculate Investment Growth
-
 This function computes the growth of an investment based on given prices
 and trading signals. It assumes an initial investment of $1 and applies
 the provided signals to determine positions (long, short, or none).
 }
 \note{
 You can specify the number of periods and type of compounding
-      via the '...' argument when calculating returns.
+via the '...' argument when calculating returns.
 }
 \examples{
 prices <- c(100, 105, 103, 107, 110)

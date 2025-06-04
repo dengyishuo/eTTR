@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Moving Window Mean (runMean)
-#'
+#' @title Moving Window Mean (runMean)
+#' @description
 #' Calculate the mean value over a moving window of periods.
 #'
 #' @param x Object coercible to xts or matrix.
@@ -28,8 +28,8 @@
 #' @keywords ts
 #' @export
 #' @examples
-#' data(ttrc)
-#' mean_10 <- runMean(ttrc[, "Close"], 10)
+#' data(TSLA)
+#' mean_10 <- runMean(TSLA[, "Close"], 10)
 #' head(mean_10)
 runMean <- function(x, n = 10, cumulative = FALSE) {
   if (cumulative) {

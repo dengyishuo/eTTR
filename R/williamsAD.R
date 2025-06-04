@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Williams Accumulation / Distribution
-#'
+#' @title Williams Accumulation / Distribution
+#' @description
 #' The Williams Accumulation / Distribution (AD) line is a measure of market
 #' momentum.  Developed by Larry Williams.
 #'
@@ -39,10 +39,11 @@
 #' \url{https://www.fmlabs.com/reference/WilliamsAD.htm}\cr
 #' \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=125}\cr
 #' @keywords ts
+#' @export
 #' @examples
 #'
-#' data(ttrc)
-#' ad <- williamsAD(ttrc[, c("High", "Low", "Close")])
+#' data(TSLA)
+#' ad <- williamsAD(TSLA[, c("High", "Low", "Close")])
 #'
 williamsAD <-
   function(HLC) {

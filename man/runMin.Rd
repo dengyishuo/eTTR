@@ -20,8 +20,8 @@ An object of the same class as \code{x} with minimum values.
 Calculate the minimum value over a moving window of periods.
 }
 \examples{
-data(ttrc)
-min_10 <- runMin(ttrc[, "Close"], 10)
+data(TSLA)
+min_10 <- runMin(TSLA[, "Close"], 10)
 head(min_10)
 }
 \keyword{internal}

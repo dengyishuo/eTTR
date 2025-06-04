@@ -19,11 +19,11 @@ stoch(
 \item{HLC}{Object coercible to xts or matrix, containing High-Low-Close prices
 or a univariate series.}
 
-\item{nFastK}{Number of periods for fast %K calculation (default: 14).}
+\item{nFastK}{Number of periods for fast \%K calculation (default: 14).}
 
-\item{nFastD}{Number of periods for fast %D calculation (default: 3).}
+\item{nFastD}{Number of periods for fast \%D calculation (default: 3).}
 
-\item{nSlowD}{Number of periods for slow %D calculation (default: 3).}
+\item{nSlowD}{Number of periods for slow \%D calculation (default: 3).}
 
 \item{maType}{Moving average type: function, string, or list of configurations
 (default: "SMA").}
@@ -38,16 +38,8 @@ or a univariate series.}
 An xts or matrix object with columns: fastK, fastD, slowD.
 }
 \description{
-Calculates the fast %K, fast %D, and slow %D values of
+Calculates the fast \%K, fast \%D, and slow \%D values of
 the stochastic oscillator.
-}
-\details{
-Stochastic Oscillator Calculation
-
-The stochastic oscillator is a momentum indicator that measures the
-relationship between the closing price and the high-low range over a
-specified period. Developed by George C. Lane, it helps identify
-overbought and oversold conditions in financial markets.
 }
 \examples{
 data(ttrc)

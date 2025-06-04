@@ -19,7 +19,7 @@ align_with_index(x, target_index, fill_value = NA)
 }
 \value{
 An xts object aligned with the target index.
-        与目标索引对齐的xts对象。
+与目标索引对齐的xts对象。
 }
 \description{
 Ensures that the input object is aligned with the specified target index,

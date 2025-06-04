@@ -64,16 +64,17 @@
 #' \url{https://www.fmlabs.com/reference/StochRSI.htm}\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:stochrsi}\cr
 #' @keywords ts
+#' @export
 #' @examples
 #'
-#' data(ttrc)
-#' price <- ttrc[, "Close"]
+#' data(TSLA)
+#' price <- TSLA[, "Close"]
 #'
 #' # Default case
 #' rsi <- RSI(price)
 #'
 #' # Case of one 'maType' for both MAs
-#' rsiMA1 <- RSI(price, n = 14, maType = "WMA", wts = ttrc[, "Volume"])
+#' rsiMA1 <- RSI(price, n = 14, maType = "WMA", wts = TSLA[, "Volume"])
 #'
 #' # Case of two different 'maType's for both MAs
 #' rsiMA2 <- RSI(price, n = 14, maType = list(maUp = list(EMA), maDown = list(WMA)))

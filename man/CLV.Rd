@@ -17,16 +17,15 @@ High-Low-Close price series.
 }
 \description{
 The Close Location Value (CLV) relates the day's close to its trading range.
-}
-\details{
+
 The CLV will fall in a range of -1 to +1.  If the CLV is +/-1, the close is
 at the high/low; if the CLV is 0, the close is directly between the high and
 low.
 }
 \examples{
 
-data(ttrc)
-clv <- CLV(ttrc[, c("High", "Low", "Close")])
+data(TSLA)
+clv <- CLV(TSLA[, c("High", "Low", "Close")])
 
 }
 \references{

@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Zig Zag
-#'
+#' @title Zig Zag
+#' @description
 #' Zig Zag higlights trends by removing price changes smaller than \code{change}
 #' and interpolating lines between the extreme points.
 #'
@@ -52,11 +52,13 @@
 #' \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=127}\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:zigzag}\cr
 #' @keywords ts
+#' @useDynLib eTTR, .registration = TRUE
+#' @export
 #' @examples
 #'
 #' ## Get Data and Indicator ##
-#' data(ttrc)
-#' zz <- ZigZag(ttrc[, c("High", "Low")], change = 20)
+#' data(TSLA)
+#' zz <- ZigZag(TSLA[, c("High", "Low")], change = 20)
 #'
 ZigZag <-
   function(HL, change = 10, percent = TRUE, retrace = FALSE, lastExtreme = TRUE) {

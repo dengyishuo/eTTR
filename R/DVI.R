@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' DV Intermediate Oscillator
-#'
+#' @title DV Intermediate Oscillator
+#' @description
 #' The DV Intermediate oscillator (DVI) is a very smooth momentum oscillator
 #' that can also be used as a trend indicator.  Created by David Varadi.
 #'
@@ -42,10 +42,11 @@
 #' \url{https://cssanalytics.wordpress.com/2009/12/13/what-is-the-dvi/}\cr
 #' \url{https://marketsci.wordpress.com/2010/07/27/css-analytics\%E2\%80\%99-dvi-indicator-revealed/}\cr
 #' @keywords ts
+#' @export
 #' @examples
 #'
-#' data(ttrc)
-#' dvi <- DVI(ttrc[, "Close"])
+#' data(TSLA)
+#' dvi <- DVI(TSLA[, "Close"])
 #'
 DVI <- function(
     price, n = 252, wts = c(0.8, 0.2), smooth = 3,

@@ -28,8 +28,7 @@ fails) containing the DPO values.
 \description{
 The Detrended Price Oscillator (DPO) removes the trend in prices - or other
 series - by subtracting a moving average of the price from the price.
-}
-\details{
+
 The Detrended Price shows cycles and overbought / oversold conditions.
 }
 \note{
@@ -47,9 +46,9 @@ classic oscillator, it should not be used for trading rule signals.
 
 \examples{
 
-data(ttrc)
-priceDPO <- DPO(ttrc[, "Close"])
-volumeDPO <- DPO(ttrc[, "Volume"])
+data(TSLA)
+priceDPO <- DPO(TSLA[, "Close"])
+volumeDPO <- DPO(TSLA[, "Volume"])
 
 }
 \references{

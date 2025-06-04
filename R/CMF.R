@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Chaikin Money Flow
-#'
+#' @title Chaikin Money Flow
+#' @description
 #' Chaikin Money Flow compares total volume over the last \code{n} time periods
 #' to total volume times the Close Location Value (CLV) over the last \code{n}
 #' time periods.  Developed by Marc Chaikin.
@@ -44,10 +44,11 @@
 #' \url{https://www.linnsoft.com/techind/chaikin-money-flow-cmf}\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:chaikin_money_flow_cmf}\cr
 #' @keywords ts
+#' @export
 #' @examples
 #'
-#' data(ttrc)
-#' cmf <- CMF(ttrc[, c("High", "Low", "Close")], ttrc[, "Volume"])
+#' data(TSLA)
+#' cmf <- CMF(TSLA[, c("High", "Low", "Close")], TSLA[, "Volume"])
 #'
 CMF <-
   function(HLC, volume, n = 20) {

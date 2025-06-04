@@ -25,10 +25,10 @@ KST(
 
 \item{maType}{Either:
 \enumerate{
-  \item A function or a string naming the function to be called.
-  \item A \emph{list} with the first component like (1) above, and
-    additional parameters specified as \emph{named} components.
-    See Examples.
+\item A function or a string naming the function to be called.
+\item A \emph{list} with the first component like (1) above, and
+additional parameters specified as \emph{named} components.
+See Examples.
 }}
 
 \item{wts}{A vector the same length as \code{n}, of the weight for each

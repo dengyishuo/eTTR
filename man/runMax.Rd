@@ -20,8 +20,8 @@ An object of the same class as \code{x} with maximum values.
 Calculate the maximum value over a moving window of periods.
 }
 \examples{
-data(ttrc)
-max_10 <- runMax(ttrc[, "Close"], 10)
+data(TSLA)
+max_10 <- runMax(TSLA[, "Close"], 10)
 head(max_10)
 }
 \keyword{internal}

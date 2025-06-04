@@ -20,8 +20,8 @@ An object of the same class as \code{x} with mean values.
 Calculate the mean value over a moving window of periods.
 }
 \examples{
-data(ttrc)
-mean_10 <- runMean(ttrc[, "Close"], 10)
+data(TSLA)
+mean_10 <- runMean(TSLA[, "Close"], 10)
 head(mean_10)
 }
 \keyword{ts}

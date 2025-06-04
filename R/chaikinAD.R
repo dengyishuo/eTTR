@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Chaikin Accumulation / Distribution
-#'
+#' @title Chaikin Accumulation / Distribution
+#' @description
 #' The Chaikin Accumulation / Distribution (AD) line is a measure of the money
 #' flowing into or out of a security.  It is similar to On Balance Volume (OBV).
 #' Developed by Marc Chaikin.
@@ -43,11 +43,12 @@
 #' \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=27}\cr
 #' \url{https://www.linnsoft.com/techind/accumulation-distribution}\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:accumulation_distribution_line}\cr
+#' @export
 #' @keywords ts
 #' @examples
 #'
-#' data(ttrc)
-#' ad <- chaikinAD(ttrc[, c("High", "Low", "Close")], ttrc[, "Volume"])
+#' data(TSLA)
+#' ad <- chaikinAD(TSLA[, c("High", "Low", "Close")], TSLA[, "Volume"])
 #'
 chaikinAD <-
   function(HLC, volume) {

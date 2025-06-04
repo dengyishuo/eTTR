@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Chande Momentum Oscillator
-#'
+#' @title Chande Momentum Oscillator
+#' @description
 #' The Chande Momentum Oscillator (CMO) is a modified RSI.  Developed by Tushar
 #' S. Chande.
 #'
@@ -42,10 +42,11 @@
 #' @references The following site(s) were used to code/document this
 #' indicator:\cr \url{https://www.fmlabs.com/reference/CMO.htm}\cr
 #' @keywords ts
+#' @export
 #' @examples
 #'
-#' data(ttrc)
-#' cmo <- CMO(ttrc[, "Close"])
+#' data(TSLA)
+#' cmo <- CMO(TSLA[, "Close"])
 #'
 CMO <-
   function(x, n = 14) {

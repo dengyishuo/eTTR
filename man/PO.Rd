@@ -33,7 +33,7 @@ and "EMA" (Exponential Moving Average). Default is "SMA".
 }
 \value{
 A PO indicator series of the same type as the input price series.
-        返回与输入价格序列相同类型的PO指标序列。
+返回与输入价格序列相同类型的PO指标序列。
 }
 \description{
 Calculates the Price Oscillator (PO), a momentum indicator that measures the difference

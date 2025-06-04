@@ -17,13 +17,16 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Aroon
+#' @title Aroon
 #'
-#' The Aroon indicator attempts to identify starting trends.  The indicator
+#' @description
+#' The Aroon indicator attempts to identify starting trends.The indicator
 #' consists of up and down lines, which measure how long it has been since the
-#' highest high/lowest low has occurred in the last \code{n} periods.  Developed
-#' by Tushar Chande in 1995.
+#' highest high/lowest low has occurred in the last \code{n} periods.
 #'
+#' Developed by Tushar Chande in 1995.
+#'
+#' @details
 #' Aroon up (down) is the elapsed time, expressed as a percentage, between today
 #' and the highest (lowest) price in the last \code{n} periods.  If today's
 #' price is a new high (low) Aroon up (down) will be 100. Each subsequent period
@@ -57,13 +60,15 @@
 #' \url{https://www.linnsoft.com/techind/aroon-arn}\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:aroon}\cr
 #' @keywords ts
+#' @useDynLib eTTR, .registration = TRUE
+#' @export
 #' @examples
 #'
 #' ## Get Data and Indicator ##
-#' data(ttrc)
-#' trend <- aroon(ttrc[, c("High", "Low")], n = 20)
+#' data(TSLA)
+#' trend <- aroon(TSLA[, c("High", "Low")], n = 20)
 #'
-"aroon" <-
+aroon <-
   function(HL, n = 20) {
     # Aroon up, down, and oscillator.
 

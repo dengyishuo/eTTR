@@ -25,3 +25,8 @@ This function computes the KDJ indicator based on an OHLC (Open, High, Low, Clos
 automatically extracting required columns ('high', 'low', 'close') from the input (case-insensitive).
 The KDJ indicator helps identify overbought or oversold conditions, returning K, D, and J lines.
 }
+\examples{
+data(TSLA)
+tsla_kdj <- KDJ(TSLA, n = 9, m1 = 3, m2 = 3, fill.na.method = "interpolate")
+
+}

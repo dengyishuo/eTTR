@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Moving Window Sum (runSum)
-#'
+#' @title Moving Window Sum (runSum)
+#' @description
 #' Calculate the sum of values over a moving window of periods.
 #'
 #' @param x Object coercible to xts or matrix.
@@ -29,8 +29,8 @@
 #' @keywords ts internal
 #' @export
 #' @examples
-#' data(ttrc)
-#' sum_10 <- runSum(ttrc[, "Close"], 10)
+#' data(TSLA)
+#' sum_10 <- runSum(TSLA[, "Close"], 10)
 #' head(sum_10)
 runSum <- function(x, n = 10, cumulative = FALSE) {
   x <- try.xts(x, error = as.matrix)

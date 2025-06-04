@@ -17,14 +17,13 @@ High-Low-Close prices.}
 \description{
 The Ultimate Oscillator is a momentum oscillator designed to capture momentum across three
 different time frames.
-}
-\details{
+
 Created by Larry Williams in 1976.
 }
 \examples{
 
-data(ttrc)
-ult.osc <- ultimateOscillator(ttrc[, c("High", "Low", "Close")])
+data(TSLA)
+ult.osc <- ultimateOscillator(TSLA[, c("High", "Low", "Close")])
 
 }
 \references{

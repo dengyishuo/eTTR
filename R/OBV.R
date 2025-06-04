@@ -50,6 +50,7 @@
 #' - https://school.stockcharts.com/doku.php?id=technical_indicators:on_balance_volume_obv
 #'
 #' @keywords ts indicator volume momentum
+#' @export
 #'
 #' @examples
 #' data(TSLA)

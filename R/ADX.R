@@ -17,11 +17,10 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Welles Wilder's Directional Movement Index
+#' @title Welles Wilder's Directional Movement Index
 #'
-#' Directional Movement Index; developed by J. Welles Wilder.
-#'
-#' The \code{DIp}/\code{DIn} (positive/negative) is the percentage of the true
+#' @description Directional Movement Index; developed by J. Welles Wilder.
+#' .The \code{DIp}/\code{DIn} (positive/negative) is the percentage of the true
 #' range that is up/down.
 #'
 #' @aliases ADX DI DX
@@ -58,6 +57,7 @@
 #' \url{https://www.linnsoft.com/techind/adx-avg-directional-movement}\cr
 #' \url{https://www.linnsoft.com/techind/adxr-avg-directional-movement-rating}\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:average_directional_index_adx}\cr
+#' @export
 #' @keywords ts
 #' @examples
 #'

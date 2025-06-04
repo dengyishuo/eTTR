@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Percent Rank over a Moving Window
-#'
+#' @title Percent Rank over a Moving Window
+#' @description
 #' This function computes a running/rolling percentage rank.
 #'
 #' The computation for a percentage rank can vary depending on the weight given
@@ -62,6 +62,7 @@
 #' indicator:\cr \url{https://en.wikipedia.org/wiki/Percentile_rank}\cr
 #'
 #' @keywords ts
+#' @useDynLib eTTR, .registration = TRUE
 #' @export
 runPercentRank <- function(x, n = 260, cumulative = FALSE, exact.multiplier = 0.5) {
   x <- try.xts(x, error = as.matrix)

@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Volume-Weighted Average Price (VWAP)
-#'
+#' @title Volume-Weighted Average Price (VWAP)
+#' @description
 #' Calculate the volume-weighted moving average price.
 #'
 #' @param price Price series that is coercible to xts or matrix.
@@ -28,8 +28,9 @@
 #' @keywords ts
 #' @export
 #' @examples
-#' data(ttrc)
-#' vwap_20 <- VWAP(ttrc[, "Close"], ttrc[, "Volume"], 20)
+#'
+#' data(TSLA)
+#' vwap_20 <- VWAP(TSLA[, "Close"], TSLA[, "Volume"], 20)
 #' head(vwap_20)
 VWAP <- VWMA <- function(price, volume, n = 10) {
   # Volume-weighted average price / moving average

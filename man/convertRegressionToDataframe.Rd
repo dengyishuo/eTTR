@@ -16,7 +16,7 @@ convertRegressionToDataframe(reg_result, prefix = "")
 }
 \value{
 A data frame containing regression results.
-        包含回归结果的数据框。
+包含回归结果的数据框。
 }
 \description{
 Converts the results of a runRegression analysis into a data frame for easier manipulation.

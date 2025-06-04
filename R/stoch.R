@@ -16,14 +16,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
-#' Stochastic Oscillator Calculation
-#'
-#' The stochastic oscillator is a momentum indicator that measures the
-#' relationship between the closing price and the high-low range over a
-#' specified period. Developed by George C. Lane, it helps identify
-#' overbought and oversold conditions in financial markets.
-#'
 #' @title Stochastic Oscillator
 #' @description Calculates the fast %K, fast %D, and slow %D values of
 #' the stochastic oscillator.
@@ -53,7 +45,6 @@
 #' )
 #'
 #' @importFrom xts try.xts reclass
-#' @importFrom TTR runMax runMin
 #'
 #' @export
 

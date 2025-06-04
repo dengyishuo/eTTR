@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' De-Trended Price Oscillator
-#'
+#' @title De-Trended Price Oscillator
+#' @description
 #' The Detrended Price Oscillator (DPO) removes the trend in prices - or other
 #' series - by subtracting a moving average of the price from the price.
 #'
@@ -51,11 +51,12 @@
 #' indicator:\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:detrended_price_osci}\cr
 #' @keywords ts
+#' @export
 #' @examples
 #'
-#' data(ttrc)
-#' priceDPO <- DPO(ttrc[, "Close"])
-#' volumeDPO <- DPO(ttrc[, "Volume"])
+#' data(TSLA)
+#' priceDPO <- DPO(TSLA[, "Close"])
+#' volumeDPO <- DPO(TSLA[, "Volume"])
 #'
 DPO <-
   function(x, n = 10, maType, shift = n / 2 + 1, percent = FALSE, ...) {

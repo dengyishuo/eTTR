@@ -23,8 +23,7 @@ vector (if \code{try.xts} fails) containing the Chaikin Money Flow values.
 Chaikin Money Flow compares total volume over the last \code{n} time periods
 to total volume times the Close Location Value (CLV) over the last \code{n}
 time periods.  Developed by Marc Chaikin.
-}
-\details{
+
 Chaikin Money Flow is calculated by taking dividing the sum of the Chaikin
 Accumulation / Distribution line over the past \code{n} periods by the sum of
 volume over the past \code{n} periods.
@@ -36,8 +35,8 @@ it indicates a probable reversal.
 }
 \examples{
 
-data(ttrc)
-cmf <- CMF(ttrc[, c("High", "Low", "Close")], ttrc[, "Volume"])
+data(TSLA)
+cmf <- CMF(TSLA[, c("High", "Low", "Close")], TSLA[, "Volume"])
 
 }
 \references{

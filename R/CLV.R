@@ -17,8 +17,9 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Close Location Value
+#' @title Close Location Value
 #'
+#' @description
 #' The Close Location Value (CLV) relates the day's close to its trading range.
 #'
 #' The CLV will fall in a range of -1 to +1.  If the CLV is +/-1, the close is
@@ -36,10 +37,11 @@
 #' indicator:\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:accumulation_distribution_line}\cr
 #' @keywords ts
+#' @export
 #' @examples
 #'
-#' data(ttrc)
-#' clv <- CLV(ttrc[, c("High", "Low", "Close")])
+#' data(TSLA)
+#' clv <- CLV(TSLA[, c("High", "Low", "Close")])
 #'
 CLV <-
   function(HLC) {

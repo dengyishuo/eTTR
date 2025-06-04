@@ -17,9 +17,9 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Price Oscillator (PO) Calculation
+#' @title Price Oscillator (PO) Calculation
 #' 价格振荡指标(PO)计算
-#'
+#' @description
 #' Calculates the Price Oscillator (PO), a momentum indicator that measures the difference
 #' between two moving averages of different periods. It helps identify trends and potential
 #' reversal points in financial markets.

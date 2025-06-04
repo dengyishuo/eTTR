@@ -29,8 +29,7 @@ A object of the same class as \code{HL} or a vector (if
 \description{
 Zig Zag higlights trends by removing price changes smaller than \code{change}
 and interpolating lines between the extreme points.
-}
-\details{
+
 The Zig Zag is non-predictive.  The purpose of the Zig Zag is filter noise
 and make chart patterns clearer.  It's more a visual tool than an indicator.
 }
@@ -48,8 +47,8 @@ isn't well-suited for use for systematic trading strategies.
 \examples{
 
 ## Get Data and Indicator ##
-data(ttrc)
-zz <- ZigZag(ttrc[, c("High", "Low")], change = 20)
+data(TSLA)
+zz <- ZigZag(TSLA[, c("High", "Low")], change = 20)
 
 }
 \references{

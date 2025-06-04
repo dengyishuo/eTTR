@@ -25,18 +25,17 @@ with.}
 \value{
 A object of the same class as \code{HL} and \code{volume} or a matrix
 (if \code{try.xts} fails) containing the columns:
- \describe{
-  \item{ emv }{ The ease of movement values. }
-  \item{ maEMV }{ The smoothed (as specified by \code{ma}) ease of movement values. }
- }
+\describe{
+\item{ emv }{ The ease of movement values. }
+\item{ maEMV }{ The smoothed (as specified by \code{ma}) ease of movement values. }
+}
 }
 \description{
 Arms' Ease of Movement Value (EMV) emphasizes days where the security moves
 easily and minimizes days where the security does not move easily.  Developed
 by Richard W. Arms, Jr.
-}
-\details{
-The EMV is calculated by dividing the midpoint ([high + low]/2) move by the
+
+The EMV is calculated by dividing the midpoint (\link{high + low}/2) move by the
 'Box Ratio' (volume divided by the high minus low).
 }
 \note{
@@ -46,8 +45,8 @@ volume, and the price is not moving easily.
 }
 \examples{
 
-data(ttrc)
-emv <- EMV(ttrc[, c("High", "Low")], ttrc[, "Volume"])
+data(TSLA)
+emv <- EMV(TLSA[, c("High", "Low")], TSLA[, "Volume"])
 
 }
 \references{

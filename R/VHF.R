@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Vertical Horizontal Filter (Optimized)
-#'
+#' @title Vertical Horizontal Filter (Optimized)
+#' @description
 #' The Vertical Horizontal Filter (VHF) attempts to identify starting and ending
 #' trends. This optimized version includes safeguards against NA and INF values.
 #'
@@ -37,10 +37,11 @@
 #' \code{\link{TDI}}, \code{\link{GMMA}} for other trend indicators.
 #' @references \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=119}
 #' @keywords ts
+#' @export
 #' @examples
-#' data(ttrc)
-#' vhf_close <- VHF(ttrc[, "Close"], na.rm = TRUE)
-#' vhf_hlc <- VHF(ttrc[, c("High", "Low", "Close")], inf.replace = 10)
+#' data(TSLA)
+#' vhf_close <- VHF(TSLA[, "Close"], na.rm = TRUE)
+#' vhf_hlc <- VHF(TSLA[, c("High", "Low", "Close")], inf.replace = 10)
 VHF <- function(price, n = 28, na.rm = TRUE, inf.replace = NA, zero.replace = NA) {
   # Convert input to xts or matrix
   price <- try.xts(price, error = as.matrix)

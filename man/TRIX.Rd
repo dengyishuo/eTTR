@@ -15,10 +15,10 @@ TRIX(price, n = 20, nSig = 9, maType, percent = TRUE, ...)
 
 \item{maType}{Either:
 \enumerate{
-  \item A function or a string naming the function to be called.
-  \item A \emph{list} with the first component like (1) above, and
-    additional parameters specified as \emph{named} components.
-    See Examples.
+\item A function or a string naming the function to be called.
+\item A \emph{list} with the first component like (1) above, and
+additional parameters specified as \emph{named} components.
+See Examples.
 }}
 
 \item{percent}{logical; if \code{TRUE}, the rate of change is calculated
@@ -35,10 +35,9 @@ A object of the same class as \code{price} or a vector (if
 \description{
 The TRIX indicator calculates the rate of change of a triple exponential
 moving average.  Developed by Jack K. Hutson.
-}
-\details{
+
 The TRIX is calculated as follows:\cr 3MA = \code{MA}( \code{MA}(
-\code{MA}(\code{price}) ) )\cr trix = 100 * [ 3MA(t) / 3MA(t-1) - 1 ]
+\code{MA}(\code{price}) ) )\cr trix = 100 * \link{ 3MA(t) / 3MA(t-1) - 1 }
 }
 \note{
 Buy/sell signals are generated when the TRIX crosses above/below zero.
@@ -48,9 +47,9 @@ is also above/below zero.
 }
 \examples{
 
-data(ttrc)
-trix <- TRIX(ttrc[, "Close"])
-trix4 <- TRIX(ttrc[, "Close"],
+data(TSLA)
+trix <- TRIX(TSLA[, "Close"])
+trix4 <- TRIX(TSLA[, "Close"],
   maType = list(list(SMA), list(EMA, wilder = TRUE), list(SMA), list(DEMA))
 )
 

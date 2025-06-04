@@ -17,9 +17,9 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Relative Vigor Index (RVI) Calculation
+#' @title Relative Vigor Index (RVI) Calculation
 #' 相对活力指数(RVI)计算
-#'
+#' @description
 #' Computes the Relative Vigor Index (RVI), a momentum oscillator that measures the
 #' strength of a trend by comparing closing prices to trading ranges. The RVI is
 #' considered bullish when above its signal line and bearish when below.

@@ -11,24 +11,15 @@ TR(HLC)
 }
 \value{
 A object of the same class as \code{HLC} or a matrix (if \code{try.xts} fails)
-        containing the columns:
-        \describe{
-          \item{tr}{The true range of the series.}
-          \item{trueHigh}{The true high used in calculating the true range.}
-          \item{trueLow}{The true low used in calculating the true range.}
-        }
+containing the columns:
+\describe{
+\item{tr}{The true range of the series.}
+\item{trueHigh}{The true high used in calculating the true range.}
+\item{trueLow}{The true low used in calculating the true range.}
+}
 }
 \description{
 Calculates the True Range of a price series.
-}
-\details{
-True Range Calculation
-
-Computes the True Range (TR) of a financial instrument based on its High-Low-Close prices.
-The True Range is the greatest of the following:
-1. Current high minus current low
-2. Absolute value of current high minus previous close
-3. Absolute value of current low minus previous close
 }
 \examples{
 data(ttrc)

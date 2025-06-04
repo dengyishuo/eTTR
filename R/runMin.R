@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Moving Window Minimum (runMin)
-#'
+#' @title Moving Window Minimum (runMin)
+#' @description
 #' Calculate the minimum value over a moving window of periods.
 #'
 #' @param x Object coercible to xts or matrix.
@@ -29,8 +29,8 @@
 #' @keywords ts internal
 #' @export
 #' @examples
-#' data(ttrc)
-#' min_10 <- runMin(ttrc[, "Close"], 10)
+#' data(TSLA)
+#' min_10 <- runMin(TSLA[, "Close"], 10)
 #' head(min_10)
 runMin <- function(x, n = 10, cumulative = FALSE) {
   x <- try.xts(x, error = as.matrix)

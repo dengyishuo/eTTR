@@ -40,18 +40,17 @@ centering, default \code{FALSE}.}
 \value{
 A object of the same class as \code{prices} or a matrix (if
 \code{try.xts} fails) containing the columns:
- \describe{
-    \item{ dn }{ The lower price volatility Band. }
-    \item{ center }{ The smoothed centerline (see details). }
-    \item{ up }{ The upper price volatility Band. }
- }
+\describe{
+\item{ dn }{ The lower price volatility Band. }
+\item{ center }{ The smoothed centerline (see details). }
+\item{ up }{ The upper price volatility Band. }
+}
 }
 \description{
 John Bollinger's famous adaptive volatility bands most often use the typical
 price of an HLC series, or may be calculated on a univariate price series
 (see \code{\link{BBands}}).
-}
-\details{
+
 This function applies a second moving average denoted by \code{fastn} to
 filter out higher-frequency noise, making the bands somewhat more stable to
 temporary fluctuations and spikes.

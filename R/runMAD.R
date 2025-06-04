@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Moving Window Median Absolute Deviation (runMAD)
-#'
+#' @title Moving Window Median Absolute Deviation (runMAD)
+#' @description
 #' Calculate the median absolute deviation over a moving window of periods.
 #'
 #' @param x Object coercible to xts or matrix.
@@ -33,8 +33,8 @@
 #' @keywords ts internal
 #' @export
 #' @examples
-#' data(ttrc)
-#' mad_20 <- runMAD(ttrc[, "Close"], 20)
+#' data(TSLA)
+#' mad_20 <- runMAD(TSLA[, "Close"], 20)
 #' head(mad_20)
 runMAD <- function(x, n = 10, center = NULL, stat = "median",
                    constant = 1.4826, non.unique = "mean", cumulative = FALSE) {

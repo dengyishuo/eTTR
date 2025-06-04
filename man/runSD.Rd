@@ -22,8 +22,8 @@ An object of the same class as \code{x} with standard deviation values.
 Calculate the standard deviation over a moving window of periods.
 }
 \examples{
-data(ttrc)
-sd_20 <- runSD(ttrc[, "Close"], 20)
+data(TSLA)
+sd_20 <- runSD(TSLA[, "Close"], 20)
 head(sd_20)
 }
 \keyword{ts}

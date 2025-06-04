@@ -22,10 +22,10 @@ See details.}
 \value{
 A object of the same class as \code{HLC} or a matrix (if
 \code{try.xts} fails) containing the columns:
- \describe{
-    \item{SMA}{ Simple moving average. }
-    \item{EMA}{ Exponential moving average. }
- }
+\describe{
+\item{SMA}{ Simple moving average. }
+\item{EMA}{ Exponential moving average. }
+}
 
 \item{dn}{ The lower Keltner Channel. }
 \item{mavg}{ The middle moving average. }
@@ -47,7 +47,7 @@ Keltner Channels in the 1980s.
 \section{Details }{
  Keltner Channels consist of three lines:
 The middle band is generally a 20-period EMA of the typical price
-([high + low + close]/3). The upper and lower bands are multiples of average
+(\link{high + low + close}/3). The upper and lower bands are multiples of average
 true range (usually 2) above and below the MA.
 
 The middle band is usually calculated using the typical price, but if a

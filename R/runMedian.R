@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Moving Window Median (runMedian)
-#'
+#' @title Moving Window Median (runMedian)
+#' @description
 #' Calculate the median value over a moving window of periods.
 #'
 #' @param x Object coercible to xts or matrix.
@@ -30,8 +30,8 @@
 #' @keywords ts internal
 #' @export
 #' @examples
-#' data(ttrc)
-#' median_10 <- runMedian(ttrc[, "Close"], 10)
+#' data(TSLA)
+#' median_10 <- runMedian(TSLA[, "Close"], 10)
 #' head(median_10)
 runMedian <- function(x, n = 10, non.unique = "mean", cumulative = FALSE) {
   x <- try.xts(x, error = as.matrix)

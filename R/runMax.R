@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Moving Window Maximum (runMax)
-#'
+#' @title Moving Window Maximum (runMax)
+#' @description
 #' Calculate the maximum value over a moving window of periods.
 #'
 #' @param x Object coercible to xts or matrix.
@@ -26,11 +26,11 @@
 #' @param cumulative Logical; if TRUE, use from-inception cumulative max.
 #' @return An object of the same class as \code{x} with maximum values.
 #' @useDynLib eTTR, .registration = TRUE
-#' @keywords ts internal
 #' @export
+#' @keywords ts internal
 #' @examples
-#' data(ttrc)
-#' max_10 <- runMax(ttrc[, "Close"], 10)
+#' data(TSLA)
+#' max_10 <- runMax(TSLA[, "Close"], 10)
 #' head(max_10)
 runMax <- function(x, n = 10, cumulative = FALSE) {
   x <- try.xts(x, error = as.matrix)
