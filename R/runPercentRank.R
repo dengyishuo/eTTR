@@ -62,7 +62,6 @@
 #' indicator:\cr \url{https://en.wikipedia.org/wiki/Percentile_rank}\cr
 #'
 #' @keywords ts
-#' @useDynLib eTTR, .registration = TRUE
 #' @export
 runPercentRank <- function(x, n = 260, cumulative = FALSE, exact.multiplier = 0.5) {
   x <- try.xts(x, error = as.matrix)

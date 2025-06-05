@@ -27,7 +27,6 @@
 #' @return An object of the same class as \code{x} containing the WMA values.
 #' @keywords ts
 #' @export
-#' @useDynLib eTTR, .registration = TRUE
 #' @examples
 #'
 #' data(TSLA)

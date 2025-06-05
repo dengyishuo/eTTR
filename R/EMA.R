@@ -28,7 +28,6 @@
 #' @return An object of the same class as \code{x} containing the EMA values.
 #' @note \code{wilder=FALSE} uses \code{2/(n+1)}; \code{wilder=TRUE} uses \code{1/n}.
 #' @keywords ts
-#' @useDynLib eTTR, .registration = TRUE
 #' @export
 #' @examples
 #'

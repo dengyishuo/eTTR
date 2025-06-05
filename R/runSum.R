@@ -25,7 +25,6 @@
 #' @param n Number of periods in the window (1 <= n <= nrow(x)).
 #' @param cumulative Logical; if TRUE, use from-inception cumulative sum.
 #' @return An object of the same class as \code{x} with summed values.
-#' @useDynLib eTTR, .registration = TRUE
 #' @keywords ts internal
 #' @export
 #' @examples

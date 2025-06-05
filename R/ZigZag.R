@@ -52,7 +52,6 @@
 #' \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=127}\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:zigzag}\cr
 #' @keywords ts
-#' @useDynLib eTTR, .registration = TRUE
 #' @export
 #' @examples
 #'

@@ -24,7 +24,6 @@
 #' @param x Object coercible to xts or matrix.
 #' @param n Number of periods in the window (1 <= n <= nrow(x)).
 #' @return An object of the same class as \code{x} with Wilder-style sums.
-#' @useDynLib eTTR, .registration = TRUE
 #' @keywords ts internal
 #' @export
 #' @examples

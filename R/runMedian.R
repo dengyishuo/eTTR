@@ -26,7 +26,6 @@
 #' @param non.unique Handling of even-sized windows: 'mean', 'max', or 'min'.
 #' @param cumulative Logical; if TRUE, use from-inception calculation.
 #' @return An object of the same class as \code{x} with median values.
-#' @useDynLib eTTR, .registration = TRUE
 #' @keywords ts internal
 #' @export
 #' @examples

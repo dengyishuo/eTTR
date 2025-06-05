@@ -27,7 +27,6 @@
 #' @param sample Logical; if TRUE, use sample covariance (n-1 denominator).
 #' @param cumulative Logical; if TRUE, use from-inception calculation.
 #' @return An object of the same class as \code{x} with covariance values.
-#' @useDynLib eTTR, .registration = TRUE
 #' @keywords ts internal
 #' @export
 #' @examples

@@ -26,7 +26,6 @@
 #' @param n Number of periods to average over.
 #' @return An object of the same class as \code{price} containing the EVWMA values.
 #' @keywords ts
-#' @useDynLib eTTR, .registration = TRUE
 #' @export
 #' @examples
 #' data(TSLA)
