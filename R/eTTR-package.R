@@ -24,10 +24,12 @@
 #' @rdname ttrc
 NULL
 
+
 #' Apple Inc. Stock Price Data
 #'
 #' Daily stock prices for Apple Inc. (AAPL) from 2010 to present.
-#'
+#' @name AAPL
+#' @docType data
 #' @format A data frame with 5 columns:
 #' \describe{
 #'   \item{Open}{Opening price}
@@ -37,14 +39,18 @@ NULL
 #'   \item{Volume}{Trading volume}
 #' }
 #' @source Yahoo Finance
-#' @name AAPL
-#' @docType data
+#' @keywords AAPL
+#' @examples
+#' data(AAPL)
+#' plot(tail(AAPL[, "Close"], 100), type = "l")
+#' @rdname AAPL
 NULL
 
 #' Tesla Inc. Stock Price Data
 #'
 #' Daily stock prices for Tesla Inc. (TSLA) from 2010 to present.
-#'
+#' @name TSLA
+#' @docType data
 #' @format A data frame with 5 columns:
 #' \describe{
 #'   \item{Open}{Opening price}
@@ -54,8 +60,11 @@ NULL
 #'   \item{Volume}{Trading volume}
 #' }
 #' @source Yahoo Finance
-#' @name TSLA
-#' @docType data
+#' @keywords TSLA
+#' @examples
+#' data(TSLA)
+#' plot(tail(TSLA[, "Close"], 100), type = "l")
+#' @rdname TSLA
 NULL
 
 #' Functions to create Technical Trading Rules (TTR)

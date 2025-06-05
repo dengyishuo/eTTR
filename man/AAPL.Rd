@@ -20,3 +20,8 @@ Yahoo Finance
 \description{
 Daily stock prices for Apple Inc. (AAPL) from 2010 to present.
 }
+\examples{
+data(AAPL)
+plot(tail(AAPL[, "Close"], 100), type = "l")
+}
+\keyword{AAPL}

@@ -18,6 +18,7 @@
 #
 #' @title Bollinger Bands
 #' @description
+#'
 #' Bollinger Bands are a way to compare a security's volatility and price levels over a period of time. Developed by John Bollinger.
 #' @usage
 #' BBands(HLC, n = 20, maType, sd = 2, ...)

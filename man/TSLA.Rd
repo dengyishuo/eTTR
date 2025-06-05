@@ -20,3 +20,8 @@ Yahoo Finance
 \description{
 Daily stock prices for Tesla Inc. (TSLA) from 2010 to present.
 }
+\examples{
+data(TSLA)
+plot(tail(TSLA[, "Close"], 100), type = "l")
+}
+\keyword{TSLA}
