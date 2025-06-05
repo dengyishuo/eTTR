@@ -14,6 +14,5 @@ BugReports: https://github.com/dengyishuo/eTTR/issues
 Roxygen: list(markdown = TRUE)  # 添加此行
 RoxygenNote: 7.3.2
 Encoding: UTF-8
-Data: TRUE
 LazyData: TRUE
 
