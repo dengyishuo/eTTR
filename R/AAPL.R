@@ -13,7 +13,6 @@
 #' }
 #' @source Yahoo Finance
 #' @keywords AAPL
-#' @export
 #' @examples
 #' data(AAPL)
 #' plot(tail(AAPL[, "Close"], 100), type = "l")

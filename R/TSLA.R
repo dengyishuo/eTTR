@@ -13,7 +13,6 @@
 #' }
 #' @source Yahoo Finance
 #' @keywords TSLA
-#' @export
 #' @examples
 #' data(TSLA)
 #' plot(tail(TSLA[, "Close"], 100), type = "l")

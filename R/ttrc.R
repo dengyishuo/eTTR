@@ -18,7 +18,6 @@
 #' }
 #' @source Randomly generated.
 #' @keywords datasets
-#' @export
 #' @examples
 #' data(ttrc)
 #' plot(tail(ttrc[, "Close"], 100), type = "l")
