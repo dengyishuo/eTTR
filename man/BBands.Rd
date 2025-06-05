@@ -2,15 +2,12 @@
 % Please edit documentation in R/BBands.R
 \name{BBands}
 \alias{BBands}
-\alias{bollingerBands}
 \title{Bollinger Bands}
 \usage{
 BBands(HLC, n = 20, maType, sd = 2, ...)
 }
 \arguments{
-\item{HLC}{Object that is coercible to xts or matrix and contains
-High-Low-Close prices. If only a univariate series is given, it will be
-used. See details.}
+\item{HLC}{Object that is coercible to xts or matrix and contains High-Low-Close prices. If only a univariate series is given, it will be  used. See details.}
 
 \item{n}{Number of periods for moving average.}
 
@@ -31,8 +28,7 @@ A object of the same class as \code{HLC} or a matrix (if
 }
 }
 \description{
-Bollinger Bands are a way to compare a security's volatility and price levels
-over a period of time. Developed by John Bollinger.
+Bollinger Bands are a way to compare a security's volatility and price levels over a period of time. Developed by John Bollinger.
 }
 \details{
 Bollinger Bands consist of three lines:
@@ -69,7 +65,6 @@ indicator:\cr
 \url{https://school.stockcharts.com/doku.php?id=technical_indicators:bollinger_band_width}\cr
 }
 \seealso{
-See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
-options; and note Warning section.
+See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average options; and note Warning section.
 }
 \keyword{ts}

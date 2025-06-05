@@ -21,6 +21,7 @@ A object of the same class as \code{HLC} or a vector (if
 }
 \description{
 William's \\% R.
+
 If an High-Low-Close series is provided, the indicator is calculated using
 the high/low values. If a vector is provided, the calculation only uses that
 series.
@@ -33,6 +34,9 @@ lowest low are the same over the last \code{n} periods.
 William's \\%R is usually scaled to be between 0 and -100, which is not what
 \code{WPR} returns by default. Set \code{scale = TRUE} to return the result
 with the usual scaling.
+}
+\note{
+No additional notes beyond details.
 }
 \examples{
 data(TSLA)
@@ -53,7 +57,6 @@ plot(tail(stochOsc[, "fastK"], 100),
 )
 lines(tail(stochWPR, 100), col = "blue")
 lines(tail(1 - stochWPR, 100), col = "red", lty = "dashed")
-
 }
 \references{
 The following site(s) were used to code/document this

@@ -19,6 +19,7 @@
 #' @title William's \%R
 #' @description
 #' William's \% R.
+#'
 #' If an High-Low-Close series is provided, the indicator is calculated using
 #' the high/low values. If a vector is provided, the calculation only uses that
 #' series.
@@ -39,6 +40,8 @@
 #' William's \%R is usually scaled to be between 0 and -100, which is not what
 #' \code{WPR} returns by default. Set \code{scale = TRUE} to return the result
 #' with the usual scaling.
+#' @note
+#' No additional notes beyond details.
 #' @author DengYishuo
 #' @seealso See \code{\link{stoch}}.
 #' @references
@@ -69,7 +72,6 @@
 #' )
 #' lines(tail(stochWPR, 100), col = "blue")
 #' lines(tail(1 - stochWPR, 100), col = "red", lty = "dashed")
-#'
 WPR <-
   function(HLC, n = 14, scale = FALSE) {
     # William's Percent R (similar to Stochastics' fast %K)
