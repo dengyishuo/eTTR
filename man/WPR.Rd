@@ -8,8 +8,8 @@ WPR(HLC, n = 14, scale = FALSE)
 }
 \arguments{
 \item{HLC}{Object that is coercible to xts or matrix and contains
-High-Low-Close prices.  If only a univariate series is given, it will be
-used.  See details.}
+High-Low-Close prices. If only a univariate series is given, it will be
+used. See details.}
 
 \item{n}{Number of periods to use.}
 
@@ -22,10 +22,10 @@ A object of the same class as \code{HLC} or a vector (if
 \description{
 William's \\% R.
 If an High-Low-Close series is provided, the indicator is calculated using
-the high/low values.  If a vector is provided, the calculation only uses that
+the high/low values. If a vector is provided, the calculation only uses that
 series.
 }
-\note{
+\details{
 The William's \\%R calculation is similar to stochastics' fast \\%K,
 and the result of \code{WPR} is equal to \code{1-fastK}.
 The value for William's \\%R will be 0.5 whenever the highest high and

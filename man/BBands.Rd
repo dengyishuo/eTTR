@@ -9,8 +9,8 @@ BBands(HLC, n = 20, maType, sd = 2, ...)
 }
 \arguments{
 \item{HLC}{Object that is coercible to xts or matrix and contains
-High-Low-Close prices.  If only a univariate series is given, it will be
-used.  See details.}
+High-Low-Close prices. If only a univariate series is given, it will be
+used. See details.}
 
 \item{n}{Number of periods for moving average.}
 
@@ -18,7 +18,7 @@ used.  See details.}
 
 \item{sd}{The number of standard deviations to use.}
 
-\item{\dots}{Other arguments to be passed to the \code{maType} function.}
+\item{...}{Other arguments to be passed to the \code{maType} function.}
 }
 \value{
 A object of the same class as \code{HLC} or a matrix (if
@@ -32,13 +32,13 @@ A object of the same class as \code{HLC} or a matrix (if
 }
 \description{
 Bollinger Bands are a way to compare a security's volatility and price levels
-over a period of time.  Developed by John Bollinger.
+over a period of time. Developed by John Bollinger.
 }
 \details{
 Bollinger Bands consist of three lines:
 The middle band is generally a 20-period SMA of the typical price
-(\\eqn{\\frac{high + low + close}{3}}).
-The upper and lower bands are \\code{sd} standard deviations
+(\eqn{\frac{high + low + close}{3}}).
+The upper and lower bands are \code{sd} standard deviations
 (generally 2) above and below the MA.
 The middle band is usually calculated using the typical price, but if a
 univariate series (e.g. Close, Weighted Close, Median Price, etc.) is
@@ -47,7 +47,7 @@ provided, it will be used instead.
 \note{
 Using any moving average other than SMA will result in inconsistencies
 between the moving average calculation and the standard deviation
-calculation.  Since, by definition, a rolling standard deviation uses a
+calculation. Since, by definition, a rolling standard deviation uses a
 simple moving average.
 }
 \examples{
