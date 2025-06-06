@@ -3,7 +3,7 @@ if (require("RUnit", quietly = TRUE)) {
   ## --- Setup ---
   R_CMD_CHECK <- Sys.getenv("RCMDCHECK") != "FALSE"
 
-  pkg <- "TTR" # <-- Change to package name!
+  pkg <- "eTTR" # <-- Change to package name!
 
   if (R_CMD_CHECK) {
     ## Path to unit tests for R CMD check

@@ -1,3 +1,21 @@
+#
+#   eTTR: Enhanced Technical Trading Rules
+#
+#   Copyright (C) 2025 - 2030  DengYishuo
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
 #' Calculate Stochastic Oscillator (KDJ) Indicator
 #'
 #' This function computes the KDJ indicator based on an OHLC (Open, High, Low, Close) xts object,
@@ -19,7 +37,7 @@
 #' tsla_kdj <- KDJ(TSLA, n = 9, m1 = 3, m2 = 3, fill.na.method = "interpolate")
 #'
 KDJ <- function(ohlc, n = 9, m1 = 3, m2 = 3, fill_na_method = "none") {
-  if (!is.xts(ohlc)) stop("Input 'ohlc' must be an xts object.")
+  if (!xts::is.xts(ohlc)) stop("Input 'ohlc' must be an xts object.")
 
   # 标准化列名
   input_cols <- tolower(colnames(ohlc))
@@ -40,15 +58,15 @@ KDJ <- function(ohlc, n = 9, m1 = 3, m2 = 3, fill_na_method = "none") {
   low <- ohlc[, low_idx]
   close <- ohlc[, close_idx]
 
-  time_index <- index(ohlc)
+  time_index <- zoo::index(ohlc)
   len <- length(close)
 
   # 计算RSV所需的高低价
-  highest_high <- rollapply(high, n, max, align = "right", fill = NA)
-  lowest_low <- rollapply(low, n, min, align = "right", fill = NA)
+  highest_high <- zoo::rollapply(high, n, max, align = "right", fill = NA)
+  lowest_low <- zoo::rollapply(low, n, min, align = "right", fill = NA)
 
   # 计算RSV
-  rsv <- xts(rep(NA, len), order.by = time_index)
+  rsv <- xts::xts(rep(NA, len), order.by = time_index)
   valid_idx <- which(!is.na(highest_high) & !is.na(lowest_low) & (highest_high != lowest_low))
   zero_div_idx <- which(!is.na(highest_high) & !is.na(lowest_low) & (highest_high == lowest_low))
 
@@ -57,15 +75,15 @@ KDJ <- function(ohlc, n = 9, m1 = 3, m2 = 3, fill_na_method = "none") {
   rsv[zero_div_idx] <- 50 # 处理除数为零的情况
 
   # 初始化K、D、J
-  k <- xts(rep(NA, len), order.by = time_index)
-  d <- xts(rep(NA, len), order.by = time_index)
-  j <- xts(rep(NA, len), order.by = time_index)
+  k <- xts::xts(rep(NA, len), order.by = time_index)
+  d <- xts::xts(rep(NA, len), order.by = time_index)
+  j <- xts::xts(rep(NA, len), order.by = time_index)
 
   # 找到第一个有效RSV的位置
   first_valid <- which(!is.na(rsv))[1]
   if (is.na(first_valid)) {
     warning("No valid RSV values. Returning all NA.")
-    return(xts(matrix(NA, nrow = len, ncol = 3),
+    return(xts::xts(matrix(NA, nrow = len, ncol = 3),
       order.by = time_index,
       dimnames = list(NULL, c("K", "D", "J"))
     ))
@@ -93,8 +111,8 @@ KDJ <- function(ohlc, n = 9, m1 = 3, m2 = 3, fill_na_method = "none") {
     d[1:(first_valid - 1)] <- initial_val
     j[1:(first_valid - 1)] <- 3 * initial_val - 2 * initial_val
   } else if (fill_na_method == "interpolate") {
-    k <- na.approx(k, na.rm = FALSE)
-    d <- na.approx(d, na.rm = FALSE)
+    k <- zoo::na.approx(k, na.rm = FALSE)
+    d <- zoo::na.approx(d, na.rm = FALSE)
     j <- 3 * k - 2 * d
   }
 
