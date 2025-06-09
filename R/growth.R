@@ -16,13 +16,11 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Calculate Investment Growth
 #' @description
 #' This function computes the growth of an investment based on given prices
 #' and trading signals. It assumes an initial investment of $1 and applies
 #' the provided signals to determine positions (long, short, or none).
-#'
 #'
 #' @param price Price series that is coercible to xts or matrix.
 #' @param signals Signals to use (defaults to vector of ones). Use '0' for no position,
@@ -30,21 +28,15 @@
 #' @param ... Further arguments to be passed to ROC for return calculation.
 #'
 #' @return A vector of the cumulative growth of the investment over time.
-#'
+#' @note You can specify the number of periods and type of compounding
+#'       via the '\code{...}' argument when calculating returns.
 #' @author DengYishuo
 #' @keywords ts
-#'
 #' @examples
 #' prices <- c(100, 105, 103, 107, 110)
 #' signals <- c(1, 1, -1, 1, 1)
 #' growth(prices, signals)
-#'
 #' @export
-#'
-#'
-#' @note You can specify the number of periods and type of compounding
-#'       via the '...' argument when calculating returns.
-
 growth <- function(price, signals, ...) {
   # Calculate growth of $1 for a series of returns (and signals).
 

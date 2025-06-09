@@ -64,7 +64,7 @@ runMAD <- function(x, n = 10, center = NULL, stat = "median",
     min = -1
   )
 
-  result <- .Call(C_runmad, x, center, n, median, non.unique, cumulative)
+  result <- .Call(runmad, x, center, n, median, non.unique, cumulative)
   if (median) result <- result * constant
   reclass(result, x)
 }

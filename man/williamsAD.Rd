@@ -26,10 +26,8 @@ The Accumulation/Distribution Line is interpreted by looking for a
 divergence in the direction of the indicator relative to price.
 }
 \examples{
-
 data(TSLA)
 ad <- williamsAD(TSLA[, c("High", "Low", "Close")])
-
 }
 \references{
 The following site(s) were used to code/document this

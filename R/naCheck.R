@@ -16,7 +16,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-#'
 #' @title NA Check
 #' @description Validates that NA values are only present at the start of a series.
 #'

@@ -42,13 +42,12 @@ Calculates the fast \%K, fast \%D, and slow \%D values of
 the stochastic oscillator.
 }
 \examples{
-data(ttrc)
-stoch_values <- stoch(ttrc[, c("High", "Low", "Close")])
+data(TSLA)
+stoch_values <- stoch(TSLA[, c("High", "Low", "Close")])
 plot(tail(stoch_values[, "fastK"], 100),
   type = "l",
   main = "Fast \%K of Stochastic Oscillator", ylab = "\%K"
 )
-
 }
 \author{
 DengYishuo

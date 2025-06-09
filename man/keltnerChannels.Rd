@@ -35,8 +35,7 @@ A object of the same class as \code{HLC} or a matrix (if
 Keltner Channels are volatility-based envelopes set above and below a moving
 average. This indicator is similar to Bollinger Bands, but Keltner Channels
 use the Average True Range (ATR) to set channel distance.
-}
-\details{
+
 Keltner Channels are a trend following indicator, and can also be used to
 identify overbought and oversold levels when there is no trend.
 
@@ -47,7 +46,7 @@ Keltner Channels in the 1980s.
 \section{Details }{
  Keltner Channels consist of three lines:
 The middle band is generally a 20-period EMA of the typical price
-(\link{high + low + close}/3). The upper and lower bands are multiples of average
+\code{[high + low + close]/3}. The upper and lower bands are multiples of average
 true range (usually 2) above and below the MA.
 
 The middle band is usually calculated using the typical price, but if a
@@ -56,10 +55,8 @@ provided, it will be used instead.
 }
 
 \examples{
-
-data(ttrc)
-kc <- keltnerChannels(ttrc[, c("High", "Low", "Close")])
-
+data(TSLA)
+kc <- keltnerChannels(TSLA[, c("High", "Low", "Close")])
 }
 \references{
 The following site(s) were used to code/document this
@@ -74,7 +71,5 @@ options; and note Warning section.
 }
 \author{
 Nick Procyk, Joshua Ulrich
-
-References
 }
 \keyword{ts}

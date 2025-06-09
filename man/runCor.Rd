@@ -4,7 +4,7 @@
 \alias{runCor}
 \title{Moving Window Correlation (runCor)}
 \usage{
-runCor(x, y, n = 10, use = "all.obs", sample = TRUE, cumulative = FALSE)
+runCor(x, y, n = 10, sample = TRUE, cumulative = FALSE)
 }
 \arguments{
 \item{x}{Object coercible to xts or matrix.}

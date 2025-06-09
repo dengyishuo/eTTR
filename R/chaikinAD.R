@@ -46,10 +46,8 @@
 #' @export
 #' @keywords ts
 #' @examples
-#'
 #' data(TSLA)
 #' ad <- chaikinAD(TSLA[, c("High", "Low", "Close")], TSLA[, "Volume"])
-#'
 chaikinAD <-
   function(HLC, volume) {
     # Chaikin Accumulation / Distribution

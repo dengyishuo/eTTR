@@ -2,29 +2,23 @@
 % Please edit documentation in R/runRegression.R
 \name{print.runRegression}
 \alias{print.runRegression}
-\title{Print Method for runRegression Objects
-runRegression对象的打印方法}
+\title{Print Method for runRegression Objects}
 \usage{
 \method{print}{runRegression}(x, ...)
 }
 \arguments{
-\item{x}{A runRegression object.
-一个runRegression对象。}
+\item{x}{A runRegression object.}
 
-\item{...}{Additional arguments passed to print.
-传递给print函数的其他参数。}
+\item{...}{Additional arguments passed to print.}
 }
 \value{
 The input object is returned invisibly.
-输入对象以不可见方式返回。
 }
 \description{
 Prints a summary of the sliding window regression results.
-打印滑动窗口回归结果的摘要信息。
 }
 \examples{
 # Generate sample data and run regression
-# 生成示例数据并运行回归
 set.seed(123)
 x <- xts::xts(rnorm(100), order.by = Sys.Date() - 99:0)
 reg_results <- runRegression(x, n = 10)

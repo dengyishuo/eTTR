@@ -33,16 +33,12 @@
 #' 1. Compute a WMA with period n
 #' 2. Compute a WMA with period n/2
 #' 3. Compute a WMA of the difference between the two previous WMAs with period sqrt(n)
-#' @keywords HMA, Hull Moving Average, technical analysis, quantmod, TTR
+#' @keywords HMA, Hull Moving Average, technical analysis, quantmod
 #' @importFrom tibble tibble
 #' @importFrom quantmod Cl
 #' @importFrom dplyr bind_cols
 #' @export
 #' @examples
-#' library(quantmod)
-#' library(tibble)
-#' library(TTR)
-#' library(dplyr)
 #' # Load internal Tesla stock data
 #' data(TSLA)
 #' # Calculate and add HMA columns to TSLA data
@@ -63,11 +59,6 @@ add_hma <- function(mktdata, periods = c(50, 200), append = TRUE) {
     stop("mktdata must contain 'Close' column")
   }
 
-  # Load TTR package if not available
-  if (!requireNamespace("TTR", quietly = TRUE)) {
-    install.packages("TTR")
-    library(TTR)
-  }
 
   # Validate periods input
   stopifnot(

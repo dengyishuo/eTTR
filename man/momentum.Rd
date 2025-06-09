@@ -19,8 +19,7 @@ fails) containing the momentum values.
 }
 \description{
 Calculate the momentum of a series over \code{n} periods.
-}
-\details{
+
 The momentum indicator provides the difference between the current value
 and the value \code{n} periods ago.
 }

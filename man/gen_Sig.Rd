@@ -43,6 +43,7 @@ Supports column parameters as vectors for flexible column selection.
 \examples{
 \dontrun{
 # Example usage with tibble output
+data(TSLA) # Load example data
 kdj_tibble <- add_kdj(TSLA)
 signal_tibble <- gen_Sig(kdj_tibble, method = "crossover", col1 = "K", col2 = "D")
 class(signal_tibble) # Should return "tbl_df", "tbl", "data.frame"

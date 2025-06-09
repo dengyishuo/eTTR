@@ -16,9 +16,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Relative Strength Index
-#'
 #' @description
 #' The Relative Strength Index (RSI) calculates a ratio of the recent upward
 #' price movements to the absolute price movement.  Developed by J. Welles
@@ -28,7 +26,6 @@
 #' is the smoothed ratio of 'average' gains over 'average' losses.  The
 #' 'averages' aren't true averages, since they're divided by the value of
 #' \code{n} and not the number of periods in which there are  gains/losses.
-#'
 #' @param price Price series that is coercible to xts or matrix.
 #' @param n Number of periods for moving averages.
 #' @param maType Either:
@@ -46,7 +43,6 @@
 #' below 30) indicator.  Divergence with price may also be useful.  For example,
 #' if price is making new highs/lows, but RSI is not, it could indicate a
 #' reversal.
-#'
 #' You can calculate a stochastic RSI by using the function \code{\link{stoch}}
 #' on RSI values.
 #' @author DengYishuo
@@ -66,16 +62,12 @@
 #' @keywords ts
 #' @export
 #' @examples
-#'
 #' data(TSLA)
 #' price <- TSLA[, "Close"]
-#'
 #' # Default case
 #' rsi <- RSI(price)
-#'
 #' # Case of one 'maType' for both MAs
 #' rsiMA1 <- RSI(price, n = 14, maType = "WMA", wts = TSLA[, "Volume"])
-#'
 #' # Case of two different 'maType's for both MAs
 #' rsiMA2 <- RSI(price, n = 14, maType = list(maUp = list(EMA), maDown = list(WMA)))
 #'

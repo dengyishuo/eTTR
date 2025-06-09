@@ -32,23 +32,18 @@
 #' positive integers
 #' @details
 #' The function first validates the input data format and the required columns.
-#' It then checks if the TTR package is available and installs/loads it if not.
 #' After that, it calculates the Simple Moving Averages for each specified period.
 #' The resulting SMA values are then combined into a tibble.
 #' Finally, depending on the \code{append} parameter, the SMA tibble is either
 #' appended to the original data or returned as a standalone tibble.
-#' @keywords SMA, stock data, technical analysis, quantmod, TTR
+#' @keywords SMA, stock data, technical analysis, quantmod
 #' @importFrom tibble tibble
 #' @importFrom quantmod Cl
 #' @importFrom dplyr bind_cols rename
 #' @export
 #' @examples
-#' library(quantmod)
-#' library(tibble)
-#' library(TTR)
-#' library(dplyr)
 #' # Download stock data (example using AAPL)
-#' getSymbols("AAPL")
+#' data("AAPL")
 #' # Calculate and add SMA columns to AAPL data
 #' aapl_with_sma <- add_sma(AAPL, periods = c(10, 20), append = TRUE)
 #' head(aapl_with_sma)
@@ -68,12 +63,6 @@ add_sma <- function(mktdata, periods = c(50, 200), append = TRUE) {
       "mktdata must contain all of the following columns: ",
       paste(required_cols, collapse = ", ")
     )
-  }
-
-  # Check if the TTR package is available. If not, install and load it.
-  if (!requireNamespace("TTR", quietly = TRUE)) {
-    install.packages("TTR")
-    library(TTR)
   }
 
   # Validate the input parameters. Ensure periods are positive integers and the length is within 2 to 4.

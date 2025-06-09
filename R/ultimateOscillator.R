@@ -16,7 +16,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title The Ultimate Oscillator
 #' @description
 #' The Ultimate Oscillator is a momentum oscillator designed to capture momentum across three
@@ -35,10 +34,8 @@
 #' @keywords ts
 #' @export
 #' @examples
-#'
 #' data(TSLA)
 #' ult.osc <- ultimateOscillator(TSLA[, c("High", "Low", "Close")])
-#'
 ultimateOscillator <-
   function(HLC, n = c(7, 14, 28), wts = c(4, 2, 1)) {
     # Ultimate Oscillator

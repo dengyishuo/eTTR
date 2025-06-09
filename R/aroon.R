@@ -16,23 +16,18 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Aroon
-#'
 #' @description
 #' The Aroon indicator attempts to identify starting trends.The indicator
 #' consists of up and down lines, which measure how long it has been since the
-#' highest high/lowest low has occurred in the last \code{n} periods.
-#'
-#' Developed by Tushar Chande in 1995.
-#'
+#' highest high/lowest low has occurred in the last \code{n} periods.The Aroon
+#' indicator is developed by Tushar Chande in 1995.
 #' @details
 #' Aroon up (down) is the elapsed time, expressed as a percentage, between today
 #' and the highest (lowest) price in the last \code{n} periods.  If today's
 #' price is a new high (low) Aroon up (down) will be 100. Each subsequent period
-#' without another new high (low) causes Aroon up (down) to decrease by (1 /
-#' \code{n}) x 100.
-#'
+#' without another new high (low) causes Aroon up (down) to decrease by \eqn{(1/
+#' n*100}.
 #' @param HL Object that is coercible to xts or matrix and contains either a
 #' High-Low price series, or a Close price series.
 #' @param n Number of periods to use in the calculation.
@@ -46,7 +41,6 @@
 #' @note If High-Low prices are given, the function calculates the max/min using
 #' the high/low prices.  Otherwise the function calculates the max/min of the
 #' single series.
-#'
 #' Up (down) trends are indicated when the aroonUp(Dn) is between 70 and 100.
 #' Strong trends are indicated when when the aroonUp(Dn) is above 70 while the
 #' aroonDn(Up) is below 30.  Also, crossovers may be useful.
@@ -62,23 +56,18 @@
 #' @keywords ts
 #' @export
 #' @examples
-#'
-#' ## Get Data and Indicator ##
+#' ## Get Data and Indicator
 #' data(TSLA)
 #' trend <- aroon(TSLA[, c("High", "Low")], n = 20)
-#'
 aroon <-
   function(HL, n = 20) {
     # Aroon up, down, and oscillator.
-
     HL <- try.xts(HL, error = as.matrix)
-
     # Calculation if price vector is given
     if (NCOL(HL) == 1) {
       high <- HL
       low <- HL
     } else
-
     # Calculation if HL series is given
     if (NCOL(HL) == 2) {
       high <- HL[, 1]
@@ -86,14 +75,11 @@ aroon <-
     } else {
       stop("Price series must be either High-Low, or Close")
     }
-
     # Calculate Aroon UP and DOWN
-    aroonUp <- .Call(C_aroon_max, high, n)
-    aroonDn <- .Call(C_aroon_max, -low, n)
-
+    aroonUp <- .Call(aroon_max, high, n)
+    aroonDn <- .Call(aroon_max, -low, n)
     oscillator <- aroonUp - aroonDn
     result <- cbind(aroonUp, aroonDn, oscillator)
     colnames(result) <- c("aroonUp", "aroonDn", "oscillator")
-
     reclass(result, HL)
   }

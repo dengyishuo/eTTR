@@ -45,11 +45,9 @@ isn't well-suited for use for systematic trading strategies.
 }
 
 \examples{
-
-## Get Data and Indicator ##
+## Get Data and Indicator
 data(TSLA)
 zz <- ZigZag(TSLA[, c("High", "Low")], change = 20)
-
 }
 \references{
 The following site(s) were used to code/document this

@@ -4,7 +4,7 @@
 \alias{TDI}
 \title{Trend Detection Index}
 \usage{
-TDI(price, n = 20, multiple = 2)
+TDI(price, n = 20, multiple = 2, allow_middle_na = FALSE)
 }
 \arguments{
 \item{price}{Price series that is coercible to xts or matrix.}
@@ -12,6 +12,8 @@ TDI(price, n = 20, multiple = 2)
 \item{n}{Number of periods to use.}
 
 \item{multiple}{Multiple used to calculate (2).}
+
+\item{allow_middle_na}{Logical. If \code{TRUE}, allows NA values in the middle.}
 }
 \value{
 A object of the same class as \code{price} or a matrix (if
@@ -30,7 +32,7 @@ momentum, minus the quantity of (2) \code{multiple}*\code{n}-day sum of the
 absolute value of the \code{n}-day momentum, minus (3) \code{n}-day sum of
 the absolute value of the \code{n}-day momentum.
 
-I.e. TDI = (1) - \link{ (2) - (3) }
+I.e. \eqn{TDI = (1) - [ (2) - (3) ]}
 
 The direction indicator is the sum of the \code{n}-day momentum over the last
 \code{n} days.
@@ -44,10 +46,8 @@ and the direction indicator are positive, and sell if the TDI is positive
 while the direction indicator is negative.
 }
 \examples{
-
-data(ttrc)
-tdi <- TDI(ttrc[, "Close"], n = 30)
-
+data(TSLA)
+tdi <- TDI(TSLA[, "Close"], n = 30)
 }
 \references{
 The following site(s) were used to code/document this

@@ -15,15 +15,11 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-
 #' @title De-Trended Price Oscillator
 #' @description
 #' The Detrended Price Oscillator (DPO) removes the trend in prices - or other
-#' series - by subtracting a moving average of the price from the price.
-#'
-#' The Detrended Price shows cycles and overbought / oversold conditions.
-#'
+#' series - by subtracting a moving average of the price from the price. The
+#' Detrended Price shows cycles and overbought / oversold conditions.
 #' @param x Price, volume, etc. series that is coercible to xts or matrix.
 #' @param n Number of periods for moving average.
 #' @param maType A function or a string naming the function to be called.
@@ -53,31 +49,28 @@
 #' @keywords ts
 #' @export
 #' @examples
-#'
 #' data(TSLA)
 #' priceDPO <- DPO(TSLA[, "Close"])
 #' volumeDPO <- DPO(TSLA[, "Volume"])
-#'
-DPO <-
-  function(x, n = 10, maType, shift = n / 2 + 1, percent = FALSE, ...) {
-    # De-Trended Price Oscillator
+DPO <- function(x, n = 10, maType, shift = n / 2 + 1, percent = FALSE, ...) {
+  # De-Trended Price Oscillator
 
-    x <- try.xts(x, error = as.matrix)
+  x <- try.xts(x, error = as.matrix)
 
-    maArgs <- list(n = n, ...)
-    # Default MA
-    if (missing(maType)) {
-      maType <- "SMA"
-    }
-
-    mavg <- do.call(maType, c(list(x), maArgs))
-    mavg <- lag.xts(mavg, -shift)
-
-    if (percent) {
-      DPO <- 100 * (x[, 1] / mavg - 1)
-    } else {
-      DPO <- x[, 1] - mavg
-    }
-
-    reclass(DPO, x)
+  maArgs <- list(n = n, ...)
+  # Default MA
+  if (missing(maType)) {
+    maType <- "SMA"
   }
+
+  mavg <- do.call(maType, c(list(x), maArgs))
+  mavg <- lag.xts(mavg, -shift)
+
+  if (percent) {
+    DPO <- 100 * (x[, 1] / mavg - 1)
+  } else {
+    DPO <- x[, 1] - mavg
+  }
+
+  reclass(DPO, x)
+}

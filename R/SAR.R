@@ -31,7 +31,7 @@
 #'
 #' @param HL Object that is coercible to xts or matrix and contains High-Low
 #' prices.
-#' @param accel accel[1]: Acceleration factor.\cr accel[2]: Maximum acceleration
+#' @param accel \code{accel[1]}: Acceleration factor.\cr \code{accel[2]}: Maximum acceleration
 #' factor.
 #' @return A object of the same class as \code{HL} or a vector (if
 #' \code{try.xts} fails) containing the Parabolic Stop and Reverse values.
@@ -47,10 +47,8 @@
 #' \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=87}
 #' @keywords ts
 #' @examples
-#'
 #' data(TSLA)
 #' sar <- SAR(TSLA[, c("High", "Low")])
-#'
 SAR <-
   function(HL, accel = c(.02, .2)) {
     # Parabolic Stop-and-Reverse (SAR)
@@ -77,7 +75,7 @@ SAR <-
     naCheck(HL, 0) # called for error handling side-effect
 
     # Call C routine
-    sar <- .Call(C_sar, HL[, 1], HL[, 2], accel)
+    sar <- .Call(sar, HL[, 1], HL[, 2], accel)
     colnames(sar) <- "sar"
 
     reclass(sar, HL)

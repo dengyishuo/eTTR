@@ -55,14 +55,13 @@
 #' \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=42}\cr
 #' \url{https://www.linnsoft.com/techind/cci-commodity-channel-index}\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:commodity_channel_index_cci}\cr
-#' @importFrom xts try.xts
-#' @export
 #' @keywords ts
+#' @importFrom xts try.xts xcoredata
+#' @importFrom zoo coredata
 #' @examples
-#'
 #' data(TSLA)
 #' cci <- CCI(TSLA[, c("High", "Low", "Close")])
-#'
+#' @export
 CCI <-
   function(HLC, n = 20, maType, c = 0.015, ...) {
     # Commodity Channel Index
@@ -71,9 +70,9 @@ CCI <-
 
     if (NCOL(HLC) == 3) {
       if (is.xts(HLC)) {
-        xa <- xcoredata(HLC)
+        xa <- xts::xcoredata(HLC)
         HLC <- xts(apply(HLC, 1, mean), index(HLC))
-        xcoredata(HLC) <- xa
+        xts::xcoredata(HLC) <- xa
       } else {
         HLC <- apply(HLC, 1, mean)
       }

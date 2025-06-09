@@ -30,16 +30,12 @@
 #' @details
 #' ZLEMA is calculated by applying an EMA to a modified price series that attempts to remove lag.
 #' The modification involves adjusting the current price by subtracting a lagged price value.
-#' @keywords ZLEMA, zero-lag, technical analysis, quantmod, TTR
+#' @keywords ZLEMA, zero-lag, technical analysis, quantmod
 #' @importFrom tibble tibble
 #' @importFrom quantmod Cl
 #' @importFrom dplyr bind_cols
 #' @export
 #' @examples
-#' library(quantmod)
-#' library(tibble)
-#' library(TTR)
-#' library(dplyr)
 #' # Load internal Tesla stock data
 #' data(TSLA)
 #' # Calculate and add ZLEMA columns to TSLA data
@@ -58,12 +54,6 @@ add_zlema <- function(mktdata, periods = c(50, 200), append = TRUE) {
   required_cols <- c("Close")
   if (!all(required_cols %in% colnames(mktdata))) {
     stop("mktdata must contain 'Close' column")
-  }
-
-  # Load TTR package if not available
-  if (!requireNamespace("TTR", quietly = TRUE)) {
-    install.packages("TTR")
-    library(TTR)
   }
 
   # Validate periods input

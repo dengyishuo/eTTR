@@ -4,7 +4,14 @@
 \alias{VHF}
 \title{Vertical Horizontal Filter (Optimized)}
 \usage{
-VHF(price, n = 28, na.rm = TRUE, inf.replace = NA, zero.replace = NA)
+VHF(
+  price,
+  n = 28,
+  na.rm = TRUE,
+  inf.replace = NA,
+  zero.replace = NA,
+  allow_middle_na = FALSE
+)
 }
 \arguments{
 \item{price}{Object that is coercible to xts or matrix and contains a Close
@@ -17,9 +24,11 @@ price series, or a High-Low-Close price series.}
 \item{inf.replace}{Numeric value to replace INF/-INF values. Default is NA.}
 
 \item{zero.replace}{Numeric value to replace division by zero results. Default is NA.}
+
+\item{allow_middle_na}{Logical. If TRUE, allows NA values in the middle of the series.}
 }
 \value{
-A object of the same class as \code{price} or a vector (if
+An object of the same class as \code{price} or a vector (if
 \code{try.xts} fails) containing the VHF values with NA/INF values handled.
 }
 \description{
@@ -31,9 +40,25 @@ If Close prices are given, the function calculates the max/min using
 only those prices. If HLC prices are given, the function uses high/low prices.
 }
 \examples{
-data(TSLA)
-vhf_close <- VHF(TSLA[, "Close"], na.rm = TRUE)
-vhf_hlc <- VHF(TSLA[, c("High", "Low", "Close")], inf.replace = 10)
+\dontrun{
+# Example 1: Using closing prices
+data("AAPL")
+close_price <- Cl(AAPL)
+vhf_close <- VHF(close_price, n = 14)
+chartSeries(AAPL, TA = "addTA(vhf_close,col='blue')")
+
+# Example 2: Using HLC data
+hlc_data <- HLC(AAPL)
+vhf_hlc <- VHF(hlc_data, n = 28, inf.replace = 0)
+
+# Example 3: Handling NA values
+test_data <- c(1:10, NA, 12:20)
+vhf_na <- VHF(test_data, n = 5, na.rm = TRUE)
+
+# Example 4: Zero-division protection
+zero_test <- c(1, 1, 1, 1, 1)
+vhf_zero <- VHF(zero_test, zero.replace = 0)
+}
 }
 \references{
 \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=119}

@@ -16,7 +16,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Guppy Multiple Moving Averages
 #' @description
 #' Calculate the Guppy Multiple Moving Average of a series.
@@ -25,7 +24,6 @@
 #' \code{short} and \code{long} groups of moving averages intersect.  An up/down
 #' trend exists when the short/long-term moving averages are greater than the
 #' long/short-term averages.
-#'
 #' @aliases GMMA Guppy guppy
 #' @param x Price, volume, etc. series that is coercible to xts or matrix.
 #' @param short Vector of short-term periods.
@@ -47,12 +45,10 @@
 #' indicator:\cr
 #' \url{https://www.investopedia.com/terms/g/guppy-multiple-moving-average.asp}\cr
 #' @keywords ts
-#' @export
 #' @examples
-#'
 #' data(TSLA)
 #' gmma <- GMMA(TSLA[, "Close"])
-#'
+#' @export
 GMMA <-
   function(x, short = c(3, 5, 8, 10, 12, 15), long = c(30, 35, 40, 45, 50, 60), maType) {
     # Guppy Multiple Moving Average

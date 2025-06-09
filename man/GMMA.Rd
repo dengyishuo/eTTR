@@ -41,10 +41,8 @@ trend exists when the short/long-term moving averages are greater than the
 long/short-term averages.
 }
 \examples{
-
 data(TSLA)
 gmma <- GMMA(TSLA[, "Close"])
-
 }
 \references{
 The following site(s) were used to code/document this

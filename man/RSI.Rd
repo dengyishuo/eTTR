@@ -41,21 +41,16 @@ The RSI is usually interpreted as an overbought/oversold (over 70 /
 below 30) indicator.  Divergence with price may also be useful.  For example,
 if price is making new highs/lows, but RSI is not, it could indicate a
 reversal.
-
 You can calculate a stochastic RSI by using the function \code{\link{stoch}}
 on RSI values.
 }
 \examples{
-
 data(TSLA)
 price <- TSLA[, "Close"]
-
 # Default case
 rsi <- RSI(price)
-
 # Case of one 'maType' for both MAs
 rsiMA1 <- RSI(price, n = 14, maType = "WMA", wts = TSLA[, "Volume"])
-
 # Case of two different 'maType's for both MAs
 rsiMA2 <- RSI(price, n = 14, maType = list(maUp = list(EMA), maDown = list(WMA)))
 

@@ -37,10 +37,6 @@ Input data must contain closing prices (Close), periods must be
 positive integers
 }
 \examples{
-library(quantmod)
-library(tibble)
-library(TTR)
-library(dplyr)
 # Load internal Tesla stock data
 data(TSLA)
 # Calculate and add WMA columns to TSLA data
@@ -50,10 +46,9 @@ head(tsla_with_wma)
 tsla_only_wma <- add_wma(TSLA, periods = c(10, 20), append = FALSE)
 head(tsla_only_wma)
 }
-\keyword{TTR}
 \keyword{WMA,}
 \keyword{analysis,}
 \keyword{data,}
-\keyword{quantmod,}
+\keyword{quantmod}
 \keyword{stock}
 \keyword{technical}

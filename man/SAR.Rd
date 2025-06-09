@@ -10,7 +10,7 @@ SAR(HL, accel = c(0.02, 0.2))
 \item{HL}{Object that is coercible to xts or matrix and contains High-Low
 prices.}
 
-\item{accel}{accel\link{1}: Acceleration factor.\cr accel\link{2}: Maximum acceleration
+\item{accel}{\code{accel[1]}: Acceleration factor.\cr \code{accel[2]}: Maximum acceleration
 factor.}
 }
 \value{
@@ -29,10 +29,8 @@ And Reverse point when you would close a long position and open a short
 position or vice versa.
 }
 \examples{
-
 data(TSLA)
 sar <- SAR(TSLA[, c("High", "Low")])
-
 }
 \references{
 The following site(s) were used to code/document this

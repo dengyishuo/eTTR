@@ -7,64 +7,55 @@
 BBands(HLC, n = 20, maType, sd = 2, ...)
 }
 \arguments{
-\item{HLC}{Object that is coercible to xts or matrix and contains High-Low-Close prices. If only a univariate series is given, it will be  used. See details.}
+\item{HLC}{Object coercible to xts/matrix containing High-Low-Close prices.
+Univariate series are accepted.}
 
-\item{n}{Number of periods for moving average.}
+\item{n}{Number of periods for moving average (default 20).}
 
-\item{maType}{A function or a string naming the function to be called.}
+\item{maType}{Function or string naming moving average type.}
 
-\item{sd}{The number of standard deviations to use.}
+\item{sd}{Number of standard deviations (default 2).}
 
-\item{...}{Other arguments to be passed to the \code{maType} function.}
+\item{...}{Additional arguments passed to \code{maType}.}
 }
 \value{
-A object of the same class as \code{HLC} or a matrix (if
-\code{try.xts} fails) containing the columns:
-\describe{
-\item{dn}{The lower Bollinger Band.}
-\item{mavg}{The middle Moving Average (see notes).}
-\item{up}{The upper Bollinger Band.}
-\item{pctB}{The \\%B calculation.}
+Object matching \code{HLC} class with columns:
+\itemize{
+\item \code{dn}: Lower band
+\item \code{mavg}: Moving average
+\item \code{up}: Upper band
+\item \code{pctB}: \%B value
 }
 }
 \description{
-Bollinger Bands are a way to compare a security's volatility and price levels over a period of time. Developed by John Bollinger.
+Calculates Bollinger Bands, a volatility indicator comparing price levels over time.
 }
 \details{
-Bollinger Bands consist of three lines:
-The middle band is generally a 20-period SMA of the typical price
-(\eqn{\frac{high + low + close}{3}}).
-The upper and lower bands are \code{sd} standard deviations
-(generally 2) above and below the MA.
-The middle band is usually calculated using the typical price, but if a
-univariate series (e.g. Close, Weighted Close, Median Price, etc.) is
-provided, it will be used instead.
+Calculates three bands:
+\itemize{
+\item Middle: SMA of typical price \eqn{(high + low + close)/3}
+\item Upper: \code{sd} standard deviations above MA
+\item Lower: \code{sd} standard deviations below MA
+Uses univariate series directly if provided.
+}
 }
 \note{
-Using any moving average other than SMA will result in inconsistencies
-between the moving average calculation and the standard deviation
-calculation. Since, by definition, a rolling standard deviation uses a
-simple moving average.
+Non-SMA averages cause inconsistencies since SD calculations assume SMA.
 }
 \examples{
-## The examples below show the differences between using a
-## High-Low-Close series, and just a close series when
-## calculating Bollinger Bands.
 data(TSLA)
-bbands.HLC <- BBands(TSLA[, c("High", "Low", "Close")])
-bbands.close <- BBands(TSLA[, "Close"])
+# Using HLC series
+bbands_hlc <- BBands(TSLA[, c("High", "Low", "Close")])
+# Using Close only
+bbands_close <- BBands(TSLA[, "Close"])
 }
 \references{
-The following site(s) were used to code/document this
-indicator:\cr
-\url{https://www.fmlabs.com/reference/Bollinger.htm}\cr
-\url{https://www.fmlabs.com/reference/BollingerWidth.htm}\cr
-\url{https://www.metastock.com/Customer/Resources/TAAZ/?p=36}\cr
-\url{https://www.linnsoft.com/techind/bollinger-bands}\cr
-\url{https://school.stockcharts.com/doku.php?id=technical_indicators:bollinger_bands}\cr
-\url{https://school.stockcharts.com/doku.php?id=technical_indicators:bollinger_band_width}\cr
+\itemize{
+\item \url{https://www.fmlabs.com/reference/Bollinger.htm}
+\item \url{https://school.stockcharts.com/doku.php?id=technical_indicators:bollinger_bands}
+}
 }
 \seealso{
-See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average options; and note Warning section.
+Moving average functions: \code{\link[=SMA]{SMA()}}, \code{\link[=EMA]{EMA()}}
 }
 \keyword{ts}

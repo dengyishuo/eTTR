@@ -18,7 +18,6 @@ An object of the same class as \code{x} with Wilder-style sums.
 Calculate a weighted sum using Welles Wilder's method.
 }
 \examples{
-
 data(TSLA)
 wilder_14 <- wilderSum(TSLA[, "High"] - TSLA[, "Low"], 14)
 head(wilder_14)

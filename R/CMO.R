@@ -42,10 +42,8 @@
 #' @keywords ts
 #' @export
 #' @examples
-#'
 #' data(TSLA)
 #' cmo <- CMO(TSLA[, "Close"])
-#'
 CMO <-
   function(x, n = 14) {
     # Chande Momentum Oscillator

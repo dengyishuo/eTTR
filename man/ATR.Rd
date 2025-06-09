@@ -36,7 +36,6 @@ data(sample_matrix)
 stock_ohlc <- as.xts(sample_matrix)
 atr_values <- ATR(stock_ohlc, n = 14)
 }
-
 }
 \references{
 Wilder, J. Welles. "New Concepts in Technical Trading Systems." 1978.

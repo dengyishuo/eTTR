@@ -27,30 +27,23 @@ A object of the same class as \code{HL} or a matrix (if
 }
 \description{
 Donchian Channels were created by Richard Donchian and were used to generate
-buy and sell signals for the Turtle Trading system.
-
-Donchian Channels consist of two (sometimes three) lines:
-
-The top line is the highest high of the past \code{n} periods.  The bottom
-line is the lowest low of the past \code{n} periods.  The middle line is the
-average of the top and bottom lines.
+buy and sell signals for the Turtle Trading system.Donchian Channels consist
+of two (sometimes three) lines:The top line is the highest high of the past
+\code{n} periods.  The bottom line is the lowest low of the past \code{n}
+periods.  The middle line is the average of the top and bottom lines.
 }
 \note{
 The default of \code{include.lag=FALSE} makes \code{DonchainChannel}
-consistent with other \pkg{TTR} functions, in that it includes the current
+consistent with other \pkg{eTTR} functions, in that it includes the current
 period in the calculation.
-
 The default is different than the original calculation, which would calculate
 the indicator using periods t-1 through t-n. Setting \code{include.lag=TRUE}
-will return the result of the original calculation.
-
-The default of this argument may change in the future.
+will return the result of the original calculation.The default of this
+argument may change in the future.
 }
 \examples{
-
 data(TSLA)
 dc <- DonchianChannel(TSLA[, c("High", "Low")])
-
 }
 \references{
 The following site(s) were used to code/document this

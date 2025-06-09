@@ -11,7 +11,7 @@ SEXP evwma(SEXP, SEXP, SEXP);
 SEXP sar(SEXP, SEXP, SEXP);
 SEXP ettr_rollPercentRank(SEXP, SEXP, SEXP, SEXP);
 SEXP ettr_zigzag(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-SEXP wilderSum(SEXP, SEXP);
+SEXP WilderSum(SEXP, SEXP);
 SEXP wma(SEXP, SEXP, SEXP);
 SEXP zlema(SEXP, SEXP, SEXP);
 SEXP runsum(SEXP, SEXP);

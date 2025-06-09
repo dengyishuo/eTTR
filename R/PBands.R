@@ -16,7 +16,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Construct (optionally further smoothed and centered ) volatility bands around
 #' prices
 #' @description
@@ -64,7 +63,6 @@
 #'
 #' data(TSLA)
 #' pbands.close <- PBands(TSLA[, "Close"])
-#'
 PBands <- function(
     prices, n = 20, maType = "SMA", sd = 2, ..., fastn = 2,
     centered = FALSE, lavg = FALSE) {

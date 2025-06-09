@@ -26,7 +26,6 @@ the EMA columns to the original data or return the EMA columns separately.
 }
 \details{
 The function first validates the input data format and the required columns.
-It then checks if the TTR package is available and installs/loads it if not.
 After that, it calculates the Exponential Moving Averages for each specified period.
 The resulting EMA values are then combined into a tibble.
 Finally, depending on the \code{append} parameter, the EMA tibble is either
@@ -37,24 +36,17 @@ Input data must contain closing prices (Close), periods must be
 positive integers
 }
 \examples{
-library(quantmod)
-library(tibble)
-library(TTR)
-library(dplyr)
-# Download stock data (example using AAPL)
-getSymbols("AAPL")
 data(TSLA)
 # Calculate and add EMA columns to AAPL data
 tsla_with_ema <- add_ema(TSLA, periods = c(10, 20), append = TRUE)
 head(tsla_with_ema)
 # Return only EMA columns for AAPL
 tsla_only_ema <- add_ema(TSLA, periods = c(10, 20), append = FALSE)
-head(aapl_only_ema)
+head(tsla_only_ema)
 }
 \keyword{EMA,}
-\keyword{TTR}
 \keyword{analysis,}
 \keyword{data,}
-\keyword{quantmod,}
+\keyword{quantmod}
 \keyword{stock}
 \keyword{technical}

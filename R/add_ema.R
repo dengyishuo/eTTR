@@ -33,30 +33,23 @@
 #' positive integers
 #' @details
 #' The function first validates the input data format and the required columns.
-#' It then checks if the TTR package is available and installs/loads it if not.
 #' After that, it calculates the Exponential Moving Averages for each specified period.
 #' The resulting EMA values are then combined into a tibble.
 #' Finally, depending on the \code{append} parameter, the EMA tibble is either
 #' appended to the original data or returned as a standalone tibble.
-#' @keywords EMA, stock data, technical analysis, quantmod, TTR
+#' @keywords EMA, stock data, technical analysis, quantmod
 #' @importFrom tibble tibble
 #' @importFrom quantmod Cl
 #' @importFrom dplyr bind_cols rename
 #' @export
 #' @examples
-#' library(quantmod)
-#' library(tibble)
-#' library(TTR)
-#' library(dplyr)
-#' # Download stock data (example using AAPL)
-#' getSymbols("AAPL")
 #' data(TSLA)
 #' # Calculate and add EMA columns to AAPL data
 #' tsla_with_ema <- add_ema(TSLA, periods = c(10, 20), append = TRUE)
 #' head(tsla_with_ema)
 #' # Return only EMA columns for AAPL
 #' tsla_only_ema <- add_ema(TSLA, periods = c(10, 20), append = FALSE)
-#' head(aapl_only_ema)
+#' head(tsla_only_ema)
 add_ema <- function(mktdata, periods = c(50, 200), append = TRUE) {
   # Check the data format. If mktdata is not of xts type, stop the function.
   if (!inherits(mktdata, "xts")) {
@@ -72,11 +65,6 @@ add_ema <- function(mktdata, periods = c(50, 200), append = TRUE) {
     )
   }
 
-  # Check if the TTR package is available. If not, install and load it.
-  if (!requireNamespace("TTR", quietly = TRUE)) {
-    install.packages("TTR")
-    library(TTR)
-  }
 
   # Validate the input parameters. Ensure periods are positive integers and the length is within 2 to 4.
   stopifnot(

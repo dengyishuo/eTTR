@@ -4,7 +4,7 @@
 \alias{runCov}
 \title{Moving Window Covariance (runCov)}
 \usage{
-runCov(x, y, n = 10, use = "all.obs", sample = TRUE, cumulative = FALSE)
+runCov(x, y, n = 10, sample = TRUE, cumulative = FALSE)
 }
 \arguments{
 \item{x}{Object coercible to xts or matrix.}

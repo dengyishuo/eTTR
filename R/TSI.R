@@ -68,7 +68,7 @@ TSI <- function(price, r = 13, s = 25, signal_period = 9, ...) {
     }
     # 确保order.by的长度与result行数一致
     if (length(valid_indices) != nrow(result)) {
-      valid_indices <- valid_indices[1:nrow(result)]
+      valid_indices <- valid_indices[seq_len(nrow(result))]
     }
     result <- xts(result, order.by = original_index[valid_indices])
   }

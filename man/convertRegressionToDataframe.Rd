@@ -2,34 +2,26 @@
 % Please edit documentation in R/runRegression.R
 \name{convertRegressionToDataframe}
 \alias{convertRegressionToDataframe}
-\title{Convert runRegression Results to Data Frame
-将runRegression结果转换为数据框}
+\title{Convert runRegression Results to Data Frame}
 \usage{
 convertRegressionToDataframe(reg_result, prefix = "")
 }
 \arguments{
-\item{reg_result}{A runRegression object.
-一个runRegression对象。}
+\item{reg_result}{A runRegression object.}
 
-\item{prefix}{An optional prefix to add to column names.
-可选的列名前缀。}
+\item{prefix}{An optional prefix to add to column names.}
 }
 \value{
 A data frame containing regression results.
-包含回归结果的数据框。
 }
 \description{
 Converts the results of a runRegression analysis into a data frame for easier manipulation.
-将runRegression分析的结果转换为数据框，便于进一步处理。
 }
 \examples{
 # Generate sample data and run regression
-# 生成示例数据并运行回归
 set.seed(123)
 x <- xts::xts(rnorm(100), order.by = Sys.Date() - 99:0)
 reg_results <- runRegression(x, n = 10)
-
 # Convert to data frame
-# 转换为数据框
 df <- convertRegressionToDataframe(reg_results, prefix = "reg_10d")
 }

@@ -45,10 +45,8 @@
 #' @export
 #' @keywords ts
 #' @examples
-#'
-#' data(ttrc)
-#' volatility <- chaikinVolatility(ttrc[, c("High", "Low")])
-#'
+#' data(TSLA)
+#' volatility <- chaikinVolatility(TSLA[, c("High", "Low")])
 chaikinVolatility <-
   function(HL, n = 10, maType, ...) {
     # Chaikin Volatility

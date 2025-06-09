@@ -11,7 +11,7 @@ DEMA(x, n = 10, v = 1, wilder = FALSE, ratio = NULL)
 
 \item{n}{Number of periods to average over. Must be between 1 and \code{nrow(x)}.}
 
-\item{v}{The 'volume factor' (a number in \link{0,1}); default is 1 (standard DEMA).}
+\item{v}{The 'volume factor' (a number in \code{[0,1\]}; default is 1 (standard DEMA).}
 
 \item{wilder}{logical; if \code{TRUE}, use Welles Wilder's EMA formula.}
 

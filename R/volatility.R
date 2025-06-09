@@ -16,7 +16,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Volatility
 #' @description
 #' Selected volatility estimators/indicators; various authors.
@@ -128,7 +127,6 @@
 #' @keywords ts
 #' @export
 #' @examples
-#'
 #' data(TSLA)
 #' ohlc <- TSLA[, c("Open", "High", "Low", "Close")]
 #' vClose <- volatility(ohlc, calc = "close")
@@ -136,7 +134,6 @@
 #' vGK <- volatility(ohlc, calc = "garman")
 #' vParkinson <- volatility(ohlc, calc = "parkinson")
 #' vRS <- volatility(ohlc, calc = "rogers")
-#'
 volatility <-
   function(OHLC, n = 10, calc = "close", N = 260, mean0 = FALSE, ...) {
     OHLC <- try.xts(OHLC, error = as.matrix)

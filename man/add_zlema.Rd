@@ -29,10 +29,6 @@ The modification involves adjusting the current price by subtracting a lagged pr
 Input data must contain closing prices (Close)
 }
 \examples{
-library(quantmod)
-library(tibble)
-library(TTR)
-library(dplyr)
 # Load internal Tesla stock data
 data(TSLA)
 # Calculate and add ZLEMA columns to TSLA data
@@ -42,9 +38,8 @@ head(tsla_with_zlema)
 tsla_only_zlema <- add_zlema(TSLA, periods = c(10, 20), append = FALSE)
 head(tsla_only_zlema)
 }
-\keyword{TTR}
 \keyword{ZLEMA,}
 \keyword{analysis,}
-\keyword{quantmod,}
+\keyword{quantmod}
 \keyword{technical}
 \keyword{zero-lag,}

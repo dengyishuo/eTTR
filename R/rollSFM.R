@@ -20,9 +20,6 @@
 #' @title Analysis of Running/Rolling/Moving Windows
 #' @description
 #' Various functions to analyze data over a moving window of periods.
-#'
-#'
-#' @aliases rollFun rollSFM
 #' @param Ra Object coercible to xts or matrix, containing the excess
 #' return for an individual security
 #' @param Rb Object coercible to xts or matrix, containing the market
@@ -36,6 +33,7 @@
 #'     over a n-period moving window.}
 #'  }
 #'
+#' @aliases rollFun rollSFM
 #' @author DengYishuo
 #' @references The following site(s) were used to code/document this
 #' indicator:

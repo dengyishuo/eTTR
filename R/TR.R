@@ -16,12 +16,9 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-#'
 #' @title True Range
 #' @description Calculates the True Range of a price series.
-#'
 #' @param HLC Object that is coercible to xts or matrix and contains High-Low-Close prices.
-#'
 #' @return A object of the same class as \code{HLC} or a matrix (if \code{try.xts} fails)
 #'         containing the columns:
 #'         \describe{
@@ -29,18 +26,13 @@
 #'           \item{trueHigh}{The true high used in calculating the true range.}
 #'           \item{trueLow}{The true low used in calculating the true range.}
 #'         }
-#'
+#' @seealso \code{\link{ATR}} for Average True Range.
+#' @importFrom xts try.xts lag.xts reclass
 #' @author DengYishuo
 #' @keywords ts
-#'
 #' @examples
-#' data(ttrc)
-#' tr <- TR(ttrc[, c("High", "Low", "Close")])
-#'
-#' @seealso \code{\link{ATR}} for Average True Range.
-#'
-#' @importFrom xts try.xts lag.xts reclass
-#'
+#' data(TSLA)
+#' tr <- TR(TSLA[, c("High", "Low", "Close")])
 #' @export
 TR <- function(HLC) {
   # Convert input to xts or matrix

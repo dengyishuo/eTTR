@@ -46,10 +46,8 @@
 #' @keywords ts
 #' @export
 #' @examples
-#'
 #' data(TSLA)
 #' cmf <- CMF(TSLA[, c("High", "Low", "Close")], TSLA[, "Volume"])
-#'
 CMF <-
   function(HLC, volume, n = 20) {
     # Chaikin Money Flow

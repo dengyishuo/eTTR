@@ -32,10 +32,8 @@ it is a buy/sell signal.
 }
 }
 \examples{
-
 data(TSLA)
 cmo <- CMO(TSLA[, "Close"])
-
 }
 \references{
 The following site(s) were used to code/document this

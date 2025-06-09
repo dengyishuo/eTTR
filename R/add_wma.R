@@ -38,16 +38,12 @@
 #' The resulting WMA values are then combined into a tibble.
 #' Finally, depending on the \code{append} parameter, the WMA tibble is either
 #' appended to the original data or returned as a standalone tibble.
-#' @keywords WMA, stock data, technical analysis, quantmod, TTR
+#' @keywords WMA, stock data, technical analysis, quantmod
 #' @importFrom tibble tibble
 #' @importFrom quantmod Cl
 #' @importFrom dplyr bind_cols rename
 #' @export
 #' @examples
-#' library(quantmod)
-#' library(tibble)
-#' library(TTR)
-#' library(dplyr)
 #' # Load internal Tesla stock data
 #' data(TSLA)
 #' # Calculate and add WMA columns to TSLA data
@@ -71,11 +67,6 @@ add_wma <- function(mktdata, periods = c(50, 200), append = TRUE) {
     )
   }
 
-  # Check if the TTR package is available. If not, install and load it.
-  if (!requireNamespace("TTR", quietly = TRUE)) {
-    install.packages("TTR")
-    library(TTR)
-  }
 
   # Validate the input parameters. Ensure periods are positive integers and the length is within 2 to 4.
   stopifnot(

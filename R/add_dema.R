@@ -33,21 +33,16 @@
 #' positive integers
 #' @details
 #' The function first validates the input data format and the required columns.
-#' It then checks if the TTR package is available and installs/loads it if not.
 #' After that, it calculates the Double Exponential Moving Averages for each specified period.
 #' The resulting DEMA values are then combined into a tibble.
 #' Finally, depending on the \code{append} parameter, the DEMA tibble is either
 #' appended to the original data or returned as a standalone tibble.
-#' @keywords DEMA, stock data, technical analysis, quantmod, TTR
+#' @keywords DEMA, stock data, technical analysis, quantmod
 #' @importFrom tibble tibble
 #' @importFrom quantmod Cl
 #' @importFrom dplyr bind_cols rename
 #' @export
 #' @examples
-#' library(quantmod)
-#' library(tibble)
-#' library(TTR)
-#' library(dplyr)
 #' # Load internal Tesla stock data
 #' data(TSLA)
 #' # Calculate and add DEMA columns to TSLA data
@@ -69,12 +64,6 @@ add_dema <- function(mktdata, periods = c(50, 200), append = TRUE) {
       "mktdata must contain all of the following columns: ",
       paste(required_cols, collapse = ", ")
     )
-  }
-
-  # Check if the TTR package is available. If not, install and load it.
-  if (!requireNamespace("TTR", quietly = TRUE)) {
-    install.packages("TTR")
-    library(TTR)
   }
 
   # Validate the input parameters. Ensure periods are positive integers and the length is within 2 to 4.

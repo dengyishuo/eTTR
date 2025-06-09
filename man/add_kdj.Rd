@@ -31,26 +31,14 @@ add_kdj(
 }
 \value{
 Tibble with KDJ columns added, including a date column
-
-Tibble with KDJ columns added, date column is always the first column
 }
 \description{
 This function calculates KDJ indicators and ensures the result includes a date column.
-
-This function calculates KDJ indicators and ensures the date column is always first.
 }
 \examples{
 \dontrun{
-library(quantmod)
-getSymbols("AAPL")
+data("AAPL") # Load example data
 aapl_with_kdj <- add_kdj(AAPL, n = 9, m1 = 3, m2 = 3)
 head(aapl_with_kdj$date) # Check date column
-}
-Calculate and add KDJ indicators to stock data (date column first)
-\dontrun{
-library(quantmod)
-getSymbols("AAPL")
-aapl_with_kdj <- add_kdj(AAPL, n = 9, m1 = 3, m2 = 3)
-head(aapl_with_kdj)  # Date column should be first
 }
 }

@@ -20,7 +20,7 @@
 #include <R.h>
 #include <Rinternals.h>
 
-SEXP wilderSum (SEXP x, SEXP n) {
+SEXP WilderSum (SEXP x, SEXP n) {
 
     /* Initialize loop and PROTECT counters */
     int i, P=0;

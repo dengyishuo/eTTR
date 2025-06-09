@@ -24,13 +24,12 @@ the provided signals to determine positions (long, short, or none).
 }
 \note{
 You can specify the number of periods and type of compounding
-via the '...' argument when calculating returns.
+via the '\code{...}' argument when calculating returns.
 }
 \examples{
 prices <- c(100, 105, 103, 107, 110)
 signals <- c(1, 1, -1, 1, 1)
 growth(prices, signals)
-
 }
 \author{
 DengYishuo

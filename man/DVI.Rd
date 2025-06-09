@@ -37,16 +37,13 @@ A object of the same class as \code{price} or a vector (if
 }
 \description{
 The DV Intermediate oscillator (DVI) is a very smooth momentum oscillator
-that can also be used as a trend indicator.  Created by David Varadi.
-
-The DVI combines smoothed returns over different time windows and the
-relative number of up versus down days (stretch) over different time windows.
+that can also be used as a trend indicator.  Created by David Varadi.The DVI
+combines smoothed returns over different time windows and the relative number
+of up versus down days (stretch) over different time windows.
 }
 \examples{
-
 data(TSLA)
 dvi <- DVI(TSLA[, "Close"])
-
 }
 \references{
 The following site(s) were used to code/document this

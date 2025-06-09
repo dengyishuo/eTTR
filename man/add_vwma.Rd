@@ -29,10 +29,6 @@ then dividing by the total volume over that period.
 Input data must contain closing prices (Close) and volume (Volume)
 }
 \examples{
-library(quantmod)
-library(tibble)
-library(zoo)
-library(dplyr)
 # Load internal Tesla stock data
 data(TSLA)
 # Calculate and add VWMA columns to TSLA data

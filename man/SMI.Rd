@@ -39,7 +39,6 @@ plot(tail(smi_values[, "SMI"], 100),
   main = "Stochastic Momentum Index", ylab = "SMI"
 )
 abline(h = c(20, 80), col = "gray", lty = 2)
-
 }
 \author{
 DengYishuo

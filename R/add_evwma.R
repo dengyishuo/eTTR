@@ -30,16 +30,12 @@
 #' @details
 #' EVWMA is calculated by applying an exponential moving average to the volume-weighted price.
 #' This gives more importance to price movements that occur with higher trading volume.
-#' @keywords EVWMA, volume weighted, technical analysis, quantmod, TTR
+#' @keywords EVWMA, volume weighted, technical analysis, quantmod
 #' @importFrom tibble tibble
 #' @importFrom quantmod Cl Vo
 #' @importFrom dplyr bind_cols
 #' @export
 #' @examples
-#' library(quantmod)
-#' library(tibble)
-#' library(TTR)
-#' library(dplyr)
 #' # Load internal Tesla stock data
 #' data(TSLA)
 #' # Calculate and add EVWMA columns to TSLA data
@@ -60,11 +56,6 @@ add_evwma <- function(mktdata, periods = c(50, 200), append = TRUE) {
     stop("mktdata must contain 'Close' and 'Volume' columns")
   }
 
-  # Load TTR package if not available
-  if (!requireNamespace("TTR", quietly = TRUE)) {
-    install.packages("TTR")
-    library(TTR)
-  }
 
   # Validate periods input
   stopifnot(

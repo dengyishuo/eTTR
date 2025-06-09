@@ -38,10 +38,8 @@
 #' @keywords ts
 #' @export
 #' @examples
-#'
 #' data(TSLA)
 #' clv <- CLV(TSLA[, c("High", "Low", "Close")])
-#'
 CLV <-
   function(HLC) {
     # Close Location Value

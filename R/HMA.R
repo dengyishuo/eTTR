@@ -16,20 +16,18 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Hull Moving Average (HMA)
 #' @description
 #' Calculate a highly responsive moving average with reduced lag.
-#'
 #' @param x Price series that is coercible to xts or matrix.
 #' @param n Number of periods to average over.
 #' @return An object of the same class as \code{x} containing the HMA values.
 #' @keywords ts
-#' @export
 #' @examples
 #' data(TSLA)
 #' hma_20 <- HMA(TSLA[, "Close"], 20)
 #' head(hma_20)
+#' @export
 HMA <- function(x, n = 20) {
   # Hull Moving Average
   madiff <- 2 * WMA(x, n = trunc(n / 2)) - WMA(x, n = n)

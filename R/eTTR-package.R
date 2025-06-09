@@ -5,11 +5,8 @@
 #' Finance.
 #'
 #' Users will probably be most interested in the following functions:\cr
-#' \code{\link{ADX}}\cr \code{\link{BBands}}\cr \code{\link{changes}}\cr
-#' \code{\link{MovingAverages}}\cr \code{\link{MACD}}\cr \code{\link{RSI}}\cr
-#' \code{\link{runFun}}\cr \code{\link{stoch}}\cr \code{\link{VWAP}}\cr
-#' \code{\link{WebData}}\cr
-#'
+#' \code{\link{ADX}}\cr \code{\link{BBands}}\cr \code{\link{MACD}}\cr
+#' \code{\link{RSI}}\cr \code{\link{stoch}}\cr \code{\link{VWAP}}\cr
 #' @name eTTR
 #' @aliases eTTR-package
 #' @author DengYishuo
@@ -20,36 +17,19 @@
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators}\cr
 #' @keywords package
 #' @examples
-#' data(ttrc)
 #' data(TSLA)
 #' data(AAPL)
-#'
 #' # Bollinger Bands
-#' bbands <- BBands(ttrc[, c("High", "Low", "Close")])
-#'
+#' bbands <- BBands(TSLA[, c("High", "Low", "Close")])
 #' # Directional Movement Index
 #' adx <- ADX(TSLA[, c("High", "Low", "Close")])
-#'
 #' # Moving Averages
-#' ema <- EMA(ttrc[, "Close"], n = 20)
-#' sma <- SMA(ttrc[, "Close"], n = 20)
-#'
+#' ema <- EMA(TSLA[, "Close"], n = 20)
+#' sma <- SMA(TSLA[, "Close"], n = 20)
 #' # MACD
 #' macd <- MACD(AAPL[, "Close"])
-#'
 #' # RSI
-#' rsi <- RSI(ttrc[, "Close"])
-#'
+#' rsi <- RSI(AAPL[, "Close"])
 #' # Stochastics
-#' stochOsc <- stoch(ttrc[, c("High", "Low", "Close")])
-#'
-#' ### Note: you must have a working internet connection
-#' ### for the examples below to work!
-#' if (interactive()) {
-#'   # Fetch U.S. symbols from the internet
-#'   nyseSymbols <- stockSymbols("NYSE")
-#'
-#'   # Fetch Yahoo! Finance data from the internet
-#'   ge <- getYahooData("GE", 19990404, 20050607, adjust = FALSE)
-#' }
+#' stochOsc <- stoch(AAPL[, c("High", "Low", "Close")])
 "_PACKAGE"

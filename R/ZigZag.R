@@ -16,7 +16,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Zig Zag
 #' @description
 #' Zig Zag higlights trends by removing price changes smaller than \code{change}
@@ -24,7 +23,6 @@
 #'
 #' The Zig Zag is non-predictive.  The purpose of the Zig Zag is filter noise
 #' and make chart patterns clearer.  It's more a visual tool than an indicator.
-#'
 #' @aliases ZigZag zigzag
 #' @param HL Object that is coercible to xts or matrix and contains either a
 #' High-Low price series, or a Close price series.
@@ -54,11 +52,9 @@
 #' @keywords ts
 #' @export
 #' @examples
-#'
-#' ## Get Data and Indicator ##
+#' ## Get Data and Indicator
 #' data(TSLA)
 #' zz <- ZigZag(TSLA[, c("High", "Low")], change = 20)
-#'
 ZigZag <-
   function(HL, change = 10, percent = TRUE, retrace = FALSE, lastExtreme = TRUE) {
     # Zig Zag Indicator
@@ -83,8 +79,12 @@ ZigZag <-
 
     # Call C routine
     zz <- .Call(
-      C_ettr_zigzag, as.numeric(high), as.numeric(low),
-      as.numeric(change), as.logical(percent), as.logical(retrace),
+      ettr_zigzag,
+      as.numeric(high),
+      as.numeric(low),
+      as.numeric(change),
+      as.logical(percent),
+      as.logical(retrace),
       as.logical(lastExtreme)
     )
 

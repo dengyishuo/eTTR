@@ -26,7 +26,6 @@ the DEMA columns to the original data or return the DEMA columns separately.
 }
 \details{
 The function first validates the input data format and the required columns.
-It then checks if the TTR package is available and installs/loads it if not.
 After that, it calculates the Double Exponential Moving Averages for each specified period.
 The resulting DEMA values are then combined into a tibble.
 Finally, depending on the \code{append} parameter, the DEMA tibble is either
@@ -37,10 +36,6 @@ Input data must contain closing prices (Close), periods must be
 positive integers
 }
 \examples{
-library(quantmod)
-library(tibble)
-library(TTR)
-library(dplyr)
 # Load internal Tesla stock data
 data(TSLA)
 # Calculate and add DEMA columns to TSLA data
@@ -51,9 +46,8 @@ tsla_only_dema <- add_dema(TSLA, periods = c(10, 20), append = FALSE)
 head(tsla_only_dema)
 }
 \keyword{DEMA,}
-\keyword{TTR}
 \keyword{analysis,}
 \keyword{data,}
-\keyword{quantmod,}
+\keyword{quantmod}
 \keyword{stock}
 \keyword{technical}

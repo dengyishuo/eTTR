@@ -43,10 +43,8 @@ calculated.  If \code{HLC} is a vector, then those values will be used
 instead of the typical price.
 }
 \examples{
-
 data(TSLA)
 cci <- CCI(TSLA[, c("High", "Low", "Close")])
-
 }
 \references{
 The following site(s) were used to code/document this

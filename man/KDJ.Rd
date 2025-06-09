@@ -27,6 +27,5 @@ The KDJ indicator helps identify overbought or oversold conditions, returning K,
 }
 \examples{
 data(TSLA)
-tsla_kdj <- KDJ(TSLA, n = 9, m1 = 3, m2 = 3, fill.na.method = "interpolate")
-
+tsla_kdj <- KDJ(TSLA, n = 9, m1 = 3, m2 = 3)
 }

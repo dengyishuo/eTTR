@@ -69,17 +69,13 @@ tighter weight distribution, focusing on fewer data points.
 Input data must contain closing prices (Close)
 }
 \examples{
-library(quantmod)
-library(tibble)
-library(zoo)
-library(dplyr)
 # Load internal Tesla stock data
 data(TSLA)
 # Calculate and add ALMA columns to TSLA data with default parameters
 tsla_with_alma <- add_alma(TSLA, periods = c(10, 20))
 head(tsla_with_alma)
 # Calculate ALMA with custom offset and sigma
-tsla_alma_custom <- add_alma(TSLA, periods = 20, offset = 0.5, sigma = 4.0, append = FALSE)
+tsla_alma_custom <- add_alma(TSLA, periods = c(10, 20), offset = 0.5, sigma = 4.0, append = FALSE)
 head(tsla_alma_custom)
 }
 \keyword{ALMA,}

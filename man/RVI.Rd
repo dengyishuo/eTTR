@@ -2,34 +2,26 @@
 % Please edit documentation in R/RVI.R
 \name{RVI}
 \alias{RVI}
-\title{Relative Vigor Index (RVI) Calculation
-相对活力指数(RVI)计算}
+\title{Relative Vigor Index (RVI) Calculation}
 \usage{
 RVI(price, n = 14, ema.n = 3, keepNA = TRUE)
 }
 \arguments{
-\item{price}{A numeric vector or xts object containing price data.
-包含价格数据的数值向量或xts对象。}
+\item{price}{A numeric vector or xts object containing price data.}
 
-\item{n}{The period for calculating standard deviation, default is 14.
-计算标准差的周期，默认值14。}
+\item{n}{The period for calculating standard deviation, default is 14.}
 
-\item{ema.n}{The period for exponential moving average (EMA) smoothing, default is 3.
-指数移动平均(EMA)平滑的周期，默认值3。}
+\item{ema.n}{The period for exponential moving average (EMA) smoothing, default is 3.}
 
-\item{keepNA}{Logical indicating whether to keep NA values in the result. Default is TRUE.
-逻辑值，指示是否在结果中保留NA值。默认值TRUE。}
+\item{keepNA}{Logical indicating whether to keep NA values in the result. Default is TRUE.}
 }
 \value{
 An object of the same type as the input (vector or xts) containing RVI values.
-返回与输入相同类型的对象(向量或xts)，包含RVI值。
 }
 \description{
 Computes the Relative Vigor Index (RVI), a momentum oscillator that measures the
 strength of a trend by comparing closing prices to trading ranges. The RVI is
 considered bullish when above its signal line and bearish when below.
-计算相对活力指数(RVI)，这是一种动量振荡指标，通过比较收盘价与交易区间来衡量趋势强度。
-当RVI高于其信号线时被视为看涨，低于时被视为看跌。
 }
 \details{
 The RVI is calculated by:
@@ -39,23 +31,12 @@ The RVI is calculated by:
 \item Applying exponential smoothing to the standard deviations
 \item Computing the ratio of smoothed upward movements to total movements
 }
-
-RVI的计算方法为：
-\enumerate{
-\item 将价格变动分为上涨和下跌运动
-\item 计算指定周期内这些运动的标准差
-\item 对标准差应用指数平滑
-\item 计算平滑后的上涨运动与总运动的比率
-}
 }
 \examples{
 # Calculate RVI with default parameters
-# 使用默认参数计算RVI
 price_data <- rnorm(100, 100, 5)
 rvi_result <- RVI(price_data)
-
 # Calculate RVI with custom parameters and plot
-# 使用自定义参数计算RVI并绘图
 library(xts)
 price_xts <- xts(price_data, order.by = Sys.Date() - 99:0)
 rvi_custom <- RVI(price_xts, n = 20, ema.n = 5)
@@ -70,7 +51,4 @@ plot(rvi_custom, main = "Custom RVI Parameters")
 \seealso{
 \code{\link{EMA}} for exponential moving average calculation.
 \code{\link{runSD}} for rolling standard deviation calculation.
-
-查看 \code{\link{EMA}} 用于指数移动平均计算。
-查看 \code{\link{runSD}} 用于滚动标准差计算。
 }

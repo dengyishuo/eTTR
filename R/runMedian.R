@@ -50,6 +50,6 @@ runMedian <- function(x, n = 10, non.unique = "mean", cumulative = FALSE) {
     min = -1L
   )
 
-  result <- .Call(C_runmedian, x, n, non.unique, cumulative)
+  result <- .Call(runmedian, x, n, non.unique, cumulative)
   reclass(result, x)
 }

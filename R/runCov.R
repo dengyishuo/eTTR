@@ -50,6 +50,6 @@ runCov <- function(x, y, n = 10, sample = TRUE, cumulative = FALSE) {
     stop("runCov only supports univariate 'x' and 'y'")
   }
 
-  result <- .Call(C_runcov, xy[, 1], xy[, 2], n, sample, cumulative)
+  result <- .Call(runcov, xy[, 1], xy[, 2], n, sample, cumulative)
   reclass(result, x)
 }

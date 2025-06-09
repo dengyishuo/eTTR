@@ -16,7 +16,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-#' Calculate and add KDJ indicators to stock data (with date column)
+#' @title Calculate and add KDJ indicators to stock data (with date column)
 #' @description This function calculates KDJ indicators and ensures the result includes a date column.
 #' @param mktdata xts object containing OHLCV data
 #' @param n integer. KDJ calculation period (default 9)
@@ -26,41 +26,18 @@
 #' @param append logical. Append KDJ columns to original data (default TRUE)
 #' @param date_col character. Name of the date column (default "date")
 #' @return Tibble with KDJ columns added, including a date column
-#' @importFrom tibble as_tibble
-#' @importFrom dplyr bind_cols
+#' @importFrom tibble as_tibble add_column tibble
 #' @export
 #' @examples
 #' \dontrun{
-#' library(quantmod)
-#' getSymbols("AAPL")
+#' data("AAPL") # Load example data
 #' aapl_with_kdj <- add_kdj(AAPL, n = 9, m1 = 3, m2 = 3)
 #' head(aapl_with_kdj$date) # Check date column
-#' }
-#' Calculate and add KDJ indicators to stock data (date column first)
-#' @description This function calculates KDJ indicators and ensures the date column is always first.
-#' @param mktdata xts object containing OHLCV data
-#' @param n integer. KDJ calculation period (default 9)
-#' @param m1 integer. Smoothing parameter for K (default 3)
-#' @param m2 integer. Smoothing parameter for D (default 3)
-#' @param fill_na_method character. Method to fill NA values: "none", "initial", "interpolate" (default "none")
-#' @param append logical. Append KDJ columns to original data (default TRUE)
-#' @param date_col character. Name of the date column (default "date")
-#' @return Tibble with KDJ columns added, date column is always the first column
-#' @importFrom tibble as_tibble
-#' @importFrom dplyr bind_cols select
-#' @importFrom zoo index
-#' @export
-#' @examples
-#' \dontrun{
-#' library(quantmod)
-#' getSymbols("AAPL")
-#' aapl_with_kdj <- add_kdj(AAPL, n = 9, m1 = 3, m2 = 3)
-#' head(aapl_with_kdj)  # Date column should be first
 #' }
 add_kdj <- function(mktdata, n = 9, m1 = 3, m2 = 3,
                     fill_na_method = "none", append = TRUE,
                     date_col = "date") {
-  # 验证输入
+  # Validate input parameters
   stopifnot(
     inherits(mktdata, "xts"),
     all(c("High", "Low", "Close") %in% colnames(mktdata)),
@@ -68,10 +45,10 @@ add_kdj <- function(mktdata, n = 9, m1 = 3, m2 = 3,
     fill_na_method %in% c("none", "initial", "interpolate")
   )
 
-  # 从xts对象中提取日期
+  # Extract date index
   dates <- zoo::index(mktdata)
 
-  # 计算KDJ
+  # Calculate KDJ indicators
   kdj_result <- KDJ(
     ohlc = mktdata,
     n = n,
@@ -80,21 +57,23 @@ add_kdj <- function(mktdata, n = 9, m1 = 3, m2 = 3,
     fill_na_method = fill_na_method
   )
 
-  # 转换为tibble并确保日期列在第一列
-  kdj_tbl <- tibble::as_tibble(kdj_result) %>%
-    tibble::add_column(!!date_col := dates, .before = 1)
+  # Convert KDJ results to tibble and add date column
+  kdj_tbl <- tibble::as_tibble(kdj_result)
+  kdj_tbl <- tibble::add_column(kdj_tbl, date = dates, .before = 1)
+  names(kdj_tbl)[1] <- date_col
 
-  # 返回结果
+  # Determine return format based on append parameter
   if (append) {
-    # 转换原始数据为tibble
+    # Convert original data to tibble
     mktdata_tbl <- tibble::as_tibble(mktdata)
 
-    # 合并数据，确保日期列在第一列
-    result <- dplyr::bind_cols(
-      tibble::tibble(!!date_col := dates),
-      mktdata_tbl,
-      kdj_tbl %>% dplyr::select(-!!date_col)
-    )
+    # Create date column data frame
+    date_df <- tibble::tibble(date = dates)
+    names(date_df)[1] <- date_col
+
+    # Merge data
+    kdj_cols <- setdiff(names(kdj_tbl), date_col)
+    result <- cbind(date_df, mktdata_tbl, kdj_tbl[, kdj_cols])
   } else {
     result <- kdj_tbl
   }

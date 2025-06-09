@@ -16,7 +16,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Elastic Volume-Weighted Moving Average (EVWMA)
 #' @description
 #' Calculate a volume-weighted moving average that adjusts to trading volume.
@@ -52,7 +51,7 @@ EVWMA <- function(price, volume, n = 10) {
   }
 
   # Call C routine (assuming .Call is defined)
-  ma <- .Call(C_evwma, pv[, 1], pv[, 2], n)
+  ma <- .Call(evwma, pv[, 1], pv[, 2], n)
   ma <- reclass(ma, price)
 
   if (!is.null(dim(ma))) {

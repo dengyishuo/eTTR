@@ -16,7 +16,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Signal to Noise Ratio
 #' @description
 #' The n-day SNR for a given market is calculated by taking the absolute
@@ -44,7 +43,6 @@
 #' @references Skeggs, James and Hill, Alex (2015). Back in Black Part 2: The
 #' Opportunity Set for Trend Following.
 #' @export
-#'
 SNR <- function(HLC, n, ...) {
   HLC <- try.xts(HLC, error = as.matrix)
 

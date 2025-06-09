@@ -22,10 +22,8 @@
 #' Arms' Ease of Movement Value (EMV) emphasizes days where the security moves
 #' easily and minimizes days where the security does not move easily.  Developed
 #' by Richard W. Arms, Jr.
-#'
-#' The EMV is calculated by dividing the midpoint ([high + low]/2) move by the
-#' 'Box Ratio' (volume divided by the high minus low).
-#'
+#' The EMV is calculated by dividing the midpoint \code{[high + low\]/2} move by
+#' the 'Box Ratio' (volume divided by the high minus low).
 #' @param HL Object that is coercible to xts or matrix and contains High-Low
 #' prices.
 #' @param volume Vector or matrix of volume observations corresponding to the
@@ -54,10 +52,8 @@
 #' @keywords ts
 #' @export
 #' @examples
-#'
 #' data(TSLA)
-#' emv <- EMV(TLSA[, c("High", "Low")], TSLA[, "Volume"])
-#'
+#' emv <- EMV(TSLA[, c("High", "Low")], TSLA[, "Volume"])
 EMV <-
   function(HL, volume, n = 9, maType, vol.divisor = 10000, ...) {
     # Arms' Ease of Movement Value

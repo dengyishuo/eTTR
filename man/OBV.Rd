@@ -22,37 +22,13 @@ the cumulative flow of volume to determine the strength of a price trend.
 It uses volume flow to predict changes in stock prices by adding volume on
 up days and subtracting volume on down days.
 }
-\details{
-This function is part of the eTTR (Enhanced Technical Trading Rules) package.
-}
 \note{
 OBV is typically used to confirm price trends or identify potential
 divergences between volume flow and price movements.
 }
-\section{Copyright}{
-
-eTTR: Enhanced Technical Trading Rules
-
-Copyright (C) 2025-2030  DengYishuo
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see \url{http://www.gnu.org/licenses/}.
-}
-
 \examples{
 data(TSLA)
 obv <- OBV(TSLA[, "Close"], ttrc[, "Volume"])
-
 }
 \references{
 \itemize{

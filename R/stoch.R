@@ -30,24 +30,18 @@
 #' @param bounded Logical, use current period in range calculation (default: TRUE).
 #' @param smooth Internal smoothing periods for FastK (default: 1).
 #' @param ... Additional arguments passed to moving average functions.
-#'
 #' @return An xts or matrix object with columns: fastK, fastD, slowD.
-#'
 #' @author DengYishuo
 #' @keywords ts momentum indicator
-#'
 #' @examples
-#' data(ttrc)
-#' stoch_values <- stoch(ttrc[, c("High", "Low", "Close")])
+#' data(TSLA)
+#' stoch_values <- stoch(TSLA[, c("High", "Low", "Close")])
 #' plot(tail(stoch_values[, "fastK"], 100),
 #'   type = "l",
 #'   main = "Fast %K of Stochastic Oscillator", ylab = "%K"
 #' )
-#'
 #' @importFrom xts try.xts reclass
-#'
 #' @export
-
 stoch <- function(HLC, nFastK = 14, nFastD = 3, nSlowD = 3,
                   maType, bounded = TRUE, smooth = 1, ...) {
   # Convert input to xts or matrix

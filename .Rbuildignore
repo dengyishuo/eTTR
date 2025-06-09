@@ -1,4 +1,5 @@
 R/pivots.R
+.Rprofile
 LICENSE
 WISHLIST
 ^.*\.Rproj$
@@ -12,4 +13,3 @@ WISHLIST
 ^.*\.tar.gz$
 Makefile
 .Rhistory
-.Rdata

@@ -16,18 +16,15 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Welles Wilder Style Sum (wilderSum)
 #' @description
 #' Calculate a weighted sum using Welles Wilder's method.
-#'
 #' @param x Object coercible to xts or matrix.
 #' @param n Number of periods in the window (1 <= n <= nrow(x)).
 #' @return An object of the same class as \code{x} with Wilder-style sums.
 #' @keywords ts internal
 #' @export
 #' @examples
-#'
 #' data(TSLA)
 #' wilder_14 <- wilderSum(TSLA[, "High"] - TSLA[, "Low"], 14)
 #' head(wilder_14)
@@ -43,6 +40,6 @@ wilderSum <- function(x, n = 10) {
   }
 
   naCheck(x, n) # Assume naCheck is a helper function
-  result <- .Call(C_wilderSum, x, n)
+  result <- .Call(WilderSum, x, n)
   reclass(result, x)
 }

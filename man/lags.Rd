@@ -4,7 +4,9 @@
 \alias{lags}
 \title{Lags Calculation}
 \usage{
-lags(x, n = 1)
+lags(x, n = 1, ...)
+
+lags(x, n = 1, ...)
 }
 \arguments{
 \item{x}{Object that is coercible to xts or matrix.}
@@ -15,14 +17,20 @@ lags(x, n = 1)
 }
 \value{
 A matrix of lagged values with columns labeled by original names and lag periods.
+
+A matrix of lagged values with columns labeled by original names and lag periods.
 }
 \description{
 Computes lagged values of a time series or matrix.
 }
 \note{
 This function is deprecated in favor of xts::lag.xts and quantmod::Lag.
+
+This function is deprecated in favor of xts::lag.xts and quantmod::Lag.
 }
 \examples{
+data <- 1:10
+lags(data, 2)
 data <- 1:10
 lags(data, 2)
 

@@ -1,7 +1,7 @@
 # History and data files
 .Rhistory
 .Rapp.history
-.RData
+.Rprofile
 
 # RStudio files
 .Rproj.user/

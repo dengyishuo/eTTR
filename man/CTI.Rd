@@ -36,10 +36,8 @@ the desired trend line slope. A simple strategy could be long when the CTI
 is positive and, short when it is negative.
 }
 \examples{
-
-data(ttrc)
-cti <- CTI(ttrc[, "Close"], n = 20)
-
+data(TSLA)
+cti <- CTI(TSLA[, "Close"], n = 20)
 }
 \references{
 John Ehlers, Correlation Trend Indicator, Stocks & Commodities May-2020

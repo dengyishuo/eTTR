@@ -20,7 +20,6 @@ An object of the same class as \code{x} containing the ZLEMA values.
 Calculate an exponential moving average with reduced lag.
 }
 \examples{
-
 data(TSLA)
 zlema_20 <- ZLEMA(TSLA[, "Close"], 20)
 head(zlema_20)

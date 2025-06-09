@@ -16,7 +16,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Moving Window Sum (runSum)
 #' @description
 #' Calculate the sum of values over a moving window of periods.
@@ -53,7 +52,7 @@ runSum <- function(x, n = 10, cumulative = FALSE) {
     result[beg:NROW(x)] <- cumsum(x[beg:NROW(x)])
     is.na(result) <- seq_len(n - 1 + NAs)
   } else {
-    result <- .Call(C_runsum, x, n)
+    result <- .Call(runsum, x, n)
   }
 
   reclass(result, x)

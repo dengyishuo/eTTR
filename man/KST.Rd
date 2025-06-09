@@ -42,10 +42,10 @@ A object of the same class as \code{price} or a vector (if
 \code{try.xts} fails) containing the Know Sure Thing values.
 }
 \description{
+'
 The Know Sure Thing (KST) is a smooth, summed, rate of change indicator.
 Developed by Martin Pring.
-}
-\details{
+
 For each day (week, month, etc.), the KST calculates the ROC over several
 periods.  Those ROCs are smoothed using the given moving averages, then
 multiplied by their respective weighting values.  The resulting values are
@@ -62,14 +62,12 @@ months, not days - and the moving average periods are 6, 6, 6, and 9 months,
 respectively.
 }
 \examples{
+data(TSLA)
+kst <- KST(TSLA[, "Close"])
 
-data(ttrc)
-kst <- KST(ttrc[, "Close"])
-
-kst4MA <- KST(ttrc[, "Close"],
+kst4MA <- KST(TSLA[, "Close"],
   maType = list(list(SMA), list(EMA), list(DEMA), list(WMA))
 )
-
 }
 \references{
 The following site(s) were used to code/document this

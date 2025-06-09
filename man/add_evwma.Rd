@@ -29,10 +29,6 @@ This gives more importance to price movements that occur with higher trading vol
 Input data must contain closing prices (Close) and volume (Volume)
 }
 \examples{
-library(quantmod)
-library(tibble)
-library(TTR)
-library(dplyr)
 # Load internal Tesla stock data
 data(TSLA)
 # Calculate and add EVWMA columns to TSLA data
@@ -43,9 +39,8 @@ tsla_only_evwma <- add_evwma(TSLA, periods = c(10, 20), append = FALSE)
 head(tsla_only_evwma)
 }
 \keyword{EVWMA,}
-\keyword{TTR}
 \keyword{analysis,}
-\keyword{quantmod,}
+\keyword{quantmod}
 \keyword{technical}
 \keyword{volume}
 \keyword{weighted,}

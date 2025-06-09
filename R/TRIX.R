@@ -16,15 +16,13 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Triple Smoothed Exponential Oscillator
 #' @description
 #' The TRIX indicator calculates the rate of change of a triple exponential
 #' moving average.  Developed by Jack K. Hutson.
 #'
 #' The TRIX is calculated as follows:\cr 3MA = \code{MA}( \code{MA}(
-#' \code{MA}(\code{price}) ) )\cr trix = 100 * [ 3MA(t) / 3MA(t-1) - 1 ]
-#'
+#' \code{MA}(\code{price}) ) )\cr \eqn{trix = 100 * [ 3MA(t) / 3MA(t-1) - 1 ]}
 #' @param price Price series that is coercible to xts or matrix.
 #' @param n Number of periods for moving average.
 #' @param nSig Number of periods for signal line moving average.
@@ -58,13 +56,11 @@
 #' @keywords ts
 #' @export
 #' @examples
-#'
 #' data(TSLA)
 #' trix <- TRIX(TSLA[, "Close"])
 #' trix4 <- TRIX(TSLA[, "Close"],
 #'   maType = list(list(SMA), list(EMA, wilder = TRUE), list(SMA), list(DEMA))
 #' )
-#'
 TRIX <-
   function(price, n = 20, nSig = 9, maType, percent = TRUE, ...) {
     # Triple Smoothed Exponential Oscillator

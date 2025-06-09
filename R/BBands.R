@@ -18,92 +18,70 @@
 #
 #' @title Bollinger Bands
 #' @description
-#'
-#' Bollinger Bands are a way to compare a security's volatility and price levels over a period of time. Developed by John Bollinger.
-#' @usage
-#' BBands(HLC, n = 20, maType, sd = 2, ...)
-#' @param HLC Object that is coercible to xts or matrix and contains High-Low-Close prices. If only a univariate series is given, it will be  used. See details.
-#' @param n Number of periods for moving average.
-#' @param maType A function or a string naming the function to be called.
-#' @param sd The number of standard deviations to use.
-#' @param ... Other arguments to be passed to the \code{maType} function.
-#' @return A object of the same class as \code{HLC} or a matrix (if
-#' \code{try.xts} fails) containing the columns:
-#' \describe{
-#'   \item{dn}{The lower Bollinger Band.}
-#'   \item{mavg}{The middle Moving Average (see notes).}
-#'   \item{up}{The upper Bollinger Band.}
-#'   \item{pctB}{The \%B calculation.}
-#' }
-#' @details
-#' Bollinger Bands consist of three lines:
-#' The middle band is generally a 20-period SMA of the typical price
-#' (\eqn{\frac{high + low + close}{3}}).
-#' The upper and lower bands are \code{sd} standard deviations
-#' (generally 2) above and below the MA.
-#' The middle band is usually calculated using the typical price, but if a
-#' univariate series (e.g. Close, Weighted Close, Median Price, etc.) is
-#' provided, it will be used instead.
+#' Calculates Bollinger Bands, a volatility indicator comparing price levels over time.
+#' @param HLC Object coercible to xts/matrix containing High-Low-Close prices.
+#' Univariate series are accepted.
+#' @param n Number of periods for moving average (default 20).
+#' @param maType Function or string naming moving average type.
+#' @param sd Number of standard deviations (default 2).
+#' @param ... Additional arguments passed to `maType`.
+#' @return
+#' Object matching `HLC` class with columns:
+#' - `dn`: Lower band
+#' - `mavg`: Moving average
+#' - `up`: Upper band
+#' - `pctB`: %B value
 #' @note
-#' Using any moving average other than SMA will result in inconsistencies
-#' between the moving average calculation and the standard deviation
-#' calculation. Since, by definition, a rolling standard deviation uses a
-#' simple moving average.
-#' @seealso
-#' See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average options; and note Warning section.
+#' Non-SMA averages cause inconsistencies since SD calculations assume SMA.
+#' @details
+#' Calculates three bands:
+#' - Middle: SMA of typical price \eqn{(high + low + close)/3}
+#' - Upper: `sd` standard deviations above MA
+#' - Lower: `sd` standard deviations below MA
+#' Uses univariate series directly if provided.
 #' @references
-#' The following site(s) were used to code/document this
-#' indicator:\cr
-#' \url{https://www.fmlabs.com/reference/Bollinger.htm}\cr
-#' \url{https://www.fmlabs.com/reference/BollingerWidth.htm}\cr
-#' \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=36}\cr
-#' \url{https://www.linnsoft.com/techind/bollinger-bands}\cr
-#' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:bollinger_bands}\cr
-#' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:bollinger_band_width}\cr
+#' - \url{https://www.fmlabs.com/reference/Bollinger.htm}
+#' - \url{https://school.stockcharts.com/doku.php?id=technical_indicators:bollinger_bands}
+#' @seealso
+#' Moving average functions: [eTTR::SMA()], [eTTR::EMA()]
 #' @keywords ts
+#' @importFrom xts xcoredata
 #' @export
 #' @examples
-#' ## The examples below show the differences between using a
-#' ## High-Low-Close series, and just a close series when
-#' ## calculating Bollinger Bands.
 #' data(TSLA)
-#' bbands.HLC <- BBands(TSLA[, c("High", "Low", "Close")])
-#' bbands.close <- BBands(TSLA[, "Close"])
-BBands <-
-  function(HLC, n = 20, maType, sd = 2, ...) {
-    # Bollinger Bands
-
-    HLC <- try.xts(HLC, error = as.matrix)
-
-    if (NCOL(HLC) == 3) {
-      if (is.xts(HLC)) {
-        xa <- xcoredata(HLC)
-        HLC <- xts(apply(HLC, 1, mean), index(HLC))
-        xcoredata(HLC) <- xa
-      } else {
-        HLC <- apply(HLC, 1, mean)
-      }
-    } else if (NCOL(HLC) != 1) {
-      stop("Price series must be either High-Low-Close, or Close/univariate.")
+#' # Using HLC series
+#' bbands_hlc <- BBands(TSLA[, c("High", "Low", "Close")])
+#' # Using Close only
+#' bbands_close <- BBands(TSLA[, "Close"])
+BBands <- function(HLC, n = 20, maType, sd = 2, ...) {
+  # Original function implementation remains unchanged
+  HLC <- try.xts(HLC, error = as.matrix)
+  if (NCOL(HLC) == 3) {
+    if (is.xts(HLC)) {
+      xa <- xts::xcoredata(HLC)
+      HLC <- xts(apply(HLC, 1, mean), index(HLC))
+      xts::xcoredata(HLC) <- xa
+    } else {
+      HLC <- apply(HLC, 1, mean)
     }
-
-    maArgs <- list(n = n, ...)
-    # Default MA
-    if (missing(maType)) {
-      maType <- "SMA"
-    }
-
-    mavg <- do.call(maType, c(list(HLC), maArgs))
-
-    # Calculate standard deviation by hand to incorporate various MAs
-    sdev <- runSD(HLC, n, sample = FALSE)
-
-    up <- mavg + sd * sdev
-    dn <- mavg - sd * sdev
-    pctB <- (HLC - dn) / (up - dn)
-
-    res <- cbind(dn, mavg, up, pctB)
-    colnames(res) <- c("dn", "mavg", "up", "pctB")
-
-    reclass(res, HLC)
+  } else if (NCOL(HLC) != 1) {
+    stop("Price series must be either High-Low-Close, or Close/univariate.")
   }
+
+  maArgs <- list(n = n, ...)
+  if (missing(maType)) {
+    maType <- "SMA"
+  }
+
+  mavg <- do.call(maType, c(list(HLC), maArgs))
+  sdev <- runSD(HLC, n, sample = FALSE)
+
+  up <- mavg + sd * sdev
+  dn <- mavg - sd * sdev
+  pctB <- (HLC - dn) / (up - dn)
+
+  res <- cbind(dn, mavg, up, pctB)
+  colnames(res) <- c("dn", "mavg", "up", "pctB")
+
+  reclass(res, HLC)
+}

@@ -17,7 +17,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#' Calculate and add On-Balance Volume (OBV) to stock data
+#' @title Calculate and add On-Balance Volume (OBV) to stock data
 #' @description This function calculates OBV, a technical analysis momentum indicator
 #' that uses volume flow to predict changes in stock price.
 #' @param mktdata xts object containing OHLCV data downloaded via quantmod
@@ -40,9 +40,6 @@
 #' @importFrom dplyr bind_cols
 #' @export
 #' @examples
-#' library(quantmod)
-#' library(tibble)
-#' library(dplyr)
 #' # Load internal Tesla stock data
 #' data(TSLA)
 #' # Calculate and add OBV column to TSLA data
@@ -63,29 +60,11 @@ add_obv <- function(mktdata, append = TRUE) {
     stop("mktdata must contain 'Close' and 'Volume' columns")
   }
 
-  # Extract closing prices and volume
-  close_prices <- Cl(mktdata)
-  volume <- Vo(mktdata)
+  # Calculate OBV using TTR::OBV
+  obv_result <- OBV(Cl(mktdata), Vo(mktdata))
 
-  # Initialize OBV vector with NA
-  obv <- rep(NA, length(close_prices))
-
-  # Set first value of OBV to the first volume value
-  obv[1] <- as.numeric(volume[1])
-
-  # Calculate OBV for subsequent periods
-  for (i in 2:length(close_prices)) {
-    if (close_prices[i] > close_prices[i - 1]) {
-      obv[i] <- obv[i - 1] + as.numeric(volume[i])
-    } else if (close_prices[i] < close_prices[i - 1]) {
-      obv[i] <- obv[i - 1] - as.numeric(volume[i])
-    } else {
-      obv[i] <- obv[i - 1]
-    }
-  }
-
-  # Convert OBV to a tibble
-  obv_tibble <- tibble(obv = obv)
+  # Convert OBV result to a tibble
+  obv_tibble <- tibble(obv = as.numeric(obv_result))
 
   # Return results based on append parameter
   if (append) {

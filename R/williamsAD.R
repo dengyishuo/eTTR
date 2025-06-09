@@ -16,7 +16,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Williams Accumulation / Distribution
 #' @description
 #' The Williams Accumulation / Distribution (AD) line is a measure of market
@@ -41,10 +40,8 @@
 #' @keywords ts
 #' @export
 #' @examples
-#'
 #' data(TSLA)
 #' ad <- williamsAD(TSLA[, c("High", "Low", "Close")])
-#'
 williamsAD <-
   function(HLC) {
     # Williams Accumulation/Distribution

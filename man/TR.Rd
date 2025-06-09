@@ -22,9 +22,8 @@ containing the columns:
 Calculates the True Range of a price series.
 }
 \examples{
-data(ttrc)
-tr <- TR(ttrc[, c("High", "Low", "Close")])
-
+data(TSLA)
+tr <- TR(TSLA[, c("High", "Low", "Close")])
 }
 \seealso{
 \code{\link{ATR}} for Average True Range.

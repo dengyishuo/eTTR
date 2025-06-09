@@ -16,7 +16,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Volume-Weighted Average Price (VWAP)
 #' @description
 #' Calculate the volume-weighted moving average price.
@@ -28,17 +27,14 @@
 #' @keywords ts
 #' @export
 #' @examples
-#'
 #' data(TSLA)
 #' vwap_20 <- VWAP(TSLA[, "Close"], TSLA[, "Volume"], 20)
 #' head(vwap_20)
 VWAP <- VWMA <- function(price, volume, n = 10) {
   # Volume-weighted average price / moving average
   res <- WMA(price, n = n, volume)
-
   if (!is.null(dim(res))) {
     colnames(res) <- "VWAP"
   }
-
   return(res)
 }

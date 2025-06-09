@@ -34,9 +34,8 @@ A object of the same class as \code{HL} and \code{volume} or a matrix
 Arms' Ease of Movement Value (EMV) emphasizes days where the security moves
 easily and minimizes days where the security does not move easily.  Developed
 by Richard W. Arms, Jr.
-
-The EMV is calculated by dividing the midpoint (\link{high + low}/2) move by the
-'Box Ratio' (volume divided by the high minus low).
+The EMV is calculated by dividing the midpoint \code{[high + low\]/2} move by
+the 'Box Ratio' (volume divided by the high minus low).
 }
 \note{
 A buy/sell signal is generated when the EMV crosses above/below zero.
@@ -44,10 +43,8 @@ When the EMV hovers around zero, there are small price movements and/or high
 volume, and the price is not moving easily.
 }
 \examples{
-
 data(TSLA)
-emv <- EMV(TLSA[, c("High", "Low")], TSLA[, "Volume"])
-
+emv <- EMV(TSLA[, c("High", "Low")], TSLA[, "Volume"])
 }
 \references{
 The following site(s) were used to code/document this

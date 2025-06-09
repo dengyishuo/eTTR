@@ -16,11 +16,9 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Zero-Lag Exponential Moving Average (ZLEMA)
 #' @description
 #' Calculate an exponential moving average with reduced lag.
-#'
 #' @param x Price series that is coercible to xts or matrix.
 #' @param n Number of periods to average over.
 #' @param ratio A smoothing/decay ratio.
@@ -28,7 +26,6 @@
 #' @keywords ts
 #' @export
 #' @examples
-#'
 #' data(TSLA)
 #' zlema_20 <- ZLEMA(TSLA[, "Close"], 20)
 #' head(zlema_20)
@@ -45,7 +42,7 @@ ZLEMA <- function(x, n = 10, ratio = NULL) {
   }
 
   # Call C routine (assuming .Call is defined)
-  ma <- .Call(C_zlema, x, n, ratio)
+  ma <- .Call(zlema, x, n, ratio)
   ma <- reclass(ma, x)
 
   if (!is.null(dim(ma))) {

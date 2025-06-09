@@ -34,9 +34,6 @@ OBV = Previous OBV (no change)
 Input data must contain closing prices (Close) and volume (Volume)
 }
 \examples{
-library(quantmod)
-library(tibble)
-library(dplyr)
 # Load internal Tesla stock data
 data(TSLA)
 # Calculate and add OBV column to TSLA data

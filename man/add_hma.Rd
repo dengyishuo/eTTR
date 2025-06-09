@@ -34,10 +34,6 @@ HMA is calculated using a three-step process:
 Input data must contain closing prices (Close)
 }
 \examples{
-library(quantmod)
-library(tibble)
-library(TTR)
-library(dplyr)
 # Load internal Tesla stock data
 data(TSLA)
 # Calculate and add HMA columns to TSLA data
@@ -51,7 +47,6 @@ head(tsla_only_hma)
 \keyword{HMA,}
 \keyword{Hull}
 \keyword{Moving}
-\keyword{TTR}
 \keyword{analysis,}
-\keyword{quantmod,}
+\keyword{quantmod}
 \keyword{technical}

@@ -26,7 +26,6 @@ the SMA columns to the original data or return the SMA columns separately.
 }
 \details{
 The function first validates the input data format and the required columns.
-It then checks if the TTR package is available and installs/loads it if not.
 After that, it calculates the Simple Moving Averages for each specified period.
 The resulting SMA values are then combined into a tibble.
 Finally, depending on the \code{append} parameter, the SMA tibble is either
@@ -37,12 +36,8 @@ Input data must contain closing prices (Close), periods must be
 positive integers
 }
 \examples{
-library(quantmod)
-library(tibble)
-library(TTR)
-library(dplyr)
 # Download stock data (example using AAPL)
-getSymbols("AAPL")
+data("AAPL")
 # Calculate and add SMA columns to AAPL data
 aapl_with_sma <- add_sma(AAPL, periods = c(10, 20), append = TRUE)
 head(aapl_with_sma)
@@ -51,9 +46,8 @@ aapl_only_sma <- add_sma(AAPL, periods = c(10, 20), append = FALSE)
 head(aapl_only_sma)
 }
 \keyword{SMA,}
-\keyword{TTR}
 \keyword{analysis,}
 \keyword{data,}
-\keyword{quantmod,}
+\keyword{quantmod}
 \keyword{stock}
 \keyword{technical}

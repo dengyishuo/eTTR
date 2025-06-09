@@ -68,7 +68,6 @@ this function, call this functions using \code{lapply(prices,PBands,...)}.
 
 data(TSLA)
 pbands.close <- PBands(TSLA[, "Close"])
-
 }
 \seealso{
 \code{\link{BBands}}

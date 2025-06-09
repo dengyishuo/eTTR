@@ -29,7 +29,6 @@
 #' MFI is usually calculated using the typical price, but if a univariate series
 #' (e.g. Close, Weighted Close, Median Price, etc.) is provided, it will be used
 #' instead.
-#'
 #' @aliases MFI moneyFlow
 #' @param HLC Object that is coercible to xts or matrix and contains
 #' High-Low-Close prices.  If only a univariate series is given, it will be

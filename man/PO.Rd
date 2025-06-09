@@ -2,8 +2,7 @@
 % Please edit documentation in R/PO.R
 \name{PO}
 \alias{PO}
-\title{Price Oscillator (PO) Calculation
-价格振荡指标(PO)计算}
+\title{Price Oscillator (PO) Calculation}
 \usage{
 PO(
   price,
@@ -14,57 +13,40 @@ PO(
 )
 }
 \arguments{
-\item{price}{A price series, which can be a vector, time series, or xts object.
-价格序列，可以是向量、时间序列或xts对象。}
+\item{price}{A price series, which can be a vector, time series, or xts object.}
 
-\item{n_short}{The period for the short-term moving average, default is 12.
-短期移动平均的周期，默认值12。}
+\item{n_short}{The period for the short-term moving average, default is 12.}
 
-\item{n_long}{The period for the long-term moving average, default is 26.
-长期移动平均的周期，默认值26。}
+\item{n_long}{The period for the long-term moving average, default is 26.}
 
 \item{type}{The type of return value: "difference" for the absolute difference,
-"percent" for the percentage difference. Default is "difference".
-返回值类型："difference"为绝对差值形式，"percent"为百分比形式，默认"difference"。}
+"percent" for the percentage difference. Default is "difference".}
 
 \item{ma_type}{The type of moving average, supports "SMA" (Simple Moving Average)
-and "EMA" (Exponential Moving Average). Default is "SMA".
-移动平均类型，支持"SMA"(简单移动平均)、"EMA"(指数移动平均)，默认"SMA"。}
+and "EMA" (Exponential Moving Average). Default is "SMA".}
 }
 \value{
 A PO indicator series of the same type as the input price series.
-返回与输入价格序列相同类型的PO指标序列。
 }
 \description{
 Calculates the Price Oscillator (PO), a momentum indicator that measures the difference
 between two moving averages of different periods. It helps identify trends and potential
 reversal points in financial markets.
-计算价格振荡指标(PO)，一种衡量两个不同周期移动平均线差异的动量指标。
-它有助于识别金融市场中的趋势和潜在反转点。
 }
 \details{
 The Price Oscillator (PO) measures momentum by calculating the difference between
 a short-term and a long-term moving average of prices. A positive PO value indicates
 upward momentum, while a negative value suggests downward momentum.
-价格振荡指标(PO)通过计算价格的短期和长期移动平均线之间的差异来衡量动量。
-正值表示上升动量，负值表示下降动量。
 }
 \examples{
 # Demonstrate PO calculation with random data
-# 使用随机数据演示PO计算
 set.seed(123)
 price_data <- xts::xts(rnorm(100, 100, 5), order.by = Sys.Date() - 100:1)
-
 # Calculate PO with default parameters (difference form)
-# 计算默认参数的PO指标(差值形式)
 po_diff <- PO(price_data)
-
 # Calculate PO in percentage form
-# 计算百分比形式的PO指标
 po_percent <- PO(price_data, type = "percent")
-
 # Calculate PO using EMA
-# 使用EMA计算PO指标
 po_ema <- PO(price_data, ma_type = "EMA")
 }
 \references{
@@ -72,5 +54,4 @@ Murphy, J. (1999). Technical Analysis of the Financial Markets. New York Institu
 }
 \seealso{
 \code{\link{SMA}}, \code{\link{EMA}} for moving average calculations.
-查看 \code{\link{SMA}}, \code{\link{EMA}} 用于移动平均计算的函数。
 }

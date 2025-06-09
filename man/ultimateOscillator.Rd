@@ -21,10 +21,8 @@ different time frames.
 Created by Larry Williams in 1976.
 }
 \examples{
-
 data(TSLA)
 ult.osc <- ultimateOscillator(TSLA[, c("High", "Low", "Close")])
-
 }
 \references{
 The following site(s) were used to code/document this

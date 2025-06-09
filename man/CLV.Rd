@@ -23,10 +23,8 @@ at the high/low; if the CLV is 0, the close is directly between the high and
 low.
 }
 \examples{
-
 data(TSLA)
 clv <- CLV(TSLA[, c("High", "Low", "Close")])
-
 }
 \references{
 The following site(s) were used to code/document this

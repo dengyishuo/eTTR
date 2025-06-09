@@ -16,7 +16,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Moving Window Mean (runMean)
 #' @description
 #' Calculate the mean value over a moving window of periods.

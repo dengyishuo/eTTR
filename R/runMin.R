@@ -53,7 +53,7 @@ runMin <- function(x, n = 10, cumulative = FALSE) {
     result[beg:NROW(x)] <- cummin(x[beg:NROW(x)])
     is.na(result) <- seq_len(n - 1 + NAs)
   } else {
-    result <- .Call(C_runmin, x, n)
+    result <- .Call(runmin, x, n)
   }
 
   reclass(result, x)

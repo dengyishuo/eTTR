@@ -16,10 +16,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-#'
 #' @title Stochastic Momentum Index
 #' @description Calculates the SMI value and its signal line.
-#'
 #' @param HLC Object coercible to xts or matrix, containing High-Low-Close prices
 #' or a univariate series.
 #' @param n Number of periods for range calculation (default: 13).
@@ -30,12 +28,10 @@
 #' (default: "EMA").
 #' @param bounded Logical, use current period in range calculation (default: TRUE).
 #' @param ... Additional arguments passed to moving average functions.
-#'
 #' @return An xts or matrix object with columns: SMI, signal.
-#'
 #' @author DengYishuo
 #' @keywords ts momentum indicator
-#'
+#' @importFrom xts try.xts reclass
 #' @examples
 #' data(TSLA)
 #' smi_values <- SMI(TSLA[, c("High", "Low", "Close")])
@@ -44,11 +40,7 @@
 #'   main = "Stochastic Momentum Index", ylab = "SMI"
 #' )
 #' abline(h = c(20, 80), col = "gray", lty = 2)
-#'
-#' @importFrom xts try.xts reclass
-#'
 #' @export
-
 SMI <- function(HLC, n = 13, nFast = 2, nSlow = 25, nSig = 9,
                 maType, bounded = TRUE, ...) {
   # Convert input to xts or matrix

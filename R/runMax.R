@@ -53,7 +53,7 @@ runMax <- function(x, n = 10, cumulative = FALSE) {
     result[beg:NROW(x)] <- cummax(x[beg:NROW(x)])
     is.na(result) <- seq_len(n - 1 + NAs)
   } else {
-    result <- .Call(C_runmax, x, n)
+    result <- .Call(runmax, x, n)
   }
 
   reclass(result, x)

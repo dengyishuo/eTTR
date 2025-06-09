@@ -16,9 +16,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
-#' Momentum
-#'
+#' @title Momentum
+#' @description
 #' Calculate the momentum of a series over \code{n} periods.
 #'
 #' The momentum indicator provides the difference between the current value

@@ -16,11 +16,9 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Weighted Moving Average (WMA)
 #' @description
 #' Calculate a weighted moving average with custom weights.
-#'
 #' @param x Price series that is coercible to xts or matrix.
 #' @param n Number of periods to average over. Must be between 1 and \code{nrow(x)}.
 #' @param wts Vector of weights (length must equal \code{n} or length of \code{x}).
@@ -28,7 +26,6 @@
 #' @keywords ts
 #' @export
 #' @examples
-#'
 #' data(TSLA)
 #' wma_10 <- WMA(TSLA[, "Close"], 10)
 #' head(wma_10)
@@ -36,7 +33,6 @@ WMA <- function(x, n = 10, wts = 1:n) {
   # Weighted Moving Average
   x <- try.xts(x, error = as.matrix)
   wts <- try.xts(wts, error = as.matrix)
-
   if (!any(NROW(wts) == c(NROW(x), n))) {
     stop("Length of 'wts' must equal the length of 'x' or 'n'")
   }
@@ -46,21 +42,29 @@ WMA <- function(x, n = 10, wts = 1:n) {
   if (NCOL(x) > 1 || NCOL(wts) > 1) {
     stop("WMA only supports univariate 'x' and 'wts'")
   }
+  # Calculate leading NAs using cumulative product method
+  leading_na_x <- sum(cumprod(is.na(x)))
+  leading_na_wts <- if (NROW(wts) == NROW(x)) sum(cumprod(is.na(wts))) else 0
 
-  # Handle NAs
-  NAx <- sum(is.na(x))
-  NAw <- sum(is.na(wts))
-  NAs <- max(NAx, NAw)
-  if (NAs > 0 && any(is.na(x[-(1:NAs)]) || is.na(wts[-(1:NAw)]))) {
-    stop("'x' or 'wts' contains non-leading NAs")
+  # Check for non-leading NAs in x
+  if (leading_na_x < length(x) && anyNA(x[(leading_na_x + 1):length(x)])) {
+    stop("'x' contains non-leading NAs")
   }
 
+  # Check for non-leading NAs in wts when length matches x
+  if (NROW(wts) == NROW(x) &&
+    leading_na_wts < length(wts) &&
+    anyNA(wts[(leading_na_wts + 1):length(wts)])) {
+    stop("'wts' contains non-leading NAs")
+  }
+
+  # Handle weight vector case
   if (NROW(wts) == n) {
-    if (any(is.na(wts))) {
+    if (anyNA(wts)) {
       stop("'wts' vector of length 'n' cannot have NA values")
     }
     # Call C routine (assuming .Call is defined)
-    ma <- .Call(C_wma, x, wts, n)
+    ma <- .Call(wma, x, wts, n)
   } else {
     xw <- cbind(x, wts)
     ma <- runSum(xw[, 1] * xw[, 2], n) / runSum(xw[, 2], n)

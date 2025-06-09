@@ -16,11 +16,9 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
-#' Split and dividend adjustment ratios
-#'
-#' Create split and dividend adjustment ratio vectors.
-#'
+#' @title Split and dividend adjustment ratios
+#' @description Create split and dividend adjustment ratio vectors.
+#' @usage ADJRatios(splits, dividends, close)
 #' @aliases adjRatios adjust
 #' @param splits Split series that is coercible to xts.
 #' @param dividends Dividend series that is coercible to xts.
@@ -42,8 +40,9 @@
 #' @author DengYishuo
 #' @keywords ts
 #' @useDynLib eTTR, .registration = TRUE
+#' @importFrom xts merge.xts try.xts
 #' @export
-adjRatios <-
+ADJRatios <-
   function(splits, dividends, close) {
     if (!missing(dividends) &&
       missing(close)) {
@@ -80,7 +79,7 @@ adjRatios <-
     if (!isTRUE(is.na(close))) {
       obj <- obj[!is.na(obj[, 1]), ] # drop rows missing close prices
     }
-    adj <- .Call(C_adjRatios, obj[, 2], obj[, 3], obj[, 1])
+    adj <- .Call(adjRatios, obj[, 2], obj[, 3], obj[, 1])
     adj <- xts(cbind(adj[[1]], adj[[2]]), index(obj))
     colnames(adj) <- c("Split", "Div")
 

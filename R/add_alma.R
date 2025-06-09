@@ -70,30 +70,24 @@
 #' @importFrom dplyr bind_cols
 #' @export
 #' @examples
-#' library(quantmod)
-#' library(tibble)
-#' library(zoo)
-#' library(dplyr)
 #' # Load internal Tesla stock data
 #' data(TSLA)
 #' # Calculate and add ALMA columns to TSLA data with default parameters
 #' tsla_with_alma <- add_alma(TSLA, periods = c(10, 20))
 #' head(tsla_with_alma)
 #' # Calculate ALMA with custom offset and sigma
-#' tsla_alma_custom <- add_alma(TSLA, periods = 20, offset = 0.5, sigma = 4.0, append = FALSE)
+#' tsla_alma_custom <- add_alma(TSLA, periods = c(10, 20), offset = 0.5, sigma = 4.0, append = FALSE)
 #' head(tsla_alma_custom)
 add_alma <- function(mktdata, periods = c(50, 200), offset = 0.85, sigma = 6.0, append = TRUE) {
   # Validate input data format
   if (!inherits(mktdata, "xts")) {
     stop("mktdata must be an xts object")
   }
-
   # Check for required columns (Close)
   required_cols <- c("Close")
   if (!all(required_cols %in% colnames(mktdata))) {
     stop("mktdata must contain 'Close' column")
   }
-
   # Validate parameters
   stopifnot(
     "Periods must be 2-4 positive integers" = all(periods > 0) & length(periods) %in% 2:4,

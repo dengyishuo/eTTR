@@ -32,10 +32,8 @@ A rapid increase in Chaikin Volatility indicates an approaching bottom.
 A slow decrease in Chaikin Volatility indicates an approaching top.
 }
 \examples{
-
-data(ttrc)
-volatility <- chaikinVolatility(ttrc[, c("High", "Low")])
-
+data(TSLA)
+volatility <- chaikinVolatility(TSLA[, c("High", "Low")])
 }
 \references{
 The following site(s) were used to code/document this

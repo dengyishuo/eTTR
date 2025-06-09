@@ -34,10 +34,8 @@ signal.  If Chaikin Money Flow remains below zero while the price is rising,
 it indicates a probable reversal.
 }
 \examples{
-
 data(TSLA)
 cmf <- CMF(TSLA[, c("High", "Low", "Close")], TSLA[, "Volume"])
-
 }
 \references{
 The following site(s) were used to code/document this

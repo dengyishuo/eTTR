@@ -16,15 +16,12 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title DV Intermediate Oscillator
 #' @description
 #' The DV Intermediate oscillator (DVI) is a very smooth momentum oscillator
-#' that can also be used as a trend indicator.  Created by David Varadi.
-#'
-#' The DVI combines smoothed returns over different time windows and the
-#' relative number of up versus down days (stretch) over different time windows.
-#'
+#' that can also be used as a trend indicator.  Created by David Varadi.The DVI
+#' combines smoothed returns over different time windows and the relative number
+#'  of up versus down days (stretch) over different time windows.
 #' @param price Price series that is coercible to xts or matrix.
 #' @param n Number of periods for the percent rank.
 #' @param wts The weight given to the smoothed returns (magnitude) component and
@@ -44,10 +41,8 @@
 #' @keywords ts
 #' @export
 #' @examples
-#'
 #' data(TSLA)
 #' dvi <- DVI(TSLA[, "Close"])
-#'
 DVI <- function(
     price, n = 252, wts = c(0.8, 0.2), smooth = 3,
     magnitude = c(5, 100, 5), stretch = c(10, 100, 2), exact.multiplier = 1) {

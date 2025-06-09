@@ -16,8 +16,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
-#' Calculate and add Volume Weighted Moving Averages (VWMA) to stock data
+#' @title Calculate and add Volume Weighted Moving Averages (VWMA) to stock data
 #' @description This function calculates VWMA, which weights each price by its corresponding
 #' trading volume, giving more importance to price movements that occur during high volume periods.
 #' @param mktdata xts object containing OHLCV data downloaded via quantmod
@@ -37,10 +36,6 @@
 #' @importFrom dplyr bind_cols
 #' @export
 #' @examples
-#' library(quantmod)
-#' library(tibble)
-#' library(zoo)
-#' library(dplyr)
 #' # Load internal Tesla stock data
 #' data(TSLA)
 #' # Calculate and add VWMA columns to TSLA data

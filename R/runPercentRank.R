@@ -38,8 +38,6 @@
 #' resulting percentile rankings by \code{1/N}. It is equivalent to changing
 #' the question from, "how many values are < the value" to "how many values
 #' are <= the value".
-#'
-#' @aliases runPercentRank percentRank PercentRank
 #' @param x Object coercible to xts or matrix.
 #' @param n Number of periods to use in the window or, if
 #' \code{cumulative=TRUE}, the number of observations to use before the first
@@ -47,20 +45,16 @@
 #' @param cumulative Logical, use from-inception calculation?
 #' @param exact.multiplier The weight applied to identical values in the window.
 #' Must be between 0 and 1, inclusive. See details.
-#'
 #' @return A object of percent ranks over a n-period moving window of the same
 #' class as \code{x} and \code{y} or a vector (if \code{try.xts} fails).
-#'
 #' @note This computation is different from the one used in Microsoft Excel's
 #' \code{PERCENTRANK} formula. Excel's computation is rather strange and gives
 #' inconsistent results as it uses interpolation to rank values that are not
 #' found within the lookback window.
-#'
+#' @aliases runPercentRank percentRank PercentRank
 #' @author Charlie Friedemann
-#'
 #' @references The following site(s) were used to code/document this
 #' indicator:\cr \url{https://en.wikipedia.org/wiki/Percentile_rank}\cr
-#'
 #' @keywords ts
 #' @export
 runPercentRank <- function(x, n = 260, cumulative = FALSE, exact.multiplier = 0.5) {
@@ -83,7 +77,10 @@ runPercentRank <- function(x, n = 260, cumulative = FALSE, exact.multiplier = 0.
     result[] <- exact.multiplier
   } else {
     result <- .Call(
-      C_ettr_rollPercentRank, x, n, isTRUE(cumulative),
+      ettr_rollPercentRank,
+      x,
+      n,
+      isTRUE(cumulative),
       exact.multiplier
     )
   }

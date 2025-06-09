@@ -23,7 +23,7 @@
 #'
 #' @param x Price series that is coercible to xts or matrix.
 #' @param n Number of periods to average over. Must be between 1 and \code{nrow(x)}.
-#' @param v The 'volume factor' (a number in [0,1]); default is 1 (standard DEMA).
+#' @param v The 'volume factor' (a number in \code{[0,1\]}; default is 1 (standard DEMA).
 #' @param wilder logical; if \code{TRUE}, use Welles Wilder's EMA formula.
 #' @param ratio A smoothing/decay ratio (overrides \code{wilder}).
 #' @return An object of the same class as \code{x} containing the DEMA values.
@@ -52,8 +52,8 @@ DEMA <- function(x, n = 10, v = 1, wilder = FALSE, ratio = NULL) {
   }
 
   # Call C routine for EMA (assuming .Call is defined)
-  ma1 <- .Call(C_ema, x, n, ratio, isTRUE(wilder))
-  d <- .Call(C_ema, ma1, n, ratio, isTRUE(wilder))
+  ma1 <- .Call(ema, x, n, ratio, isTRUE(wilder))
+  d <- .Call(ema, ma1, n, ratio, isTRUE(wilder))
 
   dema <- (1 + v) * ma1 - d * v
   dema <- reclass(dema, x)

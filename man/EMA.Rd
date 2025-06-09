@@ -25,7 +25,6 @@ Calculate an exponentially-weighted mean, giving more weight to recent observati
 \code{wilder=FALSE} uses \code{2/(n+1)}; \code{wilder=TRUE} uses \code{1/n}.
 }
 \examples{
-
 data(TSLA)
 ema_20 <- EMA(TSLA[, "Close"], 20)
 head(ema_20)
