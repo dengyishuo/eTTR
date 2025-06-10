@@ -71,6 +71,9 @@ addBBands()
 addRSI()
 ```
 
+![ex1](img/ex1.png "eTTR example_1")
+
+
 ### Have a question?
 
 Ask your question on [Stack Overflow](https://stackoverflow.com/questions/tagged/r)

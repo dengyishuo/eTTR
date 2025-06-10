@@ -11,3 +11,4 @@ WISHLIST
 ^.*\.tar.gz$
 Makefile
 .Rhistory
+^img$
