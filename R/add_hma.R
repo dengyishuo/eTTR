@@ -47,6 +47,8 @@
 #' # Return only HMA columns for TSLA
 #' tsla_only_hma <- add_hma(TSLA, periods = c(10, 20), append = FALSE)
 #' head(tsla_only_hma)
+#' @author DengYishuo
+#' @family add indicator functions
 add_hma <- function(mktdata, periods = c(50, 200), append = TRUE) {
   # Validate input data format
   if (!inherits(mktdata, "xts")) {

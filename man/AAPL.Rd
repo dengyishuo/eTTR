@@ -19,9 +19,9 @@ A data frame with 3867 observations and 5 variables:
 \url{https://finance.yahoo.com/quote/AAPL}
 }
 \description{
-Historical daily stock prices for Apple Inc. (NASDAQ: AAPL),
-including open, high, low, close prices and trading volume.
-Data is sourced from Yahoo Finance and updated regularly.
+Historical daily stock prices for Apple Inc. (NASDAQ: AAPL),including open,
+high, low, close prices and trading volume. Data is sourced from Yahoo Finance
+and updated regularly.
 }
 \examples{
 \dontrun{

@@ -16,7 +16,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Calculate and add On-Balance Volume (OBV) to stock data
 #' @description This function calculates OBV, a technical analysis momentum indicator
 #' that uses volume flow to predict changes in stock price.
@@ -48,6 +47,8 @@
 #' # Calculate OBV and return only OBV column
 #' tsla_obv <- add_obv(TSLA, append = FALSE)
 #' head(tsla_obv)
+#' @author DengYishuo
+#' @family add indicator functions
 add_obv <- function(mktdata, append = TRUE) {
   # Validate input data format
   if (!inherits(mktdata, "xts")) {

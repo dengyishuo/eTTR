@@ -42,3 +42,19 @@ aapl_with_kdj <- add_kdj(AAPL, n = 9, m1 = 3, m2 = 3)
 head(aapl_with_kdj$date) # Check date column
 }
 }
+\seealso{
+Other add indicator functions: 
+\code{\link{add_alma}()},
+\code{\link{add_dema}()},
+\code{\link{add_ema}()},
+\code{\link{add_evwma}()},
+\code{\link{add_hma}()},
+\code{\link{add_obv}()},
+\code{\link{add_sma}()},
+\code{\link{add_vwma}()},
+\code{\link{add_zlema}()}
+}
+\author{
+DengYishuo
+}
+\concept{add indicator functions}

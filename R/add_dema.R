@@ -51,6 +51,8 @@
 #' # Return only DEMA columns for TSLA
 #' tsla_only_dema <- add_dema(TSLA, periods = c(10, 20), append = FALSE)
 #' head(tsla_only_dema)
+#' @author DengYishuo
+#' @family add indicator functions
 add_dema <- function(mktdata, periods = c(50, 200), append = TRUE) {
   # Check the data format. If mktdata is not of xts type, stop the function.
   if (!inherits(mktdata, "xts")) {

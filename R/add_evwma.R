@@ -44,6 +44,8 @@
 #' # Return only EVWMA columns for TSLA
 #' tsla_only_evwma <- add_evwma(TSLA, periods = c(10, 20), append = FALSE)
 #' head(tsla_only_evwma)
+#' @author DengYishuo
+#' @family add indicator functions
 add_evwma <- function(mktdata, periods = c(50, 200), append = TRUE) {
   # Validate input data format
   if (!inherits(mktdata, "xts")) {

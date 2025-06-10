@@ -34,6 +34,8 @@
 #' aapl_with_kdj <- add_kdj(AAPL, n = 9, m1 = 3, m2 = 3)
 #' head(aapl_with_kdj$date) # Check date column
 #' }
+#' @author DengYishuo
+#' @family add indicator functions
 add_kdj <- function(mktdata, n = 9, m1 = 3, m2 = 3,
                     fill_na_method = "none", append = TRUE,
                     date_col = "date") {

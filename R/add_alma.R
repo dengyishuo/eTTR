@@ -78,6 +78,8 @@
 #' # Calculate ALMA with custom offset and sigma
 #' tsla_alma_custom <- add_alma(TSLA, periods = c(10, 20), offset = 0.5, sigma = 4.0, append = FALSE)
 #' head(tsla_alma_custom)
+#' @author DengYishuo
+#' @family add indicator functions
 add_alma <- function(mktdata, periods = c(50, 200), offset = 0.85, sigma = 6.0, append = TRUE) {
   # Validate input data format
   if (!inherits(mktdata, "xts")) {

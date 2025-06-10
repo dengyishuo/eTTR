@@ -44,6 +44,8 @@
 #' # Return only ZLEMA columns for TSLA
 #' tsla_only_zlema <- add_zlema(TSLA, periods = c(10, 20), append = FALSE)
 #' head(tsla_only_zlema)
+#' @author DengYishuo
+#' @family add indicator functions
 add_zlema <- function(mktdata, periods = c(50, 200), append = TRUE) {
   # Validate input data format
   if (!inherits(mktdata, "xts")) {

@@ -1,8 +1,26 @@
+#
+#   eTTR: Enhanced Technical Trading Rules
+#
+#   Copyright (C) 2025 - 2030  DengYishuo
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
 #' @title Apple Inc. Stock Price Data (2010-Present)
 #' @description
-#' Historical daily stock prices for Apple Inc. (NASDAQ: AAPL),
-#' including open, high, low, close prices and trading volume.
-#' Data is sourced from Yahoo Finance and updated regularly.
+#' Historical daily stock prices for Apple Inc. (NASDAQ: AAPL),including open,
+#' high, low, close prices and trading volume. Data is sourced from Yahoo Finance
+#' and updated regularly.
 #' @name AAPL
 #' @docType data
 #' @format A data frame with `r nrow(AAPL)` observations and 5 variables:

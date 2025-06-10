@@ -45,6 +45,22 @@ head(aapl_with_sma)
 aapl_only_sma <- add_sma(AAPL, periods = c(10, 20), append = FALSE)
 head(aapl_only_sma)
 }
+\seealso{
+Other add indicator functions: 
+\code{\link{add_alma}()},
+\code{\link{add_dema}()},
+\code{\link{add_ema}()},
+\code{\link{add_evwma}()},
+\code{\link{add_hma}()},
+\code{\link{add_kdj}()},
+\code{\link{add_obv}()},
+\code{\link{add_vwma}()},
+\code{\link{add_zlema}()}
+}
+\author{
+DengYishuo
+}
+\concept{add indicator functions}
 \keyword{SMA,}
 \keyword{analysis,}
 \keyword{data,}

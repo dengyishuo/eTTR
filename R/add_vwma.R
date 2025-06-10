@@ -44,6 +44,8 @@
 #' # Return only VWMA columns for TSLA
 #' tsla_only_vwma <- add_vwma(TSLA, periods = c(10, 20), append = FALSE)
 #' head(tsla_only_vwma)
+#' @author DengYishuo
+#' @family add indicator functions
 add_vwma <- function(mktdata, periods = c(50, 200), append = TRUE) {
   # Validate input data format
   if (!inherits(mktdata, "xts")) {

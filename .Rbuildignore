@@ -1,11 +1,9 @@
-R/pivots.R
 .Rprofile
 LICENSE
 WISHLIST
 ^.*\.Rproj$
 ^\.Rproj\.user$
 \.git
-\.gitignore
 ^.*\.orig$
 ^.*\.sw.
 .travis.yml

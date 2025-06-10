@@ -1,13 +1,19 @@
-### About
+### About eTTR
 
-eTTR is an [R](https://www.r-project.org) package that provides the most popular
-technical analysis functions for financial market data. Many of these functions
-are used as components of systematic trading strategies and financial charts.
+eTTR is an R package that provides the most popular technical analysis functions 
+for financial market data. Many of these functions are used as components of 
+systematic trading strategies and financial charts. The package also enables 
+convenient generation of trading signals via `gen_Sig` function. Additionally, 
+the `ebacktest` function allows for lightweight backtesting of trading signals, 
+returning all investment performance metrics during becktest periods. 
+Furthermore, it will enrich the visualization of technical indicators in the 
+future, making it easier to interpret and analyze market trends through intuitive 
+graphical representations.
 
-### Installation
+### Installation eTTR
 
-The current release is not available on CRAN. To install the development version, you need to clone the repository and build
-from source, or run one of:
+The current release is not available on CRAN. To install the development version, 
+you need to clone the repository and build from source, or run one of:
 
 ```r
 # lightweight

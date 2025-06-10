@@ -50,6 +50,8 @@
 #' # Return only EMA columns for AAPL
 #' tsla_only_ema <- add_ema(TSLA, periods = c(10, 20), append = FALSE)
 #' head(tsla_only_ema)
+#' @author DengYishuo
+#' @family add indicator functions
 add_ema <- function(mktdata, periods = c(50, 200), append = TRUE) {
   # Check the data format. If mktdata is not of xts type, stop the function.
   if (!inherits(mktdata, "xts")) {

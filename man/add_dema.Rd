@@ -45,6 +45,22 @@ head(tsla_with_dema)
 tsla_only_dema <- add_dema(TSLA, periods = c(10, 20), append = FALSE)
 head(tsla_only_dema)
 }
+\seealso{
+Other add indicator functions: 
+\code{\link{add_alma}()},
+\code{\link{add_ema}()},
+\code{\link{add_evwma}()},
+\code{\link{add_hma}()},
+\code{\link{add_kdj}()},
+\code{\link{add_obv}()},
+\code{\link{add_sma}()},
+\code{\link{add_vwma}()},
+\code{\link{add_zlema}()}
+}
+\author{
+DengYishuo
+}
+\concept{add indicator functions}
 \keyword{DEMA,}
 \keyword{analysis,}
 \keyword{data,}

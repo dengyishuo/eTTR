@@ -50,6 +50,8 @@
 #' # Return only SMA columns for AAPL
 #' aapl_only_sma <- add_sma(AAPL, periods = c(10, 20), append = FALSE)
 #' head(aapl_only_sma)
+#' @author DengYishuo
+#' @family add indicator functions
 add_sma <- function(mktdata, periods = c(50, 200), append = TRUE) {
   # Check the data format. If mktdata is not of xts type, stop the function.
   if (!inherits(mktdata, "xts")) {

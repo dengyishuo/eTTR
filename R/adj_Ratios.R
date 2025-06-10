@@ -18,7 +18,7 @@
 #
 #' @title Split and dividend adjustment ratios
 #' @description Create split and dividend adjustment ratio vectors.
-#' @usage ADJRatios(splits, dividends, close)
+#' @usage adj_Ratios(splits, dividends, close)
 #' @aliases adjRatios adjust
 #' @param splits Split series that is coercible to xts.
 #' @param dividends Dividend series that is coercible to xts.
@@ -42,7 +42,7 @@
 #' @useDynLib eTTR, .registration = TRUE
 #' @importFrom xts merge.xts try.xts
 #' @export
-ADJRatios <-
+adj_Ratios <-
   function(splits, dividends, close) {
     if (!missing(dividends) &&
       missing(close)) {

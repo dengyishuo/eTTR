@@ -25,12 +25,12 @@
 #' @param lagts Logical indicating whether to lag the results (default is TRUE)
 #'
 #' @return An xts object with the following columns:
-#' \itemize{
-#'   \item center: Central pivot point, calculated as (High + Low + Close)/3
-#'   \item R1: First resistance level, (2*P) - Low
-#'   \item R2: Second resistance level, P + (R1-S1)
-#'   \item S1: First support level, (2*P) - High
-#'   \item S2: Second support level, P - (R1-S1)
+#' \describe{
+#'   \item{center}{Central pivot point, calculated as \eqn{(High + Low + Close)/3}}
+#'   \item{R1}{First resistance level, calculated as \eqn{(2 \times P) - Low}}
+#'   \item{R2}{Second resistance level, calculated as \eqn{P + (R1 - S1)}}
+#'   \item{S1}{First support level, calculated as \eqn{(2 \times P) - High}}
+#'   \item{S2}{Second support level, calculated as \eqn{P - (R1 - S1)}}
 #' }
 #'
 #' @references
@@ -38,6 +38,9 @@
 #' http://www.investopedia.com/articles/technical/04/041404.asp
 #'
 #' @author Brian G. Peterson
+#' @importFrom xts xts lag.xts last
+#' @importFrom zoo index
+#' @importFrom quantmod HLC Hi Lo
 #' @export
 #' @examples
 #' \dontrun{
