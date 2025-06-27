@@ -16,7 +16,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 #' @title Arnaud Legoux Moving Average (ALMA)
 #'
 #' @description Calculate a Gaussian-weighted moving average with reduced lag.
