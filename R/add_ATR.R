@@ -1,83 +1,111 @@
-# eTTR: Enhanced Technical Trading Rules
-#
-# Copyright (C) 2025 - 2030  DengYishuo
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 #' @title Calculate Average True Range (ATR)
 #' @description
-#' This function computes the Average True Range (ATR), a technical analysis indicator
-#' used to measure market volatility. It calculates the true range (TR) and applies a moving
-#' average (defaulting to Wilder's EMA) to smooth the results.
-#' @param OHLCV An OHLCV (Open - High - Low - Close - Volume) price series, typically an xts object.
-#' @param n The number of periods to use for the moving average calculation. Defaults to 14.
-#' @param maType The type of moving average to use. Defaults to "EMA" (Wilder's EMA).
-#' @param append A logical value. If \code{TRUE}, the calculated result columns
-#' ("tr", "atr", "trueHigh", "trueLow") will be appended to the \code{OHLCV} input data, ensuring
-#' proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' result data will be returned. Defaults to \code{FALSE}.
-#' @param ... Additional arguments to be passed to the moving average function.
-#' @return If \code{append = FALSE}, an xts object containing columns for the true range ("tr"), the ATR ("atr"),
-#'         and the true high and low values ("trueHigh", "trueLow").
-#'         If \code{append = TRUE}, an xts object of the same class as \code{OHLCV} with the
-#'         calculated columns appended, maintaining the integrity of the time - series
-#'         alignment.
+#' Computes the Average True Range (ATR) for each security in a long-format panel
+#' data frame. ATR measures market volatility by applying a moving average (default
+#' Wilder's EMA) to the true range.
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, \code{high}, \code{low}, and
+#'   \code{close}. Additional columns (e.g. \code{name}, \code{open},
+#'   \code{volume}) are preserved.
+#' @param n Integer. Number of periods for the moving average. Defaults to
+#'   \code{14}.
+#' @param maType Moving average type passed to TTR internals. Defaults to
+#'   \code{"EMA"} (Wilder's EMA).
+#' @param append Logical. If \code{TRUE} (default), append result columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#' @param ... Additional arguments passed to the moving average function.
+#'
+#' @return A \code{tibble} or \code{data.frame} sorted by \code{date} then
+#'   \code{code}, with columns:
+#'   \describe{
+#'     \item{tr_\{n\}}{True range.}
+#'     \item{atr_\{n\}}{Average true range over \code{n} periods.}
+#'     \item{trueHigh_\{n\}}{True high used in TR calculation.}
+#'     \item{trueLow_\{n\}}{True low used in TR calculation.}
+#'   }
 #' @details
-#' The Average True Range (ATR) is a measure of volatility introduced by J. Welles Wilder.
-#' It considers the entire range of price movement in a given period, including gaps between
-#' sessions. The default method uses Wilder's EMA, which applies a smoothing factor of 1/n.
+#' ATR was introduced by J. Welles Wilder. It accounts for the full price range
+#' of each period, including gaps between sessions. The default Wilder EMA uses
+#' a smoothing factor of 1/n.
 #' @references
 #' Wilder, J. Welles. "New Concepts in Technical Trading Systems." 1978.
-#' @author DengYishuo
-#' @importFrom xts xts reclass
-#' @importFrom zoo coredata
+#' @importFrom xts xts
+#' @importFrom tibble as_tibble
+#' @importFrom TTR ATR
 #' @examples
 #' \dontrun{
-#' # Calculate ATR for a stock's OHLCV data
-#' data(TSLA)
-#' atr_values <- add_ATR(TSLA, n = 14)
+#' # Build a minimal mkt_data panel
+#' mkt_data <- data.frame(
+#'   date = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+#'   code = rep(c("AAA", "BBB"), each = 60),
+#'   open = runif(120, 10, 20),
+#'   high = runif(120, 20, 30),
+#'   low = runif(120, 5, 15),
+#'   close = runif(120, 10, 25),
+#'   volume = runif(120, 1e6, 2e6)
+#' )
 #'
-#' # Using default parameters and appending results
-#' atr_append1 <- add_ATR(TSLA, append = TRUE)
+#' # Default: append = TRUE, output = "tibble"
+#' result1 <- add_ATR(mkt_data, n = 14)
 #'
-#' # Modifying n and appending results
-#' atr_append2 <- add_ATR(TSLA, n = 20, append = TRUE)
+#' # Return only indicator columns
+#' result2 <- add_ATR(mkt_data, n = 14, append = FALSE)
+#'
+#' # Use a longer period and return a plain data.frame
+#' result3 <- add_ATR(mkt_data, n = 20, output = "data.frame")
 #' }
 #' @export
-add_ATR <- function(OHLCV, n = 14, maType, append = FALSE, ...) {
-  # extract OHLC from  OHLCV
-  ohlc <- OHLCV[, c("Open", "High", "Low", "Close")]
+add_ATR <- function(mkt_data, n = 14, maType, append = TRUE,
+                    output = c("tibble", "data.frame"), ...) {
+  # ── Argument resolution ────────────────────────────────────────────────────
+  output <- match.arg(output)
+  if (missing(maType)) maType <- "EMA"
 
-  ohlc <- try.xts(ohlc, error = as.matrix)
-  tr <- TR(ohlc)
-  maArgs <- list(n = n, ...)
-  if (missing(maType)) {
-    maType <- "EMA"
-    if (is.null(maArgs$wilder)) {
-      maArgs$wilder <- TRUE
-    }
+  # ── Input validation ───────────────────────────────────────────────────────
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, high, low, close.")
   }
-  atr <- do.call(maType, c(list(tr[, 1]), maArgs))
-  result <- cbind(tr[, 1], atr, tr[, 2:3])
-  colnames(result) <- c("tr", "atr", "trueHigh", "trueLow")
-  result <- reclass(result, ohlc)
+  required_cols <- c("date", "code", "high", "low", "close")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
+  }
 
-  if (append) {
-    OHLCV <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(OHLCV, result)
-    return(combined_result)
-  } else {
-    return(result)
+  # ── Split-apply-combine ────────────────────────────────────────────────────
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
+
+    # Build HLC xts with uppercase column names expected by TTR internals
+    hlc <- xts::xts(
+      cbind(High = sub$high, Low = sub$low, Close = sub$close),
+      order.by = sub$date
+    )
+
+    atr_val <- TTR::ATR(hlc, n = n, maType = maType, ...)
+    sub[[paste0("tr_", n)]] <- as.numeric(atr_val[, "tr"])
+    sub[[paste0("atr_", n)]] <- as.numeric(atr_val[, "atr"])
+    sub[[paste0("trueHigh_", n)]] <- as.numeric(atr_val[, "trueHigh"])
+    sub[[paste0("trueLow_", n)]] <- as.numeric(atr_val[, "trueLow"])
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  # ── Optionally drop original columns ──────────────────────────────────────
+  if (!append) {
+    new_cols <- c(
+      paste0("tr_", n), paste0("atr_", n),
+      paste0("trueHigh_", n), paste0("trueLow_", n)
+    )
+    keep <- intersect(c("date", "code", "name", new_cols), colnames(res))
+    res <- res[, keep, drop = FALSE]
   }
+
+  # ── Output format ──────────────────────────────────────────────────────────
+  if (output == "tibble") tibble::as_tibble(res) else as.data.frame(res, stringsAsFactors = FALSE)
 }

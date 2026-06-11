@@ -2,55 +2,47 @@
 % Please edit documentation in R/add_williamsAD.R
 \name{add_williamsAD}
 \alias{add_williamsAD}
-\title{Calculate Williams Accumulation / Distribution}
+\title{Williams Accumulation/Distribution}
 \usage{
-add_williamsAD(OHLCV, append = FALSE)
+add_williamsAD(mkt_data, append = TRUE, output = c("tibble", "data.frame"))
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and the required price/volume columns.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated Williams AD values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-Williams AD values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a vector (if \code{try.xts} fails) containing the accumulation / distribution values.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated Williams AD values appended, maintaining the integrity of the time - series
-alignment.
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with column \code{williamsAD} containing the cumulative
+Williams Accumulation/Distribution values.
 }
 \description{
-The Williams Accumulation / Distribution (AD) line is a measure of market
-momentum. Developed by Larry Williams.
-The Williams AD line differs from OBV and chaikinAD in that it doesn't take
-volume into account.
-}
-\note{
-The Accumulation/Distribution Line is interpreted by looking for a
-divergence in the direction of the indicator relative to price.
+Computes the Williams Accumulation/Distribution line for each security in a
+long-format panel data frame. The indicator accumulates buying or selling
+pressure based on whether price closes above or below the prior close,
+measuring the distance from the true low or true high respectively.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-ad_result1 <- add_williamsAD(TSLA)
-
-# Using default parameters and appending
-ad_result2 <- add_williamsAD(TSLA, append = TRUE)
+mkt_data <- data.frame(
+  date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code   = rep(c("AAPL", "MSFT"), each = 60),
+  name   = rep(c("Apple", "Microsoft"), each = 60),
+  high   = c(runif(60, 155, 205), runif(60, 305, 405)),
+  low    = c(runif(60, 145, 195), runif(60, 295, 395)),
+  close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+  volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
+)
+# Example 1: Default parameters
+result <- add_williamsAD(mkt_data)
+# Example 2: Slim output
+result <- add_williamsAD(mkt_data, append = FALSE)
+# Example 3: Return as data.frame
+result <- add_williamsAD(mkt_data, output = "data.frame")
 }
 }
-\references{
-The following site(s) were used to code/document this
-indicator:\cr
-\url{https://www.fmlabs.com/reference/WilliamsAD.htm}\cr
-\url{https://www.metastock.com/Customer/Resources/TAAZ/?p=125}\cr
-}
-\seealso{
-See \code{\link{OBV}}, \code{\link{chaikinAD}}, and
-\code{\link{ATR}}.
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

@@ -1,99 +1,88 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025 - 2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Calculate Exponential Moving Average (EMA)
-#' @description
-#' Calculate an exponentially - weighted mean, giving more weight to recent observations.
-#' The EMA is a type of moving average that responds more quickly to recent price changes
-#' compared to a simple moving average.
+#' @title Add Exponential Moving Average (EMA)
 #'
-#' @param OHLCV Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume data.
-#' The function will extract the closing price from this object for EMA calculation.
-#' @param n Number of periods to average over. Must be between 1 and \code{nrow(OHLCV)}.
-#' A larger \code{n} will result in a smoother EMA, but it will be less responsive
-#' to recent price changes.
-#' @param wilder logical; if \code{TRUE}, use Welles Wilder's EMA formula (\code{1/n}).
-#' When \code{wilder = TRUE}, the smoothing factor is calculated as \code{1/n},
-#' which gives relatively more weight to the most recent data point.
-#' @param ratio A smoothing/decay ratio (overrides \code{wilder}). If provided,
-#' this ratio is used to calculate the EMA instead of the \code{n}-based approach
-#' (when \code{wilder} is \code{FALSE}) or the Welles Wilder's formula (when
-#' \code{wilder} is \code{TRUE}).
-#' @param append A logical value. If \code{TRUE}, the calculated EMA values will be appended to the \code{OHLCV} input data,
-#' ensuring proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' EMA values will be returned. Defaults to \code{FALSE}.
-#' @return
-#' If \code{append} is \code{FALSE}, an object of the same class as \code{OHLCV} (or a vector if \code{try.xts} fails)
-#' containing the EMA values.
-#' If \code{append} is \code{TRUE}, an object of the same class as \code{OHLCV} with the calculated EMA values appended,
-#' maintaining the integrity of the time - series alignment.
-#' @note \code{wilder=FALSE} uses \code{2/(n + 1)}; \code{wilder=TRUE} uses \code{1/n}.
-#' @keywords ts
+#' @description Computes an Exponential Moving Average for each asset in a
+#'   long-format panel data frame and appends the result as a new column named
+#'   \code{EMA_<n>}.
+#'
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, and the required price columns.
+#' @param n Integer. Look-back window. Defaults to \code{10}.
+#' @param wilder Logical. If \code{TRUE}, use Wilder's EMA smoothing ratio
+#'   \code{1/n}. If \code{FALSE} (default), use the standard ratio
+#'   \code{2/(n+1)}.
+#' @param ratio Numeric. A custom smoothing ratio that overrides both \code{n}
+#'   and \code{wilder}. Defaults to \code{NULL}.
+#' @param append Logical. If \code{TRUE} (default), append new columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#'
+#' @return The input data frame with an additional column \code{EMA_<n>}
+#'   containing the exponential moving average of \code{close}.
+#'
 #' @export
+#' @importFrom xts xts
+#' @importFrom tibble as_tibble
+#'
 #' @examples
 #' \dontrun{
-#' data(TSLA)
-#' # Using default parameters without appending
-#' ema_result1 <- add_EMA(TSLA)
-#'
-#' # Using default parameters and appending
-#' ema_result2 <- add_EMA(TSLA, append = TRUE)
-#'
-#' # Changing n and without appending
-#' ema_result3 <- add_EMA(TSLA, n = 15)
-#'
-#' # Changing n and appending
-#' ema_result4 <- add_EMA(TSLA, n = 15, append = TRUE)
+#' mkt_data <- data.frame(
+#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+#'   code  = rep(c("AAPL", "MSFT"), each = 60),
+#'   name  = rep(c("Apple", "Microsoft"), each = 60),
+#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
+#' )
+#' # Example 1: Default parameters
+#' result <- add_EMA(mkt_data)
+#' # Example 2: Custom window with Wilder smoothing
+#' result <- add_EMA(mkt_data, n = 20, wilder = TRUE)
+#' # Example 3: Slim output
+#' result <- add_EMA(mkt_data, n = 50, append = FALSE)
 #' }
-add_EMA <- function(OHLCV, n = 10, wilder = FALSE, ratio = NULL, append = FALSE) {
-  # Check if OHLCV contains the 'Close' column
-  if (!"Close" %in% colnames(OHLCV)) {
-    stop("OHLCV must contain 'Close' column")
-  }
-  # Extract the closing price
-  close_prices <- OHLCV[, "Close"]
-  close_prices <- try.xts(close_prices, error = as.matrix)
+add_EMA <- function(mkt_data, n = 10, wilder = FALSE, ratio = NULL, append = TRUE,
+                    output = c("tibble", "data.frame")) {
 
-  # Validate the parameter n
-  if (n < 1 || n > NROW(close_prices)) {
-    stop(sprintf("n = %d is outside valid range: [1, %d]", n, NROW(close_prices)))
-  }
+  # ── Argument resolution ────────────────────────────────────────────────────
+  output <- match.arg(output)
 
-  # If ratio is specified and n is not, set n to an approximate 'correct' value
-  if (missing(n) && !missing(ratio)) {
-    n <- NULL
+  # ── Input validation ───────────────────────────────────────────────────────
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, close.")
+  }
+  required_cols <- c("date", "code", "close")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
   }
 
-  # Call the C routine to calculate EMA (assuming.CALL(ema) is defined in the package)
-  ma <- .Call(ema, close_prices, n, ratio, isTRUE(wilder))
+  # ── Split-apply-combine over each asset ───────────────────────────────────
+  col_name <- paste0("EMA_", n)
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
 
-  # Reclassify the result to match the class of OHLCV
-  ma <- reclass(ma, close_prices)
+    if (n > nrow(sub)) {
+      warning(sprintf("Skipping code '%s': n = %d exceeds available rows (%d).", cd, n, nrow(sub)))
+      sub[[col_name]] <- NA_real_
+      return(sub)
+    }
 
-  if (!is.null(dim(ma))) {
-    colnames(ma) <- "EMA"
+    close_xts <- xts::xts(sub$close, order.by = sub$date)
+    ma <- EMA(close_xts, n = n, wilder = wilder, ratio = ratio)
+    sub[[col_name]] <- as.numeric(ma)
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  # ── Slim output when append = FALSE ───────────────────────────────────────
+  if (!append) {
+    keep <- intersect(c("date", "code", "name", col_name), colnames(res))
+    res <- res[, keep, drop = FALSE]
   }
 
-  if (append) {
-    ohlcv <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(ohlcv, ma)
-    return(combined_result)
-  } else {
-    return(ma)
-  }
+  # ── Output format conversion ───────────────────────────────────────────────
+  if (output == "tibble") tibble::as_tibble(res) else as.data.frame(res, stringsAsFactors = FALSE)
 }

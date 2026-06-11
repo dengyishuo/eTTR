@@ -1,121 +1,92 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025 - 2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Calculate Money Flow Index
+#' @title Money Flow Index (MFI)
 #' @description
-#' The MFI is a ratio of positive and negative money flow over time.
-#' Money Flow (MF) is the product of price and volume. Positive/negative MF
-#' occur when today's price is higher/lower than yesterday's price. The MFI is
-#' calculated by dividing positive MF by negative MF for the past \code{n}
-#' periods. It is then scaled between 0 and 100.
-#' MFI is usually calculated using the typical price, but if a univariate series
-#' (e.g. Close, Weighted Close, Median Price, etc.) is provided, it will be used
-#' instead.
-#' @aliases ADD_MFI add_mfi
-#' @param OHLCV Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume prices.
-#' @param n Number of periods to use. Defaults to 14.
-#' @param append A logical value. If \code{TRUE}, the calculated Money Flow Index
-#' values will be appended to the \code{OHLCV} input data, ensuring
-#' proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' Money Flow Index values will be returned. Defaults to \code{FALSE}.
-#' @return If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-#' or a vector (if \code{try.xts} fails) containing the MFI values.
-#' If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-#' calculated Money Flow Index values appended, maintaining the integrity of the time - series
-#' alignment.
-#' @note Divergence between MFI and price can be indicative of a reversal. In
-#' addition, values above/below 80/20 indicate market tops/bottoms.
-#' @author DengYishuo
-#' @seealso See \code{\link{OBV}} and \code{\link{CMF}}.
-#' @references The following site(s) were used to code/document this
-#' indicator:\cr
-#' \url{https://www.fmlabs.com/reference/default.htm?url=MoneyFlowIndex.htm}\cr
-#' \url{https://www.linnsoft.com/techind/money - flow - index - mfi}\cr
-#' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:money_flow_index_mfi}\cr
-#' @keywords ts
+#' Computes the Money Flow Index for each security in a long-format panel data
+#' frame. MFI is a momentum oscillator that uses both price and volume to measure
+#' buying and selling pressure, and is often called the volume-weighted RSI.
+#'
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, and the required price/volume columns.
+#' @param n Integer. Look-back window. Defaults to \code{14}.
+#' @param append Logical. If \code{TRUE} (default), append new columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#'
+#' @return A \code{tibble} or \code{data.frame} sorted by \code{date} then
+#'   \code{code}, with column \code{MFI} containing values in the range
+#'   \code{[0, 100]}.
 #' @export
+#' @importFrom tibble as_tibble
 #' @examples
 #' \dontrun{
-#' data(TSLA)
-#' # Using default parameters without appending
-#' mfi_result1 <- add_MFI(TSLA)
-#'
-#' # Modifying n and without appending
-#' mfi_result2 <- add_MFI(TSLA, n = 20)
-#'
-#' # Using default parameters and appending
-#' mfi_result3 <- add_MFI(TSLA, append = TRUE)
-#'
-#' # Modifying n and appending
-#' mfi_result4 <- add_MFI(TSLA, n = 20, append = TRUE)
+#' mkt_data <- data.frame(
+#'   date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+#'   code   = rep(c("AAPL", "MSFT"), each = 60),
+#'   name   = rep(c("Apple", "Microsoft"), each = 60),
+#'   high   = c(runif(60, 155, 205), runif(60, 305, 405)),
+#'   low    = c(runif(60, 145, 195), runif(60, 295, 395)),
+#'   close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+#'   volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
+#' )
+#' # Example 1: Default parameters
+#' result <- add_MFI(mkt_data)
+#' # Example 2: Custom window
+#' result <- add_MFI(mkt_data, n = 20)
+#' # Example 3: Slim output
+#' result <- add_MFI(mkt_data, n = 14, append = FALSE)
 #' }
-add_MFI <- function(OHLCV, n = 14, append = FALSE) {
-  # Extract HLC and volume from OHLCV
-  HLC <- OHLCV[, c("High", "Low", "Close")]
-  volume <- OHLCV[, "Volume"]
+add_MFI <- function(mkt_data, n = 14, append = TRUE, output = c("tibble", "data.frame")) {
 
-  HLC <- try.xts(HLC, error = as.matrix)
-  volume <- try.xts(volume, error = as.matrix)
+  # ── Argument resolution ────────────────────────────────────────────────────
+  output <- match.arg(output)
 
-  if (!(is.xts(HLC) && is.xts(volume))) {
-    HLC <- as.matrix(HLC)
-    volume <- as.matrix(volume)
+  # ── Input validation ───────────────────────────────────────────────────────
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, high, low, close, volume.")
+  }
+  required_cols <- c("date", "code", "high", "low", "close", "volume")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
   }
 
-  if (NCOL(HLC) == 3) {
-    if (is.xts(HLC)) {
-      HLC <- xts(apply(HLC, 1, mean), index(HLC))
-    } else {
-      HLC <- apply(HLC, 1, mean)
-    }
-  } else if (NCOL(HLC) != 1) {
-    stop("Price series must be either High - Low - Close, or Close/univariate.")
+  # ── Split-apply-combine ────────────────────────────────────────────────────
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
+
+    hlc <- cbind(sub$high, sub$low, sub$close)
+    vol <- sub$volume
+
+    # Typical price = mean of HLC
+    tp <- rowMeans(hlc)
+    tp_lag <- c(NA, tp[-length(tp)])
+
+    mf <- tp * vol
+    pmf <- ifelse(!is.na(tp) & !is.na(tp_lag) & tp > tp_lag, mf, 0)
+    nmf <- ifelse(!is.na(tp) & !is.na(tp_lag) & tp < tp_lag, mf, 0)
+
+    num <- runSum(pmf, n)
+    den <- runSum(nmf, n)
+    mr  <- num / den
+    mfi <- 100 - (100 / (1 + mr))
+    mfi[!is.na(den) & den == 0] <- 100
+    mfi[!is.na(den) & !is.na(num) & den == 0 & num == 0] <- 50
+
+    sub[["MFI"]] <- as.numeric(mfi)
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  # ── Optionally drop original OHLCV columns ─────────────────────────────────
+  if (!append) {
+    keep <- intersect(c("date", "code", "name", "MFI"), colnames(res))
+    res <- res[, keep, drop = FALSE]
   }
 
-  if (is.xts(HLC)) {
-    priceLag <- lag.xts(HLC)
-  } else {
-    priceLag <- c(NA, HLC[-NROW(HLC)])
-  }
-
-  # Calculate Money Flow: Multiply the price (HLC) by volume
-  mf <- HLC * volume
-  # Calculate positive and negative Money Flow
-  pmf <- ifelse(HLC > priceLag, mf, 0)
-  nmf <- ifelse(HLC < priceLag, mf, 0)
-
-  # Calculate Money Ratio and Money Flow Index
-  num <- runSum(pmf, n)
-  den <- runSum(nmf, n)
-  mr <- num / den
-  mfi <- 100 - (100 / (1 + mr))
-  mfi[0 == den] <- 100
-  mfi[0 == den & 0 == num] <- 50
-
-  if (is.xts(mfi)) colnames(mfi) <- "mfi"
-
-  mfi <- reclass(mfi, HLC)
-
-  if (append) {
-    ohlcv <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(ohlcv, mfi)
-    return(combined_result)
-  } else {
-    return(mfi)
-  }
+  # ── Return in requested format ─────────────────────────────────────────────
+  if (output == "tibble") tibble::as_tibble(res) else as.data.frame(res, stringsAsFactors = FALSE)
 }

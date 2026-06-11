@@ -2,61 +2,49 @@
 % Please edit documentation in R/add_chaikinAD.R
 \name{add_chaikinAD}
 \alias{add_chaikinAD}
-\title{Calculate Chaikin Accumulation / Distribution}
+\title{Chaikin Accumulation/Distribution Line (chaikinAD)}
 \usage{
-add_chaikinAD(OHLCV, append = FALSE)
+add_chaikinAD(mkt_data, append = TRUE, output = c("tibble", "data.frame"))
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix and contains
-Open - High - Low - Close - Volume prices.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, \code{high}, \code{low}, \code{close},
+and \code{volume}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated accumulation / distribution
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-accumulation / distribution values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append result columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a vector (if \code{try.xts} fails) containing the accumulation / distribution
-values.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated accumulation / distribution values appended, maintaining the integrity of the time - series
-alignment.
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with column \code{chaikinAD} containing the cumulative
+Accumulation/Distribution values.
 }
 \description{
-The Chaikin Accumulation / Distribution (AD) line is a measure of the money
-flowing into or out of a security.  It is similar to On Balance Volume (OBV).
-Developed by Marc Chaikin.
-
-The AD line is similar to OBV; the difference is that OBV sums volume
-multiplied by +/- 1 if the close is higher/lower than the previous close,
-while the AD line multiplies volume by the close location value (CLV).
-}
-\note{
-The Accumulation/Distribution Line is interpreted by looking for a
-divergence in the direction of the indicator relative to price.
+Computes the Chaikin Accumulation/Distribution line for each security in a
+long-format panel data frame. The indicator is a cumulative sum of the
+Close Location Value multiplied by volume, measuring the flow of money into
+and out of a security. Divergence between the AD line and price is often used
+as a leading signal. Developed by Marc Chaikin.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-ad_result1 <- add_chaikinAD(TSLA)
-
-# Using default parameters and appending
-ad_result2 <- add_chaikinAD(TSLA, append = TRUE)
+mkt_data <- data.frame(
+  date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code   = rep(c("AAPL", "MSFT"), each = 60),
+  name   = rep(c("Apple", "Microsoft"), each = 60),
+  high   = c(runif(60, 155, 205), runif(60, 305, 405)),
+  low    = c(runif(60, 145, 195), runif(60, 295, 395)),
+  close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+  volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
+)
+# Example 1: Default parameters
+result <- add_chaikinAD(mkt_data)
+# Example 2: Slim output
+result <- add_chaikinAD(mkt_data, append = FALSE)
+# Example 3: Return as data.frame
+result <- add_chaikinAD(mkt_data, output = "data.frame")
 }
 }
-\references{
-The following site(s) were used to code/document this
-indicator:\cr \url{https://www.fmlabs.com/reference/AccumDist.htm}\cr
-\url{https://www.metastock.com/Customer/Resources/TAAZ/?p=27}\cr
-\url{https://www.linnsoft.com/techind/accumulation - distribution}\cr
-\url{https://school.stockcharts.com/doku.php?id=technical_indicators:accumulation_distribution_line}\cr
-}
-\seealso{
-See \code{\link{OBV}}, and \code{\link{CLV}}.
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

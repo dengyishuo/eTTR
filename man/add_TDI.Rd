@@ -2,80 +2,59 @@
 % Please edit documentation in R/add_TDI.R
 \name{add_TDI}
 \alias{add_TDI}
-\title{Calculate Trend Detection Index}
+\title{Add Trend Detection Index (TDI)}
 \usage{
-add_TDI(OHLCV, n = 20, multiple = 2, allow_middle_na = FALSE, append = FALSE)
+add_TDI(
+  mkt_data,
+  n = 20,
+  multiple = 2,
+  allow_middle_na = FALSE,
+  append = TRUE,
+  output = c("tibble", "data.frame")
+)
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and the required price columns.}
 
-\item{n}{Number of periods to use. Default is 20.}
+\item{n}{Integer. Primary look-back window. Defaults to \code{20}.}
 
-\item{multiple}{Multiple used to calculate (2). Default is 2.}
+\item{multiple}{Integer. Multiplier applied to \code{n} to form the second
+(longer) window. Defaults to \code{2}.}
 
-\item{allow_middle_na}{Logical. If \code{TRUE}, allows NA values in the middle. Default is FALSE.}
+\item{allow_middle_na}{Logical. If \code{FALSE} (default), non-leading NAs
+in the price series raise an error. Set to \code{TRUE} to override.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated Trend Detection Index
-and Direction Indicator values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-Trend Detection Index and Direction Indicator values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a matrix (if \code{try.xts} fails) containing the columns:
-\describe{
-\item{ tdi }{ The Trend Detection Index. }
-\item{ di }{ The Direction Indicator. }
-}
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated Trend Detection Index and Direction Indicator values appended, maintaining the integrity of the time - series
-alignment.
+The input data frame with additional columns \code{TDI_<n>} (the
+Trend Detection Index) and \code{DI_<n>} (the Direction Indicator).
 }
 \description{
-The Trend Detection Index (TDI) attempts to identify starting and ending
-trends. Developed by M. H. Pee.
-The TDI is the (1) absolute value of the \code{n}-day sum of the \code{n}-day
-momentum, minus the quantity of (2) \code{multiple}*\code{n}-day sum of the
-absolute value of the \code{n}-day momentum, minus (3) \code{n}-day sum of
-the absolute value of the \code{n}-day momentum.
-I.e. \eqn{TDI = (1) - [ (2) - (3) ]}
-The direction indicator is the sum of the \code{n}-day momentum over the last
-\code{n} days.
-See URL in references section for further details.
-}
-\note{
-Positive/negative TDI values signal a trend/consolidation. A positive/
-negative direction indicator signals a up/down trend. I.e. buy if the TDI
-and the direction indicator are positive, and sell if the TDI is positive
-while the direction indicator is negative.
+Computes the Trend Detection Index and its Direction Indicator
+for each asset in a long-format panel data frame. The TDI identifies
+whether the market is trending or trading in a range by comparing
+directional momentum sums over two window lengths. Results are appended as
+columns \code{TDI_<n>} and \code{DI_<n>}.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-tdi_result1 <- add_TDI(TSLA)
-
-# Modifying n and without appending
-tdi_result2 <- add_TDI(TSLA, n = 25)
-
-# Using default parameters and appending
-tdi_result3 <- add_TDI(TSLA, append = TRUE)
-
-# Modifying n and appending
-tdi_result4 <- add_TDI(TSLA, n = 25, append = TRUE)
+mkt_data <- data.frame(
+  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code  = rep(c("AAPL", "MSFT"), each = 60),
+  name  = rep(c("Apple", "Microsoft"), each = 60),
+  close = c(runif(60, 150, 200), runif(60, 300, 400))
+)
+# Example 1: Default parameters
+result <- add_TDI(mkt_data)
+# Example 2: Custom window
+result <- add_TDI(mkt_data, n = 14)
+# Example 3: Slim output
+result <- add_TDI(mkt_data, n = 20, append = FALSE)
 }
 }
-\references{
-The following site(s) were used to code/document this
-indicator:\cr
-\url{https://www.linnsoft.com/techind/trend - detection - index - tdi}\cr
-}
-\seealso{
-See \code{\link{aroon}}, \code{\link{CCI}}, \code{\link{ADX}},
-\code{\link{VHF}}, \code{\link{GMMA}} for other indicators that measure trend
-direction/strength.
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

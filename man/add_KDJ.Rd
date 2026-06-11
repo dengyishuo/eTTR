@@ -2,54 +2,68 @@
 % Please edit documentation in R/add_KDJ.R
 \name{add_KDJ}
 \alias{add_KDJ}
-\title{Calculate Stochastic Oscillator (KDJ) Indicator}
+\title{Add KDJ Stochastic Oscillator}
 \usage{
-add_KDJ(OHLCV, n = 9, m1 = 3, m2 = 3, fill_na_method = "none", append = FALSE)
+add_KDJ(
+  mkt_data,
+  n = 9,
+  m1 = 3,
+  m2 = 3,
+  fill_na_method = "none",
+  append = TRUE,
+  output = c("tibble", "data.frame")
+)
 }
 \arguments{
-\item{OHLCV}{xts object with OHLC data, must include 'high', 'low', and 'close' columns (case - insensitive).}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, \code{high}, \code{low}, and
+\code{close}.}
 
-\item{n}{RSV calculation period, default is 9. This parameter determines the look - back period
-for calculating the Raw Stochastic Value (RSV). A shorter period makes the indicator more sensitive
-to recent price changes, while a longer period provides a smoother view of the market trend.}
+\item{n}{Integer. Look-back window for the rolling high-low range. Defaults
+to \code{9}.}
 
-\item{m1}{Smoothing factor for K line, default is 3. A smaller value of \code{m1} makes the K line
-more responsive to recent price changes, while a larger value smooths out the line.}
+\item{m1}{Integer. Smoothing factor denominator for the K line. Defaults to
+\code{3}.}
 
-\item{m2}{Smoothing factor for D line, default is 3. Similar to \code{m1}, it affects the smoothness
-and responsiveness of the D line.}
+\item{m2}{Integer. Smoothing factor denominator for the D line. Defaults to
+\code{3}.}
 
-\item{fill_na_method}{Method to fill NA values: "none", "initial", "interpolate".
-"none" leaves NA values as they are. "initial" fills the initial NA values with a default value (50).
-"interpolate" fills NA values using linear interpolation.}
+\item{fill_na_method}{Character. Method to fill leading NAs before the first
+valid RSV: \code{"none"} (default) leaves NAs, \code{"initial"} fills with
+50, \code{"interpolate"} uses linear interpolation.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated KDJ values (K, D, J) will be appended to the \code{OHLCV} input data,
-ensuring proper alignment of time - series data. If \code{FALSE}, only the calculated KDJ values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append} is \code{FALSE}, an xts object with three columns: 'K', 'D', and 'J'.
-If \code{append} is \code{TRUE}, an xts object with the original \code{OHLCV} data and the calculated KDJ values appended,
-maintaining the integrity of the time - series alignment.
+The input data frame with additional columns \code{K_<n>},
+\code{D_<n>}, and \code{J_<n>} containing the KDJ indicator values.
 }
 \description{
-This function computes the KDJ indicator based on an OHLC (Open, High, Low, Close) xts object.
-It automatically extracts the required columns ('high', 'low', 'close') from the input (case - insensitive).
-The KDJ indicator is used to identify overbought or oversold conditions in the market.
-It returns the K, D, and J lines which can help traders make decisions about entry and exit points.
+Computes the KDJ stochastic oscillator for each asset in a
+long-format panel data frame. The K line is a smoothed Raw Stochastic
+Value, D is a further smoothing of K, and J = 3K - 2D captures
+divergence. Results are appended as columns \code{K_<n>}, \code{D_<n>},
+and \code{J_<n>}.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-kdj_result1 <- add_KDJ(TSLA)
-
-# Using default parameters and appending
-kdj_result2 <- add_KDJ(TSLA, append = TRUE)
-
-# Changing n and without appending
-kdj_result3 <- add_KDJ(TSLA, n = 12)
-
-# Changing n and appending
-kdj_result4 <- add_KDJ(TSLA, n = 12, append = TRUE)
+mkt_data <- data.frame(
+  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code  = rep(c("AAPL", "MSFT"), each = 60),
+  name  = rep(c("Apple", "Microsoft"), each = 60),
+  high  = c(runif(60, 160, 210), runif(60, 310, 410)),
+  low   = c(runif(60, 140, 190), runif(60, 290, 390)),
+  close = c(runif(60, 150, 200), runif(60, 300, 400))
+)
+# Example 1: Default parameters
+result <- add_KDJ(mkt_data)
+# Example 2: Custom window and fill method
+result <- add_KDJ(mkt_data, n = 14, fill_na_method = "initial")
+# Example 3: Slim output
+result <- add_KDJ(mkt_data, n = 9, append = FALSE)
 }
 }

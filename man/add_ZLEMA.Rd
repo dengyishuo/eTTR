@@ -2,51 +2,53 @@
 % Please edit documentation in R/add_ZLEMA.R
 \name{add_ZLEMA}
 \alias{add_ZLEMA}
-\title{Calculate Zero - Lag Exponential Moving Average (ZLEMA)}
+\title{Add Zero-Lag Exponential Moving Average (ZLEMA)}
 \usage{
-add_ZLEMA(OHLCV, n = 10, ratio = NULL, append = FALSE)
+add_ZLEMA(
+  mkt_data,
+  n = 10,
+  ratio = NULL,
+  append = TRUE,
+  output = c("tibble", "data.frame")
+)
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume data.
-The function will extract the closing price from this object for ZLEMA calculation.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and the required price columns.}
 
-\item{n}{Number of periods to average over. This parameter affects the smoothness and
-responsiveness of the ZLEMA. A larger \code{n} will result in a smoother ZLEMA,
-but it may be less responsive to recent price changes.}
+\item{n}{Integer. Look-back window. Defaults to \code{10}.}
 
-\item{ratio}{A smoothing/decay ratio. This ratio determines how much weight is given
-to recent observations in the ZLEMA calculation. If specified, it overrides the
-default calculation based on \code{n}.}
+\item{ratio}{Numeric. Custom smoothing ratio. Defaults to \code{NULL}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated ZLEMA values will be appended to the \code{OHLCV} input data,
-ensuring proper alignment of time - series data. If \code{FALSE}, only the calculated
-ZLEMA values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append} is \code{FALSE}, an object of the same class as \code{OHLCV} (or a vector if \code{try.xts} fails)
-containing the ZLEMA values.
-If \code{append} is \code{TRUE}, an object of the same class as \code{OHLCV} with the calculated ZLEMA values appended,
-maintaining the integrity of the time - series alignment.
+The input data frame with an additional column \code{ZLEMA_<n>}
+containing the zero-lag exponential moving average of \code{close}.
 }
 \description{
-Calculate an exponential moving average with reduced lag. The Zero - Lag Exponential Moving
-Average (ZLEMA) is designed to provide a more timely representation of price trends
-by reducing the lag typically associated with traditional exponential moving averages.
+Computes a Zero-Lag Exponential Moving Average for each asset
+in a long-format panel data frame and appends the result as a new column
+named \code{ZLEMA_<n>}. ZLEMA reduces the inherent lag of traditional EMAs
+by adjusting the input series with a lagged difference term.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-zlema_result1 <- add_ZLEMA(TSLA)
-
-# Using default parameters and appending
-zlema_result2 <- add_ZLEMA(TSLA, append = TRUE)
-
-# Changing n and without appending
-zlema_result3 <- add_ZLEMA(TSLA, n = 15)
-
-# Changing n and appending
-zlema_result4 <- add_ZLEMA(TSLA, n = 15, append = TRUE)
+mkt_data <- data.frame(
+  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code  = rep(c("AAPL", "MSFT"), each = 60),
+  name  = rep(c("Apple", "Microsoft"), each = 60),
+  close = c(runif(60, 150, 200), runif(60, 300, 400))
+)
+# Example 1: Default parameters
+result <- add_ZLEMA(mkt_data)
+# Example 2: Custom window
+result <- add_ZLEMA(mkt_data, n = 20)
+# Example 3: Slim output
+result <- add_ZLEMA(mkt_data, n = 50, append = FALSE)
 }
 }
-\keyword{ts}

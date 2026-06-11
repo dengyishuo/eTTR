@@ -7,27 +7,16 @@
 momentum(x, n = 1, na.pad = TRUE)
 }
 \arguments{
-\item{x}{Price, volume, etc. series that is coercible to xts or matrix.}
+\item{x}{Price series (numeric vector, matrix, or xts object).}
 
-\item{n}{Number of periods to use.}
+\item{n}{Number of periods for the momentum calculation. Default 1.}
 
-\item{na.pad}{Should periods prior to \code{n} be appended? Default is \code{TRUE}.}
+\item{na.pad}{Logical. If \code{TRUE}, pad the result with NAs at the beginning. Default \code{TRUE}.}
 }
 \value{
-A object of the same class as \code{x} or a vector (if \code{try.xts}
-fails) containing the momentum values.
+An object of the same class as \code{x} containing the momentum values.
 }
 \description{
-Calculate the momentum of a series over \code{n} periods.
-
-The momentum indicator provides the difference between the current value
-and the value \code{n} periods ago.
+Calculate the momentum indicator, defined as the difference between the current
+price and the price \code{n} periods ago.
 }
-\examples{
-data(TSLA)
-mom <- momentum(TSLA[, "Close"])
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

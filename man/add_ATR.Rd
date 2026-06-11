@@ -4,55 +4,78 @@
 \alias{add_ATR}
 \title{Calculate Average True Range (ATR)}
 \usage{
-add_ATR(OHLCV, n = 14, maType, append = FALSE, ...)
+add_ATR(
+  mkt_data,
+  n = 14,
+  maType,
+  append = TRUE,
+  output = c("tibble", "data.frame"),
+  ...
+)
 }
 \arguments{
-\item{OHLCV}{An OHLCV (Open - High - Low - Close - Volume) price series, typically an xts object.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, \code{high}, \code{low}, and
+\code{close}. Additional columns (e.g. \code{name}, \code{open},
+\code{volume}) are preserved.}
 
-\item{n}{The number of periods to use for the moving average calculation. Defaults to 14.}
+\item{n}{Integer. Number of periods for the moving average. Defaults to
+\code{14}.}
 
-\item{maType}{The type of moving average to use. Defaults to "EMA" (Wilder's EMA).}
+\item{maType}{Moving average type passed to TTR internals. Defaults to
+\code{"EMA"} (Wilder's EMA).}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated result columns
-("tr", "atr", "trueHigh", "trueLow") will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-result data will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append result columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
 
-\item{...}{Additional arguments to be passed to the moving average function.}
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
+
+\item{...}{Additional arguments passed to the moving average function.}
 }
 \value{
-If \code{append = FALSE}, an xts object containing columns for the true range ("tr"), the ATR ("atr"),
-and the true high and low values ("trueHigh", "trueLow").
-If \code{append = TRUE}, an xts object of the same class as \code{OHLCV} with the
-calculated columns appended, maintaining the integrity of the time - series
-alignment.
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with columns:
+\describe{
+\item{tr_\{n\}}{True range.}
+\item{atr_\{n\}}{Average true range over \code{n} periods.}
+\item{trueHigh_\{n\}}{True high used in TR calculation.}
+\item{trueLow_\{n\}}{True low used in TR calculation.}
+}
 }
 \description{
-This function computes the Average True Range (ATR), a technical analysis indicator
-used to measure market volatility. It calculates the true range (TR) and applies a moving
-average (defaulting to Wilder's EMA) to smooth the results.
+Computes the Average True Range (ATR) for each security in a long-format panel
+data frame. ATR measures market volatility by applying a moving average (default
+Wilder's EMA) to the true range.
 }
 \details{
-The Average True Range (ATR) is a measure of volatility introduced by J. Welles Wilder.
-It considers the entire range of price movement in a given period, including gaps between
-sessions. The default method uses Wilder's EMA, which applies a smoothing factor of 1/n.
+ATR was introduced by J. Welles Wilder. It accounts for the full price range
+of each period, including gaps between sessions. The default Wilder EMA uses
+a smoothing factor of 1/n.
 }
 \examples{
 \dontrun{
-# Calculate ATR for a stock's OHLCV data
-data(TSLA)
-atr_values <- add_ATR(TSLA, n = 14)
+# Build a minimal mkt_data panel
+mkt_data <- data.frame(
+  date = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code = rep(c("AAA", "BBB"), each = 60),
+  open = runif(120, 10, 20),
+  high = runif(120, 20, 30),
+  low = runif(120, 5, 15),
+  close = runif(120, 10, 25),
+  volume = runif(120, 1e6, 2e6)
+)
 
-# Using default parameters and appending results
-atr_append1 <- add_ATR(TSLA, append = TRUE)
+# Default: append = TRUE, output = "tibble"
+result1 <- add_ATR(mkt_data, n = 14)
 
-# Modifying n and appending results
-atr_append2 <- add_ATR(TSLA, n = 20, append = TRUE)
+# Return only indicator columns
+result2 <- add_ATR(mkt_data, n = 14, append = FALSE)
+
+# Use a longer period and return a plain data.frame
+result3 <- add_ATR(mkt_data, n = 20, output = "data.frame")
 }
 }
 \references{
 Wilder, J. Welles. "New Concepts in Technical Trading Systems." 1978.
-}
-\author{
-DengYishuo
 }

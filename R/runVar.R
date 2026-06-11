@@ -1,37 +1,22 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025-2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Moving Window Variance (runVar)
-#' @description
-#' Calculate the variance over a moving window of periods.
+#' Rolling Variance
 #'
-#' @param x Object coercible to xts or matrix.
-#' @param y Object coercible to xts or matrix (if NULL, use x).
-#' @param n Number of periods in the window (1 <= n <= nrow(x)).
-#' @param sample Logical; if TRUE, use sample variance (n-1 denominator).
-#' @param cumulative Logical; if TRUE, use from-inception calculation.
-#' @return An object of the same class as \code{x} with variance values.
-#' @keywords ts
+#' Calculate rolling or cumulative variance for a univariate time series, implemented as self-covariance via \code{\link{runCov}}.
+#'
+#' @param x Univariate numeric time series (vector, matrix, xts/zoo object), input series for variance calculation.
+#' @param y Univariate numeric time series; if \code{NULL}, set equal to \code{x} to compute variance. Default \code{NULL}.
+#' @param n Integer rolling window length, must satisfy \code{1 <= n <= NROW(x)}. Default 10.
+#' @param sample Logical scalar. If \code{TRUE}, calculate sample variance (divisor \code{n-1});
+#'   if \code{FALSE}, calculate population variance (divisor \code{n}). Default \code{TRUE}.
+#' @param cumulative Logical scalar. If \code{TRUE}, use expanding cumulative window instead of fixed rolling window. Default \code{FALSE}.
+#'
+#' @details
+#' Variance is mathematically equivalent to the covariance of a series with itself:
+#' \deqn{runVar(x) = runCov(x, x)}
+#' All input coercion, validation, NA handling and xts class restoration logic are delegated to \code{\link{runCov}}.
+#'
+#' @return Object with identical class as input \code{x}, containing rolling variance values.
+#'
 #' @export
-#' @examples
-#' data(TSLA)
-#' var_20 <- runVar(TSLA[, "Close"], 20)
-#' head(var_20)
 runVar <- function(x, y = NULL, n = 10, sample = TRUE, cumulative = FALSE) {
   if (is.null(y)) y <- x
   result <- runCov(x, y, n, sample = sample, cumulative = cumulative)

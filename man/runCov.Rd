@@ -2,31 +2,35 @@
 % Please edit documentation in R/runCov.R
 \name{runCov}
 \alias{runCov}
-\title{Moving Window Covariance (runCov)}
+\title{Rolling Covariance}
 \usage{
 runCov(x, y, n = 10, sample = TRUE, cumulative = FALSE)
 }
 \arguments{
-\item{x}{Object coercible to xts or matrix.}
+\item{x}{Univariate numeric time series (vector, matrix, xts/zoo object), first input series.}
 
-\item{y}{Object coercible to xts or matrix (if NULL, use x).}
+\item{y}{Univariate numeric time series (vector, matrix, xts/zoo object), second input series.}
 
-\item{n}{Number of periods in the window (1 <= n <= nrow(x)).}
+\item{n}{Integer rolling window length, must satisfy \code{1 <= n <= NROW(x)}. Default 10.}
 
-\item{sample}{Logical; if TRUE, use sample covariance (n-1 denominator).}
+\item{sample}{Logical scalar. If \code{TRUE}, calculate sample covariance (divisor \code{n-1});
+if \code{FALSE}, calculate population covariance (divisor \code{n}). Default \code{TRUE}.}
 
-\item{cumulative}{Logical; if TRUE, use from-inception calculation.}
+\item{cumulative}{Logical scalar. If \code{TRUE}, use expanding cumulative window instead of fixed rolling window. Default \code{FALSE}.}
 }
 \value{
-An object of the same class as \code{x} with covariance values.
+Object with identical class as input \code{x}, containing rolling covariance values.
 }
 \description{
-Calculate the covariance over a moving window of periods.
+Compute rolling or cumulative covariance between two univariate time series via compiled C backend.
+Supports both xts time series and regular numeric vectors/matrices as input.
 }
-\examples{
-data(TSLA)
-cov_20 <- runCov(TSLA[, "Close"], TSLA[, "Volume"], 20)
-head(cov_20)
+\details{
+\enumerate{
+\item Coerce both input series to xts with \code{\link[xts]{try.xts}}.
+\item Combine two series into a two-column matrix; preserve xts index if both inputs are xts.
+\item Validate window size range and enforce univariate constraint for x and y.
+\item Fast covariance computation is delegated to native C function \code{runcov} via \code{.Call}.
+\item Restore original input data class with \code{\link[xts]{reclass}} before returning output.
 }
-\keyword{internal}
-\keyword{ts}
+}

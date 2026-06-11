@@ -2,72 +2,60 @@
 % Please edit documentation in R/add_GMMA.R
 \name{add_GMMA}
 \alias{add_GMMA}
-\alias{ADD_GMMA}
-\title{Calculate Guppy Multiple Moving Averages}
+\title{Add Guppy Multiple Moving Average (GMMA)}
 \usage{
 add_GMMA(
-  OHLCV,
+  mkt_data,
   short = c(3, 5, 8, 10, 12, 15),
   long = c(30, 35, 40, 45, 50, 60),
   maType,
-  append = FALSE
+  append = TRUE,
+  output = c("tibble", "data.frame")
 )
 }
 \arguments{
-\item{OHLCV}{Price, volume, etc. series that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and the required price columns.}
 
-\item{short}{Vector of short - term periods. Defaults to c(3, 5, 8, 10, 12, 15).}
+\item{short}{Integer vector. Periods for the short-term group.
+Defaults to \code{c(3, 5, 8, 10, 12, 15)}.}
 
-\item{long}{Vector of long - term periods. Defaults to c(30, 35, 40, 45, 50, 60).}
+\item{long}{Integer vector. Periods for the long-term group.
+Defaults to \code{c(30, 35, 40, 45, 50, 60)}.}
 
-\item{maType}{Either:
-\enumerate{
-\item A function or a string naming the function to be called.
-\item A \emph{list} with the first component like (1) above, and
-additional parameters specified as \emph{named} components.
-See Examples.
-}}
+\item{maType}{Character or function name. The moving average type to apply.
+Defaults to \code{"EMA"}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated Guppy Multiple Moving Average
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-Guppy Multiple Moving Average values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a vector (if \code{try.xts} fails) containing the Guppy Multiple Moving Average.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated Guppy Multiple Moving Average values appended, maintaining the integrity of the time - series
-alignment.
+The input data frame with additional columns \code{short_lag_<p>}
+(one per short period) and \code{long_lag_<p>} (one per long period).
 }
 \description{
-Calculate the Guppy Multiple Moving Average of a series.
-The Guppy Multiple Moving Average signals a changing trend when the
-\code{short} and \code{long} groups of moving averages intersect.  An up/down
-trend exists when the short/long - term moving averages are greater than the
-long/short - term averages.
+Computes the Guppy Multiple Moving Average for each asset in a
+long-format panel data frame. Two groups of exponential moving averages -
+a short-term group for traders and a long-term group for investors - are
+computed and appended as columns named \code{short_lag_<p>} and
+\code{long_lag_<p>} respectively.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-gmma_result1 <- add_GMMA(TSLA)
-
-# Using default parameters and appending
-gmma_result2 <- add_GMMA(TSLA, append = TRUE)
+mkt_data <- data.frame(
+  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 120), 2),
+  code  = rep(c("AAPL", "MSFT"), each = 120),
+  name  = rep(c("Apple", "Microsoft"), each = 120),
+  close = c(runif(120, 150, 200), runif(120, 300, 400))
+)
+# Example 1: Default parameters
+result <- add_GMMA(mkt_data)
+# Example 2: Custom short and long periods
+result <- add_GMMA(mkt_data, short = c(3, 5, 8), long = c(30, 40, 50))
+# Example 3: Slim output
+result <- add_GMMA(mkt_data, append = FALSE)
 }
 }
-\references{
-The following site(s) were used to code/document this
-indicator:\cr
-\url{https://www.investopedia.com/terms/g/guppy - multiple - moving - average.asp}\cr
-}
-\seealso{
-See \code{\link{aroon}}, \code{\link{CCI}}, \code{\link{ADX}},
-\code{\link{VHF}}, \code{\link{TDI}} for other indicators that measure trend
-direction/strength.
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

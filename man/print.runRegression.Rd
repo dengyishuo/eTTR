@@ -15,12 +15,5 @@
 The input object is returned invisibly.
 }
 \description{
-Prints a summary of the sliding window regression results.
-}
-\examples{
-# Generate sample data and run regression
-set.seed(123)
-x <- xts::xts(rnorm(100), order.by = Sys.Date() - 99:0)
-reg_results <- runRegression(x, n = 10)
-print(reg_results)
+Print Method for runRegression Objects
 }

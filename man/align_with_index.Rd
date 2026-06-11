@@ -2,22 +2,35 @@
 % Please edit documentation in R/align_with_index.R
 \name{align_with_index}
 \alias{align_with_index}
-\title{Align an object with a target index}
+\title{Align Time Series Data to Target Index}
 \usage{
 align_with_index(x, target_index, fill_value = NA)
 }
 \arguments{
-\item{x}{The input object (numeric vector or xts).}
+\item{x}{Input time series object, can be numeric vector, matrix or xts/zoo object.}
 
-\item{target_index}{The target index to align with.}
+\item{target_index}{Vector of date/time index to align \code{x} against; accepts Date, POSIXct, numeric index.}
 
-\item{fill_value}{The value to use for filling missing positions, default is NA.}
+\item{fill_value}{Scalar value used to fill newly padded leading rows, default \code{NA}.}
 }
 \value{
-An xts object aligned with the target index.
+An xts object aligned to \code{target_index}.
 }
 \description{
-Ensures that the input object is aligned with the specified target index,
-filling missing values with NA if necessary.
+Align input time series object to a specified target index sequence.
+Automatically convert non-xts input to xts, truncate excess rows or pad missing leading observations with fill value.
 }
-\keyword{internal}
+\details{
+Logic flow:
+\enumerate{
+\item If \code{target_index} is NULL, return original input unchanged.
+\item If input is xts with identical index length as target, directly return \code{x}.
+\item Non-xts input will be wrapped into an xts object with \code{target_index}, original values placed at the tail, front padded with fill value.
+\item For xts input with mismatched index length:
+\itemize{
+\item Shorter input: pad leading rows with fill value, attach target index.
+\item Longer input: truncate to match target index length via \code{\link{head}}.
+\item Same length different index: overwrite index with target index.
+}
+}
+}

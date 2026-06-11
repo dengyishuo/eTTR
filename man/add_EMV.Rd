@@ -2,77 +2,69 @@
 % Please edit documentation in R/add_EMV.R
 \name{add_EMV}
 \alias{add_EMV}
-\title{Calculate Arms' Ease of Movement Value}
+\title{Ease of Movement (EMV)}
 \usage{
-add_EMV(OHLCV, n = 9, maType, vol.divisor = 10000, append = FALSE, ...)
+add_EMV(
+  mkt_data,
+  n = 9,
+  maType = "SMA",
+  vol.divisor = 10000,
+  append = TRUE,
+  output = c("tibble", "data.frame"),
+  ...
+)
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume prices.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and the required price/volume columns.}
 
-\item{n}{Number of periods for moving average. Defaults to 9.}
+\item{n}{Integer. Look-back window for the moving average of raw EMV. Defaults
+to \code{9}.}
 
-\item{maType}{A function or a string naming the function to be called.}
+\item{maType}{Character. Moving average type applied to raw EMV. Defaults to
+\code{"SMA"}.}
 
-\item{vol.divisor}{An increment to make the results larger and easier to work
-with. Defaults to 10000.}
+\item{vol.divisor}{Numeric. Divisor applied to volume to scale EMV values.
+Defaults to \code{10000}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated Arms' Ease of Movement Value
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-Arms' Ease of Movement Value values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
 
-\item{...}{Other arguments to be passed to the \code{maType} function.}
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
+
+\item{...}{Additional arguments passed to the \code{maType} function.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a matrix (if \code{try.xts} fails) containing the columns:
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with columns:
 \describe{
-\item{ emv }{ The ease of movement values. }
-\item{ maEMV }{ The smoothed (as specified by \code{ma}) ease of movement values. }
+\item{emv}{Raw Ease of Movement value.}
+\item{maEMV}{Smoothed Ease of Movement using \code{maType} over \code{n}
+periods.}
 }
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated Arms' Ease of Movement Value values appended, maintaining the integrity of the time - series
-alignment.
 }
 \description{
-Arms' Ease of Movement Value (EMV) emphasizes days where the security moves
-easily and minimizes days where the security does not move easily. Developed
-by Richard W. Arms, Jr.
-The EMV is calculated by dividing the midpoint \code{[high + low\]/2} move by
-the 'Box Ratio' (volume divided by the high minus low).
-}
-\note{
-A buy/sell signal is generated when the EMV crosses above/below zero.
-When the EMV hovers around zero, there are small price movements and/or high
-volume, and the price is not moving easily.
+Computes the Ease of Movement indicator for each security in a long-format
+panel data frame. EMV relates price change to volume to identify how easily a
+security moves in price. Developed by Richard Arms.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-emv_result1 <- add_EMV(TSLA)
-
-# Modifying n and without appending
-emv_result2 <- add_EMV(TSLA, n = 12)
-
-# Using default parameters and appending
-emv_result3 <- add_EMV(TSLA, append = TRUE)
-
-# Modifying n and appending
-emv_result4 <- add_EMV(TSLA, n = 12, append = TRUE)
+mkt_data <- data.frame(
+  date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code   = rep(c("AAPL", "MSFT"), each = 60),
+  name   = rep(c("Apple", "Microsoft"), each = 60),
+  high   = c(runif(60, 155, 205), runif(60, 305, 405)),
+  low    = c(runif(60, 145, 195), runif(60, 295, 395)),
+  close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+  volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
+)
+# Example 1: Default parameters
+result <- add_EMV(mkt_data)
+# Example 2: Custom window
+result <- add_EMV(mkt_data, n = 14)
+# Example 3: Slim output
+result <- add_EMV(mkt_data, n = 9, append = FALSE)
 }
 }
-\references{
-The following site(s) were used to code/document this
-indicator:\cr \url{https://www.fmlabs.com/reference/ArmsEMV.htm}\cr
-\url{https://www.metastock.com/Customer/Resources/TAAZ/?p=51}\cr
-\url{https://www.linnsoft.com/techind/arms - ease - movement}\cr
-}
-\seealso{
-See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
-options; and note Warning section.
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

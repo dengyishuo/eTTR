@@ -2,90 +2,67 @@
 % Please edit documentation in R/add_DPO.R
 \name{add_DPO}
 \alias{add_DPO}
-\title{Calculate De - Trended Price Oscillator}
+\title{Add Detrended Price Oscillator (DPO)}
 \usage{
 add_DPO(
-  OHLCV,
+  mkt_data,
   n = 10,
   maType,
   shift = n/2 + 1,
   percent = FALSE,
-  append = FALSE,
+  append = TRUE,
+  output = c("tibble", "data.frame"),
   ...
 )
 }
 \arguments{
-\item{OHLCV}{Price, volume, etc. series that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and the required price columns.}
 
-\item{n}{Number of periods for moving average. Defaults to 10.}
+\item{n}{Integer. Look-back window for the moving average. Defaults to
+\code{10}.}
 
-\item{maType}{A function or a string naming the function to be called.}
+\item{maType}{Character or function. Moving average type. Defaults to
+\code{"SMA"}.}
 
-\item{shift}{The number of periods to shift the moving average. Defaults to n / 2 + 1.}
+\item{shift}{Integer. Number of periods to shift the MA back in time.
+Defaults to \code{n / 2 + 1}.}
 
-\item{percent}{logical; if \code{TRUE}, the percentage difference between the
-slow and fast moving averages is returned, otherwise the difference between
-the respective averages is returned. Defaults to FALSE.}
+\item{percent}{Logical. If \code{FALSE} (default), return the absolute
+difference. If \code{TRUE}, return the percentage difference relative to
+the shifted MA.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated De - Trended Price Oscillator
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-De - Trended Price Oscillator values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
 
-\item{...}{Other arguments to be passed to the \code{maType} function.}
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
+
+\item{...}{Additional arguments passed to the moving average function.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a vector (if \code{try.xts} fails) containing the DPO values.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated De - Trended Price Oscillator values appended, maintaining the integrity of the time - series
-alignment.
+The input data frame with an additional column \code{DPO_<n>}
+containing the detrended price oscillator values.
 }
 \description{
-The Detrended Price Oscillator (DPO) removes the trend in prices - or other
-series - by subtracting a moving average of the price from the price. The
-Detrended Price shows cycles and overbought / oversold conditions.
+Computes the Detrended Price Oscillator for each asset in a
+long-format panel data frame and appends the result as a new column named
+\code{DPO_<n>}. The DPO removes the trend from price by subtracting a
+shifted moving average, isolating shorter-term price cycles.
 }
-\note{
-DPO does not extend to the last date because it is based on a displaced moving
-average. The calculation shifts the results \code{shift} periods, so the last
-\code{shift} periods will be zero.\cr
-As stated above, the DPO can be used on any univariate series, not just price.
-}
-\section{Warning}{
- The detrended price oscillator removes the trend in the
-series by centering the moving average. Centering the moving average causes it
-to include future data. Therefore, even though this indicator looks like a
-classic oscillator, it should not be used for trading rule signals.
-}
-
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-priceDPO_result1 <- add_DPO(TSLA)
-
-# Modifying n and without appending
-priceDPO_result2 <- add_DPO(TSLA, n = 15)
-
-# Using default parameters and appending
-priceDPO_result3 <- add_DPO(TSLA, append = TRUE)
-
-# Modifying n and appending
-priceDPO_result4 <- add_DPO(TSLA, n = 15, append = TRUE)
+mkt_data <- data.frame(
+  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code  = rep(c("AAPL", "MSFT"), each = 60),
+  name  = rep(c("Apple", "Microsoft"), each = 60),
+  close = c(runif(60, 150, 200), runif(60, 300, 400))
+)
+# Example 1: Default parameters
+result <- add_DPO(mkt_data)
+# Example 2: Custom window with EMA
+result <- add_DPO(mkt_data, n = 20, maType = "EMA")
+# Example 3: Slim output as percentage
+result <- add_DPO(mkt_data, n = 14, percent = TRUE, append = FALSE)
 }
 }
-\references{
-The following site(s) were used to code/document this
-indicator:\cr
-\url{https://school.stockcharts.com/doku.php?id=technical_indicators:detrended_price_osci}\cr
-}
-\seealso{
-See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
-options; and note Warning section.  See \code{\link{MACD}} for a general
-oscillator.
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

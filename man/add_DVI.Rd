@@ -2,77 +2,82 @@
 % Please edit documentation in R/add_DVI.R
 \name{add_DVI}
 \alias{add_DVI}
-\title{Calculate DV Intermediate Oscillator}
+\title{DVI Indicator}
 \usage{
 add_DVI(
-  OHLCV,
+  mkt_data,
   n = 252,
   wts = c(0.8, 0.2),
   smooth = 3,
   magnitude = c(5, 100, 5),
   stretch = c(10, 100, 2),
   exact.multiplier = 1,
-  append = FALSE
+  append = TRUE,
+  output = c("tibble", "data.frame")
 )
 }
 \arguments{
-\item{OHLCV}{Price series that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and \code{close}.}
 
-\item{n}{Number of periods for the percent rank. Defaults to 252.}
+\item{n}{Integer. Look-back window for percent-rank normalization. Defaults
+to \code{252}.}
 
-\item{wts}{The weight given to the smoothed returns (magnitude) component and
-the up/down days (stretch) component, respectively. Defaults to c(0.8, 0.2).}
+\item{wts}{Numeric vector of length 2. Weights for the magnitude and stretch
+components respectively. The vector is normalized to sum to 1 internally.
+Defaults to \code{c(0.8, 0.2)}.}
 
-\item{smooth}{The number of periods to smooth price. Defaults to 3.}
+\item{smooth}{Integer. Smoothing period applied to price returns before
+computing the magnitude component. Defaults to \code{3}.}
 
-\item{magnitude}{A set of 3 periods used to smooth magnitude. Defaults to c(5, 100, 5).}
+\item{magnitude}{Integer vector of length 3 specifying the short, long, and
+smoothing periods for the magnitude component. Defaults to
+\code{c(5, 100, 5)}.}
 
-\item{stretch}{A set of 3 periods used to smooth stretch. Defaults to c(10, 100, 2).}
+\item{stretch}{Integer vector of length 3 specifying the short, long, and
+smoothing periods for the stretch component. Defaults to
+\code{c(10, 100, 2)}.}
 
-\item{exact.multiplier}{The weight applied to identical values in the window.
-See \code{runPercentRank}. Defaults to 1.}
+\item{exact.multiplier}{Numeric. Multiplier used in the percent-rank
+calculation. Defaults to \code{1}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated DV Intermediate Oscillator
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-DV Intermediate Oscillator values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append result columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a vector (if \code{try.xts} fails) containing the DVI values.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated DV Intermediate Oscillator values appended, maintaining the integrity of the time - series
-alignment.
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with columns:
+\describe{
+\item{dvi.mag}{Percent-ranked magnitude component of DVI (0 to 1).}
+\item{dvi.str}{Percent-ranked stretch component of DVI (0 to 1).}
+\item{dvi}{Composite DVI value: weighted sum of \code{dvi.mag} and
+\code{dvi.str}, bounded in (0, 1).}
+}
 }
 \description{
-The DV Intermediate oscillator (DVI) is a very smooth momentum oscillator
-that can also be used as a trend indicator.  Created by David Varadi. The DVI
-combines smoothed returns over different time windows and the relative number
-of up versus down days (stretch) over different time windows.
+Computes the DVI indicator for each security in a long-format panel data
+frame. DVI combines a magnitude component (smoothed price returns) and a
+stretch component (up/down day counts) using percent-rank normalization,
+producing a composite oscillator bounded between 0 and 1. Values above 0.5
+are generally interpreted as bullish; values below 0.5 as bearish. Required
+column: \code{close}.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-dvi_result1 <- add_DVI(TSLA)
-
-# Modifying n and without appending
-dvi_result2 <- add_DVI(TSLA, n = 300)
-
-# Using default parameters and appending
-dvi_result3 <- add_DVI(TSLA, append = TRUE)
-
-# Modifying n and appending
-dvi_result4 <- add_DVI(TSLA, n = 300, append = TRUE)
+mkt_data <- data.frame(
+  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 300), 2),
+  code  = rep(c("AAPL", "MSFT"), each = 300),
+  name  = rep(c("Apple", "Microsoft"), each = 300),
+  close = c(runif(300, 150, 200), runif(300, 300, 400))
+)
+# Example 1: Default parameters (n = 252)
+result <- add_DVI(mkt_data)
+# Example 2: Shorter look-back window of 126
+result <- add_DVI(mkt_data, n = 126)
+# Example 3: Slim output with default n
+result <- add_DVI(mkt_data, n = 252, append = FALSE)
 }
 }
-\references{
-The following site(s) were used to code/document this
-indicator:\cr
-\url{https://cssanalytics.wordpress.com/2009/12/13/what - is - the - dvi/}\cr
-\url{https://marketsci.wordpress.com/2010/07/27/css - analytics\%E2\%80\%99 - dvi - indicator - revealed/}\cr
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

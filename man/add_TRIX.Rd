@@ -2,85 +2,65 @@
 % Please edit documentation in R/add_TRIX.R
 \name{add_TRIX}
 \alias{add_TRIX}
-\title{Calculate Triple Smoothed Exponential Oscillator}
+\title{Add Triple Exponential Average (TRIX) Oscillator}
 \usage{
-add_TRIX(OHLCV, n = 20, nSig = 9, maType, percent = TRUE, append = FALSE, ...)
+add_TRIX(
+  mkt_data,
+  n = 20,
+  nSig = 9,
+  maType,
+  percent = TRUE,
+  append = TRUE,
+  output = c("tibble", "data.frame"),
+  ...
+)
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and the required price columns.}
 
-\item{n}{Number of periods for moving average. Default is 20.}
+\item{n}{Integer. Look-back window for the triple smoothing. Defaults to
+\code{20}.}
 
-\item{nSig}{Number of periods for signal line moving average. Default is 9.}
+\item{nSig}{Integer. Signal line smoothing period. Defaults to \code{9}.}
 
-\item{maType}{Either:
-\enumerate{
-\item A function or a string naming the function to be called.
-\item A \emph{list} with the first component like (1) above, and
-additional parameters specified as \emph{named} components.
-See Examples.
-}}
+\item{maType}{Character or list. Moving average type. Defaults to
+\code{"EMA"}.}
 
-\item{percent}{logical; if \code{TRUE}, the rate of change is calculated
-using the \code{ROC} function, otherwise the \code{momentum} function is
-used. Default is \code{TRUE}.}
+\item{percent}{Logical. If \code{TRUE} (default), express TRIX as a
+percentage rate of change. If \code{FALSE}, return the absolute momentum.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated TRIX and signal line
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-TRIX and signal line values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
 
-\item{...}{Other arguments to be passed to the \code{maType} function in
-case (1) above.}
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
+
+\item{...}{Additional arguments passed to the moving average function.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a vector (if \code{try.xts} fails) containing the TRIX and signal line values.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated TRIX and signal line values appended, maintaining the integrity of the time - series
-alignment.
+The input data frame with additional columns \code{TRIX_<n>} (the
+TRIX oscillator) and \code{TRIXsig_<n>} (the signal line).
 }
 \description{
-The TRIX indicator calculates the rate of change of a triple exponential
-moving average. Developed by Jack K. Hutson.
-The TRIX is calculated as follows:\cr 3MA = \code{MA}( \code{MA}(
-\code{MA}(\code{price}) ) )\cr \eqn{trix = 100 * [ 3MA(t) / 3MA(t - 1) - 1 ]}
-}
-\note{
-Buy/sell signals are generated when the TRIX crosses above/below zero.
-A nine - period EMA of the TRIX is used as a default signal line. Buy/sell
-signals are generated when the TRIX crosses above/below the signal line and
-is also above/below zero.
+Computes the TRIX oscillator (1-period rate of change of a
+triple-smoothed moving average) and its signal line for each asset in a
+long-format panel data frame. Results are appended as columns
+\code{TRIX_<n>} and \code{TRIXsig_<n>}.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-trix_result1 <- add_TRIX(TSLA)
-
-# Modifying n and without appending
-trix_result2 <- add_TRIX(TSLA, n = 25)
-
-# Using default parameters and appending
-trix_result3 <- add_TRIX(TSLA, append = TRUE)
-
-# Modifying n and appending
-trix_result4 <- add_TRIX(TSLA, n = 25, append = TRUE)
+mkt_data <- data.frame(
+  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 120), 2),
+  code  = rep(c("AAPL", "MSFT"), each = 120),
+  name  = rep(c("Apple", "Microsoft"), each = 120),
+  close = c(runif(120, 150, 200), runif(120, 300, 400))
+)
+# Example 1: Default parameters
+result <- add_TRIX(mkt_data)
+# Example 2: Custom window
+result <- add_TRIX(mkt_data, n = 14)
+# Example 3: Slim output with absolute momentum
+result <- add_TRIX(mkt_data, n = 20, percent = FALSE, append = FALSE)
 }
 }
-\references{
-The following site(s) were used to code/document this
-indicator:\cr
-\url{https://www.fmlabs.com/reference/default.htm?url=TRIX.htm}\cr
-\url{https://www.metastock.com/Customer/Resources/TAAZ/?p=114}\cr
-\url{https://www.linnsoft.com/techind/trix - triple - smoothed - exponential - oscillator}\cr
-\url{https://school.stockcharts.com/doku.php?id=technical_indicators:trix}\cr
-}
-\seealso{
-See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
-options; and note Warning section.
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

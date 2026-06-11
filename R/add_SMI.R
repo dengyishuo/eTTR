@@ -1,147 +1,132 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025 - 2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Calculate Stochastic Momentum Index
-#' @description Calculates the SMI value and its signal line.
-#' @param OHLCV Object coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.
-#' @param n Number of periods for range calculation (default: 13).
-#' @param nFast Fast moving average periods (default: 2).
-#' @param nSlow Slow moving average periods (default: 25).
-#' @param nSig Signal line periods (default: 9).
-#' @param maType Moving average type: function, string, or list of configurations
-#' (default: "EMA").
-#' @param bounded Logical, use current period in range calculation (default: TRUE).
-#' @param append A logical value. If \code{TRUE}, the calculated Stochastic Momentum Index
-#' values and its signal line will be appended to the \code{OHLCV} input data, ensuring
-#' proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' Stochastic Momentum Index values and its signal line will be returned. Defaults to \code{FALSE}.
-#' @param ... Additional arguments passed to moving average functions.
-#' @return If \code{append = FALSE}, an xts or matrix object with columns: SMI, signal.
-#' If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-#' calculated Stochastic Momentum Index values and its signal line appended, maintaining the integrity of the time - series
-#' alignment.
-#' @author DengYishuo
-#' @keywords ts momentum indicator
-#' @importFrom xts try.xts reclass
+#' @title Add Stochastic Momentum Index (SMI)
+#'
+#' @description Computes the Stochastic Momentum Index and its signal line for
+#'   each asset in a long-format panel data frame. The SMI measures how far the
+#'   current close is from the midpoint of the recent high-low range, double-
+#'   smoothed by fast and slow MAs. Results are appended as columns \code{SMI}
+#'   and \code{signal}.
+#'
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, \code{high}, \code{low}, and
+#'   \code{close}.
+#' @param n Integer. Look-back window for the high-low range. Defaults to
+#'   \code{13}.
+#' @param nFast Integer. Fast smoothing period. Defaults to \code{2}.
+#' @param nSlow Integer. Slow smoothing period. Defaults to \code{25}.
+#' @param nSig Integer. Signal line period. Defaults to \code{9}.
+#' @param maType Character or list. Moving average type(s). Defaults to
+#'   \code{"EMA"}.
+#' @param bounded Logical. If \code{TRUE} (default), the high-low range uses
+#'   the current bar; if \code{FALSE}, it uses the previous bar.
+#' @param append Logical. If \code{TRUE} (default), append new columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#' @param ... Additional arguments passed to the moving average function.
+#'
+#' @return The input data frame with additional columns \code{SMI} (the
+#'   Stochastic Momentum Index) and \code{signal} (the signal line).
+#'
+#' @export
+#' @importFrom xts xts
+#' @importFrom tibble as_tibble
+#'
 #' @examples
 #' \dontrun{
-#' data(TSLA)
-#' # Using default parameters without appending
-#' smi_result1 <- add_SMI(TSLA)
-#'
-#' # Modifying n and without appending
-#' smi_result2 <- add_SMI(TSLA, n = 15)
-#'
-#' # Using default parameters and appending
-#' smi_result3 <- add_SMI(TSLA, append = TRUE)
-#'
-#' # Modifying n and appending
-#' smi_result4 <- add_SMI(TSLA, n = 15, append = TRUE)
+#' mkt_data <- data.frame(
+#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+#'   code  = rep(c("AAPL", "MSFT"), each = 60),
+#'   name  = rep(c("Apple", "Microsoft"), each = 60),
+#'   high  = c(runif(60, 160, 210), runif(60, 310, 410)),
+#'   low   = c(runif(60, 140, 190), runif(60, 290, 390)),
+#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
+#' )
+#' # Example 1: Default parameters
+#' result <- add_SMI(mkt_data)
+#' # Example 2: Custom look-back window
+#' result <- add_SMI(mkt_data, n = 9)
+#' # Example 3: Slim output
+#' result <- add_SMI(mkt_data, n = 13, append = FALSE)
 #' }
-#' @export
-add_SMI <- function(OHLCV, n = 13, nFast = 2, nSlow = 25, nSig = 9,
-                    maType, bounded = TRUE, append = FALSE, ...) {
-  # Assume we use High - Low - Close prices for calculation, can be adjusted
-  hlc <- OHLCV[, c("High", "Low", "Close")]
-  hlc <- try.xts(hlc, error = as.matrix)
+add_SMI <- function(mkt_data, n = 13, nFast = 2, nSlow = 25, nSig = 9,
+                    maType, bounded = TRUE, append = TRUE,
+                    output = c("tibble", "data.frame"), ...) {
 
-  # Extract price components
-  if (NCOL(hlc) == 3) {
-    high <- hlc[, 1]
-    low <- hlc[, 2]
-    close <- hlc[, 3]
-  } else if (NCOL(hlc) == 1) {
-    high <- hlc
-    low <- hlc
-    close <- hlc
-  } else {
-    stop("Price series must be High - Low - Close or univariate")
+  # ── Argument resolution ────────────────────────────────────────────────────
+  output <- match.arg(output)
+  if (missing(maType)) maType <- "EMA"
+
+  # ── Input validation ───────────────────────────────────────────────────────
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, high, low, close.")
+  }
+  required_cols <- c("date", "code", "high", "low", "close")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
   }
 
-  # Calculate high and low ranges
-  if (bounded) {
-    hmax <- runMax(high, n)
-    lmin <- runMin(low, n)
-  } else {
-    hmax <- runMax(c(high[1], high[-NROW(hlc)]), n)
-    lmin <- runMin(c(low[1], low[-NROW(hlc)]), n)
-  }
+  # ── Split-apply-combine ────────────────────────────────────────────────────
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
 
-  # Handle NA values in initial ranges
-  hmax <- ifelse(is.na(hmax), high, hmax)
-  lmin <- ifelse(is.na(lmin), low, lmin)
+    high  <- xts::xts(sub$high,  order.by = as.Date(sub$date))
+    low   <- xts::xts(sub$low,   order.by = as.Date(sub$date))
+    close <- xts::xts(sub$close, order.by = as.Date(sub$date))
 
-  # Calculate SMI components
-  hldiff <- hmax - lmin
-  cdiff <- close - (hmax + lmin) / 2
+    # Calculate high-low range boundaries
+    if (bounded) {
+      hmax <- runMax(high, n)
+      lmin <- runMin(low, n)
+    } else {
+      hmax <- runMax(c(high[1], high[-NROW(high)]), n)
+      lmin <- runMin(c(low[1],  low[-NROW(low)]),  n)
+    }
+    hmax <- ifelse(is.na(hmax), high, hmax)
+    lmin <- ifelse(is.na(lmin), low,  lmin)
 
-  # Set default moving average type
-  if (missing(maType)) {
-    maType <- "EMA"
-  }
+    hldiff <- hmax - lmin
+    cdiff  <- close - (hmax + lmin) / 2
 
-  # Process moving average configurations
-  if (is.list(maType)) {
-    # Validate list structure for three moving averages
-    if (!all(sapply(maType, is.list)) || length(maType) != 3) {
-      stop("maType list must contain three moving average configurations")
+    ma_type <- maType
+    if (is.list(ma_type)) {
+      if (!all(sapply(ma_type, is.list)) || length(ma_type) != 3) {
+        stop("maType list must contain three moving average configurations")
+      }
+      if (!is.null(formals(ma_type[[1]][[1]])$n) && is.null(ma_type[[1]]$n)) ma_type[[1]]$n <- nFast
+      if (!is.null(formals(ma_type[[2]][[1]])$n) && is.null(ma_type[[2]]$n)) ma_type[[2]]$n <- nSlow
+      if (!is.null(formals(ma_type[[3]][[1]])$n) && is.null(ma_type[[3]]$n)) ma_type[[3]]$n <- nSig
+      num1 <- do.call(ma_type[[1]][[1]], c(list(cdiff),  ma_type[[1]][-1]))
+      den1 <- do.call(ma_type[[1]][[1]], c(list(hldiff), ma_type[[1]][-1]))
+      num2 <- do.call(ma_type[[2]][[1]], c(list(num1),   ma_type[[2]][-1]))
+      den2 <- do.call(ma_type[[2]][[1]], c(list(den1),   ma_type[[2]][-1]))
+      smi_val    <- 100 * (num2 / (den2 / 2))
+      signal_val <- do.call(ma_type[[3]][[1]], c(list(smi_val), ma_type[[3]][-1]))
+    } else {
+      num1 <- do.call(ma_type, c(list(cdiff),  list(n = nSlow, ...)))
+      den1 <- do.call(ma_type, c(list(hldiff), list(n = nSlow, ...)))
+      num2 <- do.call(ma_type, c(list(num1),   list(n = nFast, ...)))
+      den2 <- do.call(ma_type, c(list(den1),   list(n = nFast, ...)))
+      smi_val    <- 100 * (num2 / (den2 / 2))
+      signal_val <- do.call(ma_type, c(list(smi_val), list(n = nSig, ...)))
     }
 
-    # Populate missing 'n' parameters
-    if (!is.null(formals(maType[[1]][[1]])$n) && is.null(maType[[1]]$n)) {
-      maType[[1]]$n <- nFast
-    }
-    if (!is.null(formals(maType[[2]][[1]])$n) && is.null(maType[[2]]$n)) {
-      maType[[2]]$n <- nSlow
-    }
-    if (!is.null(formals(maType[[3]][[1]])$n) && is.null(maType[[3]]$n)) {
-      maType[[3]]$n <- nSig
-    }
+    sub[["SMI"]]    <- as.numeric(smi_val)
+    sub[["signal"]] <- as.numeric(signal_val)
+    sub
+  })
 
-    # Apply moving averages
-    num1 <- do.call(maType[[1]][[1]], c(list(cdiff), maType[[1]][-1]))
-    den1 <- do.call(maType[[1]][[1]], c(list(hldiff), maType[[1]][-1]))
-    num2 <- do.call(maType[[2]][[1]], c(list(num1), maType[[2]][-1]))
-    den2 <- do.call(maType[[2]][[1]], c(list(den1), maType[[2]][-1]))
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
 
-    smi <- 100 * (num2 / (den2 / 2))
-    signal <- do.call(maType[[3]][[1]], c(list(smi), maType[[3]][-1]))
-  } else {
-    # Single moving average type
-    num1 <- do.call(maType, c(list(cdiff), list(n = nSlow, ...)))
-    den1 <- do.call(maType, c(list(hldiff), list(n = nSlow, ...)))
-    num2 <- do.call(maType, c(list(num1), list(n = nFast, ...)))
-    den2 <- do.call(maType, c(list(den1), list(n = nFast, ...)))
-
-    smi <- 100 * (num2 / (den2 / 2))
-    signal <- do.call(maType, c(list(smi), list(n = nSig, ...)))
+  # ── Column selection ───────────────────────────────────────────────────────
+  if (!append) {
+    keep <- intersect(c("date", "code", "name", "SMI", "signal"), colnames(res))
+    res <- res[, keep, drop = FALSE]
   }
 
-  # Construct result
-  result <- cbind(smi, signal)
-  colnames(result) <- c("SMI", "signal")
-  result <- reclass(result, hlc)
-
-  if (append) {
-    ohlcv <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(ohlcv, result)
-    return(combined_result)
-  } else {
-    return(result)
-  }
+  # ── Output format ──────────────────────────────────────────────────────────
+  if (output == "tibble") tibble::as_tibble(res) else as.data.frame(res, stringsAsFactors = FALSE)
 }

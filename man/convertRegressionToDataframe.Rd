@@ -15,7 +15,7 @@ convertRegressionToDataframe(reg_result, prefix = "")
 A data frame containing regression results.
 }
 \description{
-Converts the results of a runRegression analysis into a data frame for easier manipulation.
+Convert runRegression Results to Data Frame
 }
 \examples{
 # Generate sample data and run regression

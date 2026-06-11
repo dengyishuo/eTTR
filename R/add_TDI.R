@@ -1,137 +1,135 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025 - 2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Calculate Trend Detection Index
-#' @description
-#' The Trend Detection Index (TDI) attempts to identify starting and ending
-#' trends. Developed by M. H. Pee.
-#' The TDI is the (1) absolute value of the \code{n}-day sum of the \code{n}-day
-#' momentum, minus the quantity of (2) \code{multiple}*\code{n}-day sum of the
-#' absolute value of the \code{n}-day momentum, minus (3) \code{n}-day sum of
-#' the absolute value of the \code{n}-day momentum.
-#' I.e. \eqn{TDI = (1) - [ (2) - (3) ]}
-#' The direction indicator is the sum of the \code{n}-day momentum over the last
-#' \code{n} days.
-#' See URL in references section for further details.
-#' @param OHLCV Object that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.
-#' @param n Number of periods to use. Default is 20.
-#' @param multiple Multiple used to calculate (2). Default is 2.
-#' @param allow_middle_na Logical. If \code{TRUE}, allows NA values in the middle. Default is FALSE.
-#' @param append A logical value. If \code{TRUE}, the calculated Trend Detection Index
-#' and Direction Indicator values will be appended to the \code{OHLCV} input data, ensuring
-#' proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' Trend Detection Index and Direction Indicator values will be returned. Defaults to \code{FALSE}.
-#' @return If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-#' or a matrix (if \code{try.xts} fails) containing the columns:
-#'  \describe{
-#'   \item{ tdi }{ The Trend Detection Index. }
-#'   \item{ di }{ The Direction Indicator. }
-#'  }
-#' If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-#' calculated Trend Detection Index and Direction Indicator values appended, maintaining the integrity of the time - series
-#' alignment.
-#' @note Positive/negative TDI values signal a trend/consolidation. A positive/
-#' negative direction indicator signals a up/down trend. I.e. buy if the TDI
-#' and the direction indicator are positive, and sell if the TDI is positive
-#' while the direction indicator is negative.
-#' @author DengYishuo
-#' @seealso See \code{\link{aroon}}, \code{\link{CCI}}, \code{\link{ADX}},
-#' \code{\link{VHF}}, \code{\link{GMMA}} for other indicators that measure trend
-#' direction/strength.
-#' @references The following site(s) were used to code/document this
-#' indicator:\cr
-#' \url{https://www.linnsoft.com/techind/trend - detection - index - tdi}\cr
-#' @keywords ts
+#' @title Add Trend Detection Index (TDI)
+#'
+#' @description Computes the Trend Detection Index and its Direction Indicator
+#'   for each asset in a long-format panel data frame. The TDI identifies
+#'   whether the market is trending or trading in a range by comparing
+#'   directional momentum sums over two window lengths. Results are appended as
+#'   columns \code{TDI_<n>} and \code{DI_<n>}.
+#'
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, and the required price columns.
+#' @param n Integer. Primary look-back window. Defaults to \code{20}.
+#' @param multiple Integer. Multiplier applied to \code{n} to form the second
+#'   (longer) window. Defaults to \code{2}.
+#' @param allow_middle_na Logical. If \code{FALSE} (default), non-leading NAs
+#'   in the price series raise an error. Set to \code{TRUE} to override.
+#' @param append Logical. If \code{TRUE} (default), append new columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#'
+#' @return The input data frame with additional columns \code{TDI_<n>} (the
+#'   Trend Detection Index) and \code{DI_<n>} (the Direction Indicator).
+#'
+#' @export
+#' @importFrom xts xts
+#' @importFrom tibble as_tibble
+#'
 #' @examples
 #' \dontrun{
-#' data(TSLA)
-#' # Using default parameters without appending
-#' tdi_result1 <- add_TDI(TSLA)
-#'
-#' # Modifying n and without appending
-#' tdi_result2 <- add_TDI(TSLA, n = 25)
-#'
-#' # Using default parameters and appending
-#' tdi_result3 <- add_TDI(TSLA, append = TRUE)
-#'
-#' # Modifying n and appending
-#' tdi_result4 <- add_TDI(TSLA, n = 25, append = TRUE)
+#' mkt_data <- data.frame(
+#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+#'   code  = rep(c("AAPL", "MSFT"), each = 60),
+#'   name  = rep(c("Apple", "Microsoft"), each = 60),
+#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
+#' )
+#' # Example 1: Default parameters
+#' result <- add_TDI(mkt_data)
+#' # Example 2: Custom window
+#' result <- add_TDI(mkt_data, n = 14)
+#' # Example 3: Slim output
+#' result <- add_TDI(mkt_data, n = 20, append = FALSE)
 #' }
-#' @export
-add_TDI <- function(OHLCV, n = 20, multiple = 2, allow_middle_na = FALSE, append = FALSE) {
-  # Assume we use Close price for calculation, can be adjusted
-  price <- OHLCV[, "Close"]
+add_TDI <- function(mkt_data, n = 20, multiple = 2, allow_middle_na = FALSE,
+                    append = TRUE, output = c("tibble", "data.frame")) {
+  # ── Argument resolution ────────────────────────────────────────────────────
+  output <- match.arg(output)
 
-  if (is.null(price)) stop("price cannot be NULL")
+  # ── Input validation ───────────────────────────────────────────────────────
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, close.")
+  }
+  required_cols <- c("date", "code", "close")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
+  }
   if (n <= 0 || multiple <= 0) stop("n and multiple must be positive")
   if (!is.logical(allow_middle_na) || length(allow_middle_na) != 1) {
     stop("allow_middle_na must be a logical value")
   }
 
-  price <- try.xts(price, error = as.matrix)
-  price_len <- nrow(price)
+  # ── Column names ──────────────────────────────────────────────────────────
+  col_tdi <- paste0("TDI_", n)
+  col_di <- paste0("DI_", n)
 
-  if (n >= price_len) stop("n must be smaller than data length")
+  # ── Split-apply-combine over each asset ───────────────────────────────────
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
 
-  if (anyNA(price)) {
-    first_non_na <- min(which(!is.na(price[, 1])))
-
-    if (!allow_middle_na && anyNA(price[first_non_na:nrow(price), ])) {
-      stop("TDI requires all NA values to be leading when allow_middle_na is FALSE")
+    if (n >= nrow(sub)) {
+      warning(sprintf("Skipping code '%s': n = %d >= available rows (%d).", cd, n, nrow(sub)))
+      sub[[col_tdi]] <- NA_real_
+      sub[[col_di]] <- NA_real_
+      return(sub)
     }
 
-    if (first_non_na > 1) {
-      price <- price[first_non_na:price_len, ]
-      price_len <- nrow(price)
+    close_xts <- xts::xts(sub$close, order.by = sub$date)
+    price_len <- nrow(close_xts)
 
-      if (price_len < n) {
-        stop("insufficient non - NA data after removing leading NA")
+    if (anyNA(close_xts)) {
+      first_non_na <- min(which(!is.na(close_xts)))
+      if (!allow_middle_na && anyNA(close_xts[first_non_na:price_len])) {
+        stop(sprintf(
+          "TDI for code '%s': non-leading NAs found. Set allow_middle_na = TRUE to override.", cd
+        ))
+      }
+      if (first_non_na > 1) {
+        close_xts <- close_xts[first_non_na:price_len]
+        price_len <- nrow(close_xts)
       }
     }
+
+    mom <- momentum(close_xts, n, na.pad = TRUE)
+    mom[is.na(mom)] <- 0
+
+    di <- runSum(mom, n)
+    abs_di <- abs(di)
+
+    run_sum_2n <- min(n * multiple, price_len - n + 1)
+    run_sum_2n <- max(run_sum_2n, 1)
+    run_sum_1n <- max(n, 1)
+
+    abs_mom_2n <- runSum(abs(mom), run_sum_2n)
+    abs_mom_1n <- runSum(abs(mom), run_sum_1n)
+    tdi <- abs_di - (abs_mom_2n - abs_mom_1n)
+
+    # Re-align to original sub if leading NAs were stripped
+    tdi_vec <- as.numeric(tdi)
+    di_vec <- as.numeric(di)
+    n_orig <- nrow(sub)
+    n_calc <- length(tdi_vec)
+    if (n_calc < n_orig) {
+      tdi_vec <- c(rep(NA_real_, n_orig - n_calc), tdi_vec)
+      di_vec <- c(rep(NA_real_, n_orig - n_calc), di_vec)
+    }
+
+    sub[[col_tdi]] <- tdi_vec
+    sub[[col_di]] <- di_vec
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  # ── Slim output when append = FALSE ───────────────────────────────────────
+  if (!append) {
+    keep <- intersect(c("date", "code", "name", col_tdi, col_di), colnames(res))
+    res <- res[, keep, drop = FALSE]
   }
 
-  mom <- momentum(price, n, na.pad = TRUE)
-  mom[is.na(mom)] <- 0
-
-  di <- runSum(mom, n)
-  abs.di <- abs(di)
-
-  max_run_sum <- price_len - n + 1
-  run_sum_2n <- min(n * multiple, max_run_sum)
-  run_sum_2n <- max(run_sum_2n, 1)
-
-  run_sum_1n <- n
-  run_sum_1n <- max(run_sum_1n, 1)
-
-  abs.mom.2n <- runSum(abs(mom), run_sum_2n)
-  abs.mom.1n <- runSum(abs(mom), run_sum_1n)
-
-  tdi <- abs.di - (abs.mom.2n - abs.mom.1n)
-
-  result <- cbind(tdi, di)
-  colnames(result) <- c("tdi", "di")
-  result <- reclass(result, price)
-
-  if (append) {
-    ohlcv <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(ohlcv, result)
-    return(combined_result)
-  } else {
-    return(result)
-  }
+  # ── Output format conversion ───────────────────────────────────────────────
+  if (output == "tibble") tibble::as_tibble(res) else as.data.frame(res, stringsAsFactors = FALSE)
 }

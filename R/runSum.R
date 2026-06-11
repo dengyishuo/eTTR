@@ -1,35 +1,32 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025-2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Moving Window Sum (runSum)
-#' @description
-#' Calculate the sum of values over a moving window of periods.
+#' Rolling Sum
 #'
-#' @param x Object coercible to xts or matrix.
-#' @param n Number of periods in the window (1 <= n <= nrow(x)).
-#' @param cumulative Logical; if TRUE, use from-inception cumulative sum.
-#' @return An object of the same class as \code{x} with summed values.
-#' @keywords ts internal
+#' Calculate fixed rolling window sum or expanding cumulative sum for univariate time series.
+#' Rolling computation uses fast compiled C routine; cumulative mode relies on base \code{\link[base]{cumsum}}.
+#'
+#' @param x Univariate numeric time series, supports vector, matrix or xts/zoo object.
+#' @param n Integer window length, must satisfy \code{1 <= n <= NROW(x)}. Default 10.
+#' @param cumulative Logical. If \code{TRUE}, compute expanding cumulative sum; fixed rolling sum when \code{FALSE}. Default \code{FALSE}.
+#'
+#' @details
+#' Execution workflow:
+#' 1. Coerce input to xts with \code{\link[xts]{try.xts}}.
+#' 2. Validate window range and restrict input to univariate series only.
+#' 3. Two calculation branches:
+#' \itemize{
+#'   \item Rolling (cumulative = FALSE): High-performance sum via native C function \code{runsum} using \code{.Call}.
+#'   \item Cumulative (cumulative = TRUE): Only leading NA values are permitted.
+#'         Fill NA for initial incomplete window rows, compute cumulative sum over valid non-NA segment.
+#' }
+#' 4. Convert output back to original input class via \code{\link[xts]{reclass}}.
+#'
+#' @section Cumulative Mode NA Constraints:
+#' Cumulative sum logic rejects any non-leading missing values.
+#' If the count of leading NAs plus window length exceeds total rows, an insufficient data error is thrown.
+#'
+#' @return Object with identical class as input \code{x}, containing rolling or cumulative sum values.
+#'
+#' @importFrom xts try.xts reclass
 #' @export
-#' @examples
-#' data(TSLA)
-#' sum_10 <- runSum(TSLA[, "Close"], 10)
-#' head(sum_10)
 runSum <- function(x, n = 10, cumulative = FALSE) {
   x <- try.xts(x, error = as.matrix)
 

@@ -2,87 +2,70 @@
 % Please edit documentation in R/add_keltnerChannels.R
 \name{add_keltnerChannels}
 \alias{add_keltnerChannels}
-\alias{add_KeltnerChannels}
-\title{Calculate Keltner Channels}
+\title{Keltner Channels}
 \usage{
-add_keltnerChannels(OHLCV, n = 20, maType, atr = 2, append = FALSE, ...)
+add_keltnerChannels(
+  mkt_data,
+  n = 20,
+  maType,
+  atr = 2,
+  append = TRUE,
+  output = c("tibble", "data.frame"),
+  ...
+)
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume prices.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, \code{high}, \code{low}, and
+\code{close}.}
 
-\item{n}{Number of periods for moving average. Defaults to 20.}
+\item{n}{Integer. Look-back window for both the moving average and the ATR.
+Defaults to \code{20}.}
 
-\item{maType}{A function or a string naming the function to be called.}
+\item{maType}{Moving average type applied to the typical price (function name
+as a string or function object). Defaults to \code{"EMA"}.}
 
-\item{atr}{The number of average true range distances to apply. Defaults to 2.}
+\item{atr}{Numeric. Multiplier applied to the ATR to set the channel width.
+Defaults to \code{2}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated Keltner Channels
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-Keltner Channels values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append result columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
 
-\item{...}{Other arguments to be passed to the maType function.}
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
+
+\item{...}{Additional arguments passed to the \code{maType} function.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a matrix (if \code{try.xts} fails) containing the columns:
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with columns:
 \describe{
-\item{dn}{ The lower Keltner Channel. }
-\item{mavg}{ The middle moving average. }
-\item{up}{ The upper Keltner Channel. }
+\item{kc_dn_\{n\}}{Lower Keltner Channel band (center minus atr * ATR).}
+\item{kc_mavg_\{n\}}{Center moving average of the typical price.}
+\item{kc_up_\{n\}}{Upper Keltner Channel band (center plus atr * ATR).}
 }
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated Keltner Channels values appended, maintaining the integrity of the time - series
-alignment.
 }
 \description{
-Keltner Channels are volatility - based envelopes set above and below a moving
-average. This indicator is similar to Bollinger Bands, but Keltner Channels
-use the Average True Range (ATR) to set channel distance.
-Keltner Channels are a trend following indicator, and can also be used to
-identify overbought and oversold levels when there is no trend.
-Chester Keltner is credited with the original version of Keltner Channels in
-his 1960 book. Linda Bradford Raschke introduced the newer version of
-Keltner Channels in the 1980s.
+Computes Keltner Channels for each security in a long-format panel data frame.
+The channel is formed by a moving average of the typical price (center line)
+plus and minus a multiple of the Average True Range.
 }
-\section{Details }{
- Keltner Channels consist of three lines:
-The middle band is generally a 20 - period EMA of the typical price
-\code{[high + low + close]/3}. The upper and lower bands are multiples of average
-true range (usually 2) above and below the MA.
-The middle band is usually calculated using the typical price, but if a
-univariate series (e.g. Close, Weighted Close, Median Price, etc.) is
-provided, it will be used instead.
-}
-
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-kc_result1 <- add_keltnerChannels(TSLA)
-
-# Modifying n and without appending
-kc_result2 <- add_keltnerChannels(TSLA, n = 30)
-
-# Using default parameters and appending
-kc_result3 <- add_keltnerChannels(TSLA, append = TRUE)
-
-# Modifying n and appending
-kc_result4 <- add_keltnerChannels(TSLA, n = 30, append = TRUE)
+mkt_data <- data.frame(
+  date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code   = rep(c("AAPL", "MSFT"), each = 60),
+  name   = rep(c("Apple", "Microsoft"), each = 60),
+  high   = c(runif(60, 155, 205), runif(60, 305, 405)),
+  low    = c(runif(60, 145, 195), runif(60, 295, 395)),
+  close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+  volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
+)
+# Example 1: Default parameters
+result <- add_keltnerChannels(mkt_data)
+# Example 2: Custom window
+result <- add_keltnerChannels(mkt_data, n = 20, atr = 1.5)
+# Example 3: Slim output
+result <- add_keltnerChannels(mkt_data, n = 20, append = FALSE)
 }
 }
-\references{
-The following site(s) were used to code/document this
-indicator:\cr
-\url{https://school.stockcharts.com/doku.php?id=technical_indicators:keltner_channels}\cr
-\url{https://www.linnsoft.com/techind/keltner - channels - keltu - keltd}\cr
-\url{https://www.investopedia.com/terms/k/keltnerchannel.asp}\cr
-}
-\seealso{
-See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
-options; and note Warning section.
-}
-\author{
-Nick Procyk, Joshua Ulrich
-}
-\keyword{ts}

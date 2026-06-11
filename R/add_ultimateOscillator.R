@@ -1,93 +1,97 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025 - 2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Calculate The Ultimate Oscillator
+#' @title Ultimate Oscillator
 #' @description
-#' The Ultimate Oscillator is a momentum oscillator designed to capture momentum across three
-#' different time frames.
-#' Created by Larry Williams in 1976.
-#' @param OHLCV Object that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.
-#' @param n A vector of the number of periods to use for each average calculation. Default is c(7, 14, 28).
-#' @param wts The weights applied to each average. Default is c(4, 2, 1).
-#' @param append A logical value. If \code{TRUE}, the calculated Ultimate Oscillator
-#' values will be appended to the \code{OHLCV} input data, ensuring
-#' proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' Ultimate Oscillator values will be returned. Defaults to \code{FALSE}.
-#' @return If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-#' or a matrix (if \code{try.xts} fails) containing the Ultimate Oscillator values.
-#' If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-#' calculated Ultimate Oscillator values appended, maintaining the integrity of the time - series
-#' alignment.
-#' @author Ivan Popivanov
-#' @references The following site(s) were used to code/document this
-#' indicator:\cr
-#' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:ultimate_oscillator}\cr
-#' @keywords ts
+#' Computes the Ultimate Oscillator for each security in a long-format panel
+#' data frame. The Ultimate Oscillator combines three time frames of buying
+#' pressure relative to the true range, using weighted averages. Developed by
+#' Larry Williams.
+#'
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, and the required price/volume columns.
+#' @param n Integer vector of length 3. Look-back windows for the three time
+#'   frames. Defaults to \code{c(7, 14, 28)}.
+#' @param wts Numeric vector of length 3. Weights applied to each time frame.
+#'   Defaults to \code{c(4, 2, 1)}.
+#' @param append Logical. If \code{TRUE} (default), append new columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#'
+#' @return A \code{tibble} or \code{data.frame} sorted by \code{date} then
+#'   \code{code}, with column \code{ultimateOscillator} containing values scaled
+#'   between 0 and 100.
 #' @export
+#' @importFrom tibble as_tibble
 #' @examples
 #' \dontrun{
-#' data(TSLA)
-#' # Using default parameters without appending
-#' ult_osc_result1 <- add_ultimateOscillator(TSLA)
-#'
-#' # Modifying n and without appending
-#' ult_osc_result2 <- add_ultimateOscillator(TSLA, n = c(5, 10, 20))
-#'
-#' # Using default parameters and appending
-#' ult_osc_result3 <- add_ultimateOscillator(TSLA, append = TRUE)
-#'
-#' # Modifying n and appending
-#' ult_osc_result4 <- add_ultimateOscillator(TSLA, n = c(5, 10, 20), append = TRUE)
+#' mkt_data <- data.frame(
+#'   date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+#'   code   = rep(c("AAPL", "MSFT"), each = 60),
+#'   name   = rep(c("Apple", "Microsoft"), each = 60),
+#'   high   = c(runif(60, 155, 205), runif(60, 305, 405)),
+#'   low    = c(runif(60, 145, 195), runif(60, 295, 395)),
+#'   close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+#'   volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
+#' )
+#' # Example 1: Default parameters
+#' result <- add_ultimateOscillator(mkt_data)
+#' # Example 2: Custom windows
+#' result <- add_ultimateOscillator(mkt_data, n = c(5, 10, 20))
+#' # Example 3: Slim output
+#' result <- add_ultimateOscillator(mkt_data, append = FALSE)
 #' }
-add_ultimateOscillator <- function(OHLCV, n = c(7, 14, 28), wts = c(4, 2, 1), append = FALSE) {
+add_ultimateOscillator <- function(mkt_data, n = c(7, 14, 28), wts = c(4, 2, 1),
+                                   append = TRUE, output = c("tibble", "data.frame")) {
+
+  # ── Argument resolution ────────────────────────────────────────────────────
+  output <- match.arg(output)
   if (length(n) != 3 || length(wts) != 3) {
-    stop("length(n) and length(wts) must both be 3")
+    stop("length(n) and length(wts) must both be 3.")
   }
 
-  # Assume we use High - Low - Close prices for calculation, can be adjusted
-  HLC <- OHLCV[, c("High", "Low", "Close")]
-  HLC <- try.xts(HLC, error = as.matrix)
-
-  # avoid reclassing in ATR and runSum
-  HLC_RECLASS <- attr(HLC, ".RECLASS")
-  attr(HLC, ".RECLASS") <- FALSE
-
-  # only need 'tr' and 'trueLow'
-  atr <- ATR(HLC, n = 1)
-
-  buyPressure <- HLC[, 3] - atr[, "trueLow"]
-
-  osc <- buyPressure * 0.0
-  for (i in 1:3) {
-    osc <- osc + wts[i] * (runSum(buyPressure, n[i]) / runSum(atr[, "tr"], n[i]))
+  # ── Input validation ───────────────────────────────────────────────────────
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, high, low, close.")
   }
-  osc <- 100.0 * osc / sum(wts)
-
-  # restore HLC .RECLASS attribute
-  attr(HLC, ".RECLASS") <- HLC_RECLASS
-
-  osc <- reclass(osc, HLC)
-
-  if (append) {
-    ohlcv <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(ohlcv, osc)
-    return(combined_result)
-  } else {
-    return(osc)
+  required_cols <- c("date", "code", "high", "low", "close")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
   }
+
+  # ── Split-apply-combine ────────────────────────────────────────────────────
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
+
+    hlc <- cbind(sub$high, sub$low, sub$close)
+
+    # True low: min(low, prior close); True high: max(high, prior close)
+    prior_close <- c(NA, hlc[-nrow(hlc), 3])
+    true_low  <- pmin(hlc[, 2], prior_close)
+    true_high <- pmax(hlc[, 1], prior_close)
+    tr        <- true_high - true_low
+    bp        <- hlc[, 3] - true_low  # buying pressure
+
+    osc <- bp * 0.0
+    for (i in seq_along(n)) {
+      osc <- osc + wts[i] * (runSum(bp, n[i]) / runSum(tr, n[i]))
+    }
+    osc <- 100.0 * osc / sum(wts)
+
+    sub[["ultimateOscillator"]] <- as.numeric(osc)
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  # ── Optionally drop original OHLCV columns ─────────────────────────────────
+  if (!append) {
+    keep <- intersect(c("date", "code", "name", "ultimateOscillator"), colnames(res))
+    res <- res[, keep, drop = FALSE]
+  }
+
+  # ── Return in requested format ─────────────────────────────────────────────
+  if (output == "tibble") tibble::as_tibble(res) else as.data.frame(res, stringsAsFactors = FALSE)
 }

@@ -2,44 +2,62 @@
 % Please edit documentation in R/add_TSI.R
 \name{add_TSI}
 \alias{add_TSI}
-\title{Calculate True Strength Index (TSI)}
+\title{Add True Strength Index (TSI)}
 \usage{
-add_TSI(OHLCV, r = 13, s = 25, signal_period = 9, append = FALSE, ...)
+add_TSI(
+  mkt_data,
+  r = 13,
+  s = 25,
+  signal_period = 9,
+  append = TRUE,
+  output = c("tibble", "data.frame"),
+  ...
+)
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume data.
-The function will extract the closing price from this object for TSI calculation.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and the required price columns.}
 
-\item{r}{The period for the first exponential moving average (fast EMA), default is 13.
-A shorter period makes the fast EMA more responsive to recent price changes,
-while a longer period smooths out the data more.}
+\item{r}{Integer. First (shorter) EMA smoothing period. Defaults to
+\code{13}.}
 
-\item{s}{The period for the second exponential moving average (slow EMA), default is 25.
-Similar to \code{r}, it affects the responsiveness and smoothness of the slow EMA.}
+\item{s}{Integer. Second (longer) EMA smoothing period. Defaults to
+\code{25}.}
 
-\item{signal_period}{The period for the signal line (EMA of TSI), default is 9.
-This determines how smooth the signal line is, with a shorter period
-making it more responsive to changes in the TSI.}
+\item{signal_period}{Integer. Signal line EMA period. Defaults to \code{9}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated TSI and signal line
-values will be appended to the input \code{OHLCV} data (if it's an xts object), ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-TSI and signal line values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
 
-\item{...}{Additional arguments passed to the EMA function (e.g., wilder).
-These can be used to customize the EMA calculation, such as using Welles Wilder's
-EMA formula if \code{wilder = TRUE}.}
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
+
+\item{...}{Additional arguments passed to \code{EMA}.}
 }
 \value{
-If \code{append = FALSE}, an object of the same type as the input (vector or xts) containing two columns:
-"tsi" (True Strength Index values) and "signal" (signal line values).
-If \code{append = TRUE} and the input \code{OHLCV} is an xts object, an xts object with the calculated
-TSI and signal line values appended, maintaining the integrity of the time - series alignment.
-If \code{append = TRUE} and the input \code{OHLCV} is not an xts object, an error is thrown.
+The input data frame with additional columns \code{TSI_<r>} (the
+True Strength Index) and \code{TSIsig_<r>} (the signal line).
 }
 \description{
-The True Strength Index (TSI) is a momentum - based oscillator that measures the strength
-of price trends. It uses double exponential moving averages (EMAs) of price changes and
-their absolute values to calculate an oscillator value. This function computes the TSI
-and an optional signal line (an EMA of the TSI) from the closing prices within the OHLCV data.
+Computes the True Strength Index and its signal line for each
+asset in a long-format panel data frame. TSI double-smooths the price
+momentum using two EMA passes and expresses it as a ratio to the
+double-smoothed absolute momentum, scaled to \code{[-100, 100]}. Results
+are appended as columns \code{TSI_<r>} and \code{TSIsig_<r>}.
+}
+\examples{
+\dontrun{
+mkt_data <- data.frame(
+  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code  = rep(c("AAPL", "MSFT"), each = 60),
+  name  = rep(c("Apple", "Microsoft"), each = 60),
+  close = c(runif(60, 150, 200), runif(60, 300, 400))
+)
+# Example 1: Default parameters
+result <- add_TSI(mkt_data)
+# Example 2: Custom smoothing periods
+result <- add_TSI(mkt_data, r = 10, s = 20)
+# Example 3: Slim output
+result <- add_TSI(mkt_data, r = 13, s = 25, append = FALSE)
+}
 }

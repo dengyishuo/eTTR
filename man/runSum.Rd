@@ -2,27 +2,41 @@
 % Please edit documentation in R/runSum.R
 \name{runSum}
 \alias{runSum}
-\title{Moving Window Sum (runSum)}
+\title{Rolling Sum}
 \usage{
 runSum(x, n = 10, cumulative = FALSE)
 }
 \arguments{
-\item{x}{Object coercible to xts or matrix.}
+\item{x}{Univariate numeric time series, supports vector, matrix or xts/zoo object.}
 
-\item{n}{Number of periods in the window (1 <= n <= nrow(x)).}
+\item{n}{Integer window length, must satisfy \code{1 <= n <= NROW(x)}. Default 10.}
 
-\item{cumulative}{Logical; if TRUE, use from-inception cumulative sum.}
+\item{cumulative}{Logical. If \code{TRUE}, compute expanding cumulative sum; fixed rolling sum when \code{FALSE}. Default \code{FALSE}.}
 }
 \value{
-An object of the same class as \code{x} with summed values.
+Object with identical class as input \code{x}, containing rolling or cumulative sum values.
 }
 \description{
-Calculate the sum of values over a moving window of periods.
+Calculate fixed rolling window sum or expanding cumulative sum for univariate time series.
+Rolling computation uses fast compiled C routine; cumulative mode relies on base \code{\link[base]{cumsum}}.
 }
-\examples{
-data(TSLA)
-sum_10 <- runSum(TSLA[, "Close"], 10)
-head(sum_10)
+\details{
+Execution workflow:
+\enumerate{
+\item Coerce input to xts with \code{\link[xts]{try.xts}}.
+\item Validate window range and restrict input to univariate series only.
+\item Two calculation branches:
+\itemize{
+\item Rolling (cumulative = FALSE): High-performance sum via native C function \code{runsum} using \code{.Call}.
+\item Cumulative (cumulative = TRUE): Only leading NA values are permitted.
+Fill NA for initial incomplete window rows, compute cumulative sum over valid non-NA segment.
 }
-\keyword{internal}
-\keyword{ts}
+\item Convert output back to original input class via \code{\link[xts]{reclass}}.
+}
+}
+\section{Cumulative Mode NA Constraints}{
+
+Cumulative sum logic rejects any non-leading missing values.
+If the count of leading NAs plus window length exceeds total rows, an insufficient data error is thrown.
+}
+

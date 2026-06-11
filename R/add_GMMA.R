@@ -1,90 +1,95 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025 - 2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Calculate Guppy Multiple Moving Averages
-#' @description
-#' Calculate the Guppy Multiple Moving Average of a series.
-#' The Guppy Multiple Moving Average signals a changing trend when the
-#' \code{short} and \code{long} groups of moving averages intersect.  An up/down
-#' trend exists when the short/long - term moving averages are greater than the
-#' long/short - term averages.
-#' @aliases ADD_GMMA
-#' @param OHLCV Price, volume, etc. series that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.
-#' @param short Vector of short - term periods. Defaults to c(3, 5, 8, 10, 12, 15).
-#' @param long Vector of long - term periods. Defaults to c(30, 35, 40, 45, 50, 60).
-#' @param maType Either:
-#'  \enumerate{
-#'    \item A function or a string naming the function to be called.
-#'    \item A \emph{list} with the first component like (1) above, and
-#'      additional parameters specified as \emph{named} components.
-#'      See Examples.
-#'  }
-#' @param append A logical value. If \code{TRUE}, the calculated Guppy Multiple Moving Average
-#' values will be appended to the \code{OHLCV} input data, ensuring
-#' proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' Guppy Multiple Moving Average values will be returned. Defaults to \code{FALSE}.
-#' @return If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-#' or a vector (if \code{try.xts} fails) containing the Guppy Multiple Moving Average.
-#' If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-#' calculated Guppy Multiple Moving Average values appended, maintaining the integrity of the time - series
-#' alignment.
-#' @author DengYishuo
-#' @seealso See \code{\link{aroon}}, \code{\link{CCI}}, \code{\link{ADX}},
-#' \code{\link{VHF}}, \code{\link{TDI}} for other indicators that measure trend
-#' direction/strength.
-#' @references The following site(s) were used to code/document this
-#' indicator:\cr
-#' \url{https://www.investopedia.com/terms/g/guppy - multiple - moving - average.asp}\cr
-#' @keywords ts
+#' @title Add Guppy Multiple Moving Average (GMMA)
+#'
+#' @description Computes the Guppy Multiple Moving Average for each asset in a
+#'   long-format panel data frame. Two groups of exponential moving averages -
+#'   a short-term group for traders and a long-term group for investors - are
+#'   computed and appended as columns named \code{short_lag_<p>} and
+#'   \code{long_lag_<p>} respectively.
+#'
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, and the required price columns.
+#' @param short Integer vector. Periods for the short-term group.
+#'   Defaults to \code{c(3, 5, 8, 10, 12, 15)}.
+#' @param long Integer vector. Periods for the long-term group.
+#'   Defaults to \code{c(30, 35, 40, 45, 50, 60)}.
+#' @param maType Character or function name. The moving average type to apply.
+#'   Defaults to \code{"EMA"}.
+#' @param append Logical. If \code{TRUE} (default), append new columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#'
+#' @return The input data frame with additional columns \code{short_lag_<p>}
+#'   (one per short period) and \code{long_lag_<p>} (one per long period).
+#'
+#' @export
+#' @importFrom xts xts
+#' @importFrom tibble as_tibble
+#'
 #' @examples
 #' \dontrun{
-#' data(TSLA)
-#' # Using default parameters without appending
-#' gmma_result1 <- add_GMMA(TSLA)
-#'
-#' # Using default parameters and appending
-#' gmma_result2 <- add_GMMA(TSLA, append = TRUE)
+#' mkt_data <- data.frame(
+#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 120), 2),
+#'   code  = rep(c("AAPL", "MSFT"), each = 120),
+#'   name  = rep(c("Apple", "Microsoft"), each = 120),
+#'   close = c(runif(120, 150, 200), runif(120, 300, 400))
+#' )
+#' # Example 1: Default parameters
+#' result <- add_GMMA(mkt_data)
+#' # Example 2: Custom short and long periods
+#' result <- add_GMMA(mkt_data, short = c(3, 5, 8), long = c(30, 40, 50))
+#' # Example 3: Slim output
+#' result <- add_GMMA(mkt_data, append = FALSE)
 #' }
-#' @export
-add_GMMA <- function(OHLCV, short = c(3, 5, 8, 10, 12, 15), long = c(30, 35, 40, 45, 50, 60), maType, append = FALSE) {
-  # Assume we use Close price for calculation, can be adjusted
-  x <- OHLCV[, "Close"]
+add_GMMA <- function(mkt_data,
+                     short = c(3, 5, 8, 10, 12, 15),
+                     long = c(30, 35, 40, 45, 50, 60),
+                     maType, append = TRUE,
+                     output = c("tibble", "data.frame")) {
+  # ── Argument resolution ────────────────────────────────────────────────────
+  output <- match.arg(output)
+  if (missing(maType)) maType <- "EMA"
 
-  x <- try.xts(x, error = as.matrix)
-
-  # Default MA
-  if (missing(maType)) {
-    maType <- "EMA"
+  # ── Input validation ───────────────────────────────────────────────────────
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, close.")
+  }
+  required_cols <- c("date", "code", "close")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
   }
 
-  fn <- function(g) {
-    do.call(maType, list(x, n = g))
-  }
-  gmma <- do.call(cbind, lapply(c(short, long), fn))
-  colnames(gmma) <- c(paste("short lag", short), paste("long lag", long))
+  # Build output column names once
+  short_names <- paste0("short_lag_", short)
+  long_names <- paste0("long_lag_", long)
+  all_names <- c(short_names, long_names)
 
-  gmma <- reclass(gmma, x)
+  # ── Split-apply-combine ────────────────────────────────────────────────────
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
 
-  if (append) {
-    ohlcv <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(ohlcv, gmma)
-    return(combined_result)
-  } else {
-    return(gmma)
+    x <- xts::xts(sub$close, order.by = as.Date(sub$date))
+
+    fn <- function(g) as.numeric(do.call(maType, list(x, n = g)))
+    gmma_mat <- do.call(cbind, lapply(c(short, long), fn))
+    colnames(gmma_mat) <- all_names
+
+    for (nm in all_names) sub[[nm]] <- gmma_mat[, nm]
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  # ── Column selection ───────────────────────────────────────────────────────
+  if (!append) {
+    keep <- intersect(c("date", "code", "name", all_names), colnames(res))
+    res <- res[, keep, drop = FALSE]
   }
+
+  # ── Output format ──────────────────────────────────────────────────────────
+  if (output == "tibble") tibble::as_tibble(res) else as.data.frame(res, stringsAsFactors = FALSE)
 }

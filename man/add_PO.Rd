@@ -2,70 +2,64 @@
 % Please edit documentation in R/add_PO.R
 \name{add_PO}
 \alias{add_PO}
-\title{Calculate Price Oscillator (PO)}
+\title{Add Price Oscillator (PO)}
 \usage{
 add_PO(
-  OHLCV,
+  mkt_data,
   n_short = 12,
   n_long = 26,
   type = c("difference", "percent"),
   ma_type = c("SMA", "EMA"),
-  append = FALSE
+  append = TRUE,
+  output = c("tibble", "data.frame")
 )
 }
 \arguments{
-\item{OHLCV}{An object that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and the required price columns.}
 
-\item{n_short}{The period for the short - term moving average, default is 12.}
+\item{n_short}{Integer. Short-period window. Must be positive and less than
+\code{n_long}. Defaults to \code{12}.}
 
-\item{n_long}{The period for the long - term moving average, default is 26.}
+\item{n_long}{Integer. Long-period window. Must be greater than
+\code{n_short}. Defaults to \code{26}.}
 
-\item{type}{The type of return value: "difference" for the absolute difference,
-"percent" for the percentage difference. Default is "difference".}
+\item{type}{Character. \code{"difference"} (default) returns the absolute
+difference between the two MAs; \code{"percent"} returns the percentage
+difference relative to the long-period MA.}
 
-\item{ma_type}{The type of moving average, supports "SMA" (Simple Moving Average)
-and "EMA" (Exponential Moving Average). Default is "SMA".}
+\item{ma_type}{Character. Moving average type: \code{"SMA"} (default) or
+\code{"EMA"}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated Price Oscillator
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-Price Oscillator values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append = FALSE}, a PO indicator series of the same type as the input price series (extracted from OHLCV).
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated Price Oscillator values appended, maintaining the integrity of the time - series
-alignment.
+The input data frame with an additional column \code{PO} containing
+the Price Oscillator values.
 }
 \description{
-Calculates the Price Oscillator (PO), a momentum indicator that measures the difference
-between two moving averages of different periods. It helps identify trends and potential
-reversal points in financial markets.
-}
-\details{
-The Price Oscillator (PO) measures momentum by calculating the difference between
-a short - term and a long - term moving average of prices. A positive PO value indicates
-upward momentum, while a negative value suggests downward momentum.
+Computes the Price Oscillator for each asset in a long-format
+panel data frame and appends the result as a new column named \code{PO}.
+The PO is the difference (or percentage ratio) between a short-period and
+a long-period moving average of \code{close}.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-po_result1 <- add_PO(TSLA)
-
-# Modifying n_short and without appending
-po_result2 <- add_PO(TSLA, n_short = 14)
-
-# Using default parameters and appending
-po_result3 <- add_PO(TSLA, append = TRUE)
-
-# Modifying n_short and appending
-po_result4 <- add_PO(TSLA, n_short = 14, append = TRUE)
+mkt_data <- data.frame(
+  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code  = rep(c("AAPL", "MSFT"), each = 60),
+  name  = rep(c("Apple", "Microsoft"), each = 60),
+  close = c(runif(60, 150, 200), runif(60, 300, 400))
+)
+# Example 1: Default parameters
+result <- add_PO(mkt_data)
+# Example 2: Percentage type with EMA
+result <- add_PO(mkt_data, type = "percent", ma_type = "EMA")
+# Example 3: Slim output
+result <- add_PO(mkt_data, n_short = 5, n_long = 20, append = FALSE)
 }
-}
-\references{
-Murphy, J. (1999). Technical Analysis of the Financial Markets. New York Institute of Finance.
-}
-\seealso{
-\code{\link{SMA}}, \code{\link{EMA}} for moving average calculations.
 }

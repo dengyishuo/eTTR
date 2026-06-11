@@ -2,94 +2,86 @@
 % Please edit documentation in R/add_PBands.R
 \name{add_PBands}
 \alias{add_PBands}
-\alias{add_pbands}
-\alias{add_priceBands}
-\title{Construct (optionally further smoothed and centered ) volatility bands around prices}
+\title{Price Bands (Chandelier)}
 \usage{
 add_PBands(
-  OHLCV,
+  mkt_data,
   n = 20,
   maType = "SMA",
   sd = 2,
   fastn = 2,
   centered = FALSE,
   lavg = FALSE,
-  append = FALSE,
+  append = TRUE,
+  output = c("tibble", "data.frame"),
   ...
 )
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and \code{close}.}
 
-\item{n}{Number of periods to average over. Defaults to 20.}
+\item{n}{Integer. Look-back window for the slow moving average and rolling
+standard deviation. Defaults to \code{20}.}
 
-\item{maType}{A function or a string naming the function to be called. Defaults to "SMA".}
+\item{maType}{Character. Name of the moving average function to use (e.g.
+\code{"SMA"}, \code{"EMA"}). Defaults to \code{"SMA"}.}
 
-\item{sd}{The number of standard deviations to use. Defaults to 2.}
+\item{sd}{Numeric. Number of standard deviations used to set band width.
+Defaults to \code{2}.}
 
-\item{fastn}{Number of periods to use for smoothing higher - frequency 'noise'. Defaults to 2.}
+\item{fastn}{Integer. Look-back window for the fast moving average used to
+compute the deviation. Defaults to \code{2}.}
 
-\item{centered}{Whether to center the bands around a series adjusted for high
-frequency noise, default \code{FALSE}.}
+\item{centered}{Logical. If \code{TRUE}, shift the center line based on a
+normalized slow-minus-fast deviation. Defaults to \code{FALSE}.}
 
-\item{lavg}{Whether to use a longer \code{(n*2)} smoothing period for
-centering, default \code{FALSE}.}
+\item{lavg}{Logical. Applies only when \code{centered = TRUE}. If
+\code{TRUE}, double \code{n} when computing the centering average.
+Defaults to \code{FALSE}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated price volatility bands
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-price volatility bands values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append result columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
 
-\item{...}{any other pass - thru parameters, usually for function named by
-\code{maType}.}
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
+
+\item{...}{Additional arguments passed to the \code{maType} function.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a matrix (if \code{try.xts} fails) containing the columns:
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with columns:
 \describe{
-\item{ dn }{ The lower price volatility Band. }
-\item{ center }{ The smoothed centerline (see details). }
-\item{ up }{ The upper price volatility Band. }
+\item{PBands_dn}{Lower price band (center minus \code{sd} standard
+deviations).}
+\item{PBands_center}{Center band: the slow moving average (or the
+adjusted center when \code{centered = TRUE}).}
+\item{PBands_up}{Upper price band (center plus \code{sd} standard
+deviations).}
 }
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated price volatility bands values appended, maintaining the integrity of the time - series
-alignment.
 }
 \description{
-John Bollinger's famous adaptive volatility bands most often use the typical
-price of an HLC series, or may be calculated on a univariate price series
-(see \code{\link{BBands}}).
-This function applies a second moving average denoted by \code{fastn} to
-filter out higher - frequency noise, making the bands somewhat more stable to
-temporary fluctuations and spikes.
-If \code{centered} is \code{TRUE}, the function also further smoothes and
-centers the bands around a centerline adjusted to remove this higher
-frequency noise.  If \code{lavg} is also \code{TRUE}, the smoothing applied
-for the middle band (but not the volatility bands) is doubled to further
-smooth the price - response function.
-If you have multiple different price series in \code{prices}, and want to use
-this function, call this functions using \code{lapply(prices,PBands,...)}.
+Computes Price Bands (also known as Chandelier Bands) for each security in a
+long-format panel data frame. The bands are formed around a slow moving
+average. Band width is \code{sd} multiples of the rolling standard deviation
+of the difference between the slow and fast moving averages. When
+\code{centered = TRUE} the center line shifts to the normalized deviation
+from the slow average, optionally using a doubled window (\code{lavg}).
+Required column: \code{close}.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-pbands_result1 <- add_PBands(TSLA)
-
-# Modifying n and without appending
-pbands_result2 <- add_PBands(TSLA, n = 25)
-
-# Using default parameters and appending
-pbands_result3 <- add_PBands(TSLA, append = TRUE)
-
-# Modifying n and appending
-pbands_result4 <- add_PBands(TSLA, n = 25, append = TRUE)
+mkt_data <- data.frame(
+  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code  = rep(c("AAPL", "MSFT"), each = 60),
+  name  = rep(c("Apple", "Microsoft"), each = 60),
+  close = c(runif(60, 150, 200), runif(60, 300, 400))
+)
+# Example 1: Default parameters (n = 20, sd = 2)
+result <- add_PBands(mkt_data)
+# Example 2: Custom window and tighter band multiplier
+result <- add_PBands(mkt_data, n = 20, sd = 1.5)
+# Example 3: Slim output with n = 50
+result <- add_PBands(mkt_data, n = 50, append = FALSE)
 }
 }
-\seealso{
-\code{\link{BBands}}
-}
-\author{
-Brian G. Peterson
-}
-\keyword{ts}

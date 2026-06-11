@@ -2,86 +2,71 @@
 % Please edit documentation in R/add_volatility.R
 \name{add_volatility}
 \alias{add_volatility}
-\title{Calculate Volatility}
+\title{Historical Volatility}
 \usage{
 add_volatility(
-  OHLCV,
+  mkt_data,
   n = 10,
   calc = "close",
   N = 260,
   mean0 = FALSE,
-  append = FALSE,
+  append = TRUE,
+  output = c("tibble", "data.frame"),
   ...
 )
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix and contains
-Open-High-Low-Close prices (or only Close prices, if \code{calc="close"}).}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and the required price/volume columns.}
 
-\item{n}{Number of periods for the volatility estimate. Default is 10.}
+\item{n}{Integer. Look-back window. Defaults to \code{10}.}
 
-\item{calc}{The calculation (type) of estimator to use.}
+\item{calc}{Character. Volatility estimator. One of \code{"close"},
+\code{"garman.klass"}, \code{"parkinson"}, \code{"rogers.satchell"},
+\code{"gk.yz"}, or \code{"yang.zhang"}. Defaults to \code{"close"}.}
 
-\item{N}{Number of periods per year. Default is 260.}
+\item{N}{Integer. Number of trading periods per year used to annualize
+volatility. Defaults to \code{260}.}
 
-\item{mean0}{Use a mean of 0 rather than the sample mean. Default is FALSE.}
+\item{mean0}{Logical. If \code{TRUE}, assume zero mean returns. Defaults to
+\code{FALSE}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated volatility
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time-series data. If \code{FALSE}, only the calculated
-volatility values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
 
-\item{...}{Arguments to be passed to/from other methods.}
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
+
+\item{...}{Additional arguments passed to the underlying \code{volatility}
+function.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a vector (if \code{try.xts} fails) containing the chosen volatility estimator values.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated volatility values appended, maintaining the integrity of the time-series
-alignment.
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with column \code{volatility.\{calc\}} containing annualized
+volatility values.
 }
 \description{
-Selected volatility estimators/indicators; various authors.
+Computes historical volatility for each security in a long-format panel data
+frame using one of several OHLCV-based estimators: close-to-close, Garman-
+Klass, Parkinson, Rogers-Satchell, GK-YZ, or Yang-Zhang.
 }
 \examples{
 \dontrun{
-data(TSLA)
-ohlcv <- TSLA[, c("Open", "High", "Low", "Close")]
-# Using default parameters without appending
-vClose <- add_volatility(ohlcv, calc = "close")
-# Modifying n and without appending
-vClose0 <- add_volatility(ohlcv, calc = "close", n = 15)
-# Using default parameters and appending
-vGK <- add_volatility(ohlcv, calc = "garman", append = TRUE)
-# Modifying N and appending
-vParkinson <- add_volatility(ohlcv, calc = "parkinson", N = 250, append = TRUE)
-# Using default parameters and appending for Rogers-Satchell
-vRS <- add_volatility(ohlcv, calc = "rogers", append = TRUE)
+mkt_data <- data.frame(
+  date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code   = rep(c("AAPL", "MSFT"), each = 60),
+  name   = rep(c("Apple", "Microsoft"), each = 60),
+  open   = c(runif(60, 148, 198), runif(60, 298, 398)),
+  high   = c(runif(60, 155, 205), runif(60, 305, 405)),
+  low    = c(runif(60, 145, 195), runif(60, 295, 395)),
+  close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+  volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
+)
+# Example 1: Default close-to-close volatility
+result <- add_volatility(mkt_data)
+# Example 2: Garman-Klass estimator
+result <- add_volatility(mkt_data, calc = "garman.klass")
+# Example 3: Slim output with Yang-Zhang estimator
+result <- add_volatility(mkt_data, calc = "yang.zhang", append = FALSE)
 }
 }
-\references{
-The following sites were used to code/document these
-indicators. All were created by Thijs van den Berg under the GNU Free
-Documentation License and were retrieved on 2008-04-20. The original
-links are dead, but can be accessed via internet archives.\cr
-\cr Close-to-Close Volatility (\code{calc="close"}):\cr
-\url{https://web.archive.org/web/20100421083157/http://www.sitmo.com/eq/172}\cr
-\cr OHLC Volatility: Garman Klass (\code{calc="garman.klass"}):\cr
-\url{https://web.archive.org/web/20100326172550/http://www.sitmo.com/eq/402}\cr
-\cr High-Low Volatility: Parkinson (\code{calc="parkinson"}):\cr
-\url{https://web.archive.org/web/20100328195855/http://www.sitmo.com/eq/173}\cr
-\cr OHLC Volatility: Rogers Satchell (\code{calc="rogers.satchell"}):\cr
-\url{https://web.archive.org/web/20091002233833/http://www.sitmo.com/eq/414}\cr
-\cr OHLC Volatility: Garman Klass - Yang Zhang (\code{calc="gk.yz"}):\cr
-\url{https://web.archive.org/web/20100326215050/http://www.sitmo.com/eq/409}\cr
-\cr OHLC Volatility: Yang Zhang (\code{calc="yang.zhang"}):\cr
-\url{https://web.archive.org/web/20100326215050/http://www.sitmo.com/eq/409}\cr
-}
-\seealso{
-See \code{\link{TR}} and \code{\link{chaikinVolatility}} for other
-volatility measures.
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

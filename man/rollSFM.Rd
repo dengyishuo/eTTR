@@ -2,37 +2,42 @@
 % Please edit documentation in R/rollSFM.R
 \name{rollSFM}
 \alias{rollSFM}
-\alias{rollFun}
-\title{Analysis of Running/Rolling/Moving Windows}
+\title{Rolling Single Factor Model}
 \usage{
 rollSFM(Ra, Rb, n = 60)
 }
 \arguments{
-\item{Ra}{Object coercible to xts or matrix, containing the excess
-return for an individual security}
+\item{Ra}{xts object, return series of the asset to be modeled (dependent variable).}
 
-\item{Rb}{Object coercible to xts or matrix, containing the market
-/ benchmark return}
+\item{Rb}{xts object, factor benchmark return series (independent explanatory variable).}
 
-\item{n}{Number of periods to use in the window}
+\item{n}{Integer rolling window length, default 60 periods.}
 }
 \value{
-A object of the same class as \code{Ra} (and \code{Rb}?) or a vector
-(if \code{try.xts} fails).
-\describe{
-\item{rollSFM}{returns single-factor model parameters and R-squared
-over a n-period moving window.}
+xts object with three columns:
+\itemize{
+\item \code{alpha}: Rolling single-factor intercept
+\item \code{beta}: Rolling single-factor slope coefficient
+\item \code{r.squared}: Rolling model R-squared goodness-of-fit
 }
 }
 \description{
-Various functions to analyze data over a moving window of periods.
+Estimate rolling single-factor linear regression metrics over a fixed window: alpha, beta, and R-squared.
+All calculations rely on fast rolling summary utility functions provided by this package.
 }
-\references{
-The following site(s) were used to code/document this
-indicator:
-\url{https://en.wikipedia.org/wiki/Simple_linear_regression}\cr
+\details{
+The single factor model formula:
+\deqn{R_a = \alpha + \beta R_b + \epsilon}
+
+Computation steps:
+\enumerate{
+\item Rolling beta: covariance of asset & factor divided by factor variance
+\deqn{\beta = \frac{runCov(R_a, R_b, n)}{runVar(R_b, n)}}
+\item Rolling alpha: de-meaned asset return minus beta times de-meaned factor return
+\deqn{\alpha = runMean(R_a, n) - \beta \times runMean(R_b, n)}
+\item Rolling R-squared: 1 minus ratio of residual variance to asset total variance
 }
-\author{
-DengYishuo
+
+All intermediate rolling statistics use internal compiled rolling functions for performance.
+Output is a merged xts object aligned to the input index of \code{Ra}.
 }
-\keyword{ts}

@@ -1,80 +1,92 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025 - 2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Calculate Williams Accumulation / Distribution
+#' @title Williams Accumulation/Distribution
 #' @description
-#' The Williams Accumulation / Distribution (AD) line is a measure of market
-#' momentum. Developed by Larry Williams.
-#' The Williams AD line differs from OBV and chaikinAD in that it doesn't take
-#' volume into account.
-#' @param OHLCV Object that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.
-#' @param append A logical value. If \code{TRUE}, the calculated Williams AD values will be appended to the \code{OHLCV} input data, ensuring
-#' proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' Williams AD values will be returned. Defaults to \code{FALSE}.
-#' @return If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-#' or a vector (if \code{try.xts} fails) containing the accumulation / distribution values.
-#' If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-#' calculated Williams AD values appended, maintaining the integrity of the time - series
-#' alignment.
-#' @note The Accumulation/Distribution Line is interpreted by looking for a
-#' divergence in the direction of the indicator relative to price.
-#' @author DengYishuo
-#' @seealso See \code{\link{OBV}}, \code{\link{chaikinAD}}, and
-#' \code{\link{ATR}}.
-#' @references The following site(s) were used to code/document this
-#' indicator:\cr
-#' \url{https://www.fmlabs.com/reference/WilliamsAD.htm}\cr
-#' \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=125}\cr
-#' @keywords ts
+#' Computes the Williams Accumulation/Distribution line for each security in a
+#' long-format panel data frame. The indicator accumulates buying or selling
+#' pressure based on whether price closes above or below the prior close,
+#' measuring the distance from the true low or true high respectively.
+#'
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, and the required price/volume columns.
+#' @param append Logical. If \code{TRUE} (default), append new columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#'
+#' @return A \code{tibble} or \code{data.frame} sorted by \code{date} then
+#'   \code{code}, with column \code{williamsAD} containing the cumulative
+#'   Williams Accumulation/Distribution values.
 #' @export
+#' @importFrom tibble as_tibble
 #' @examples
 #' \dontrun{
-#' data(TSLA)
-#' # Using default parameters without appending
-#' ad_result1 <- add_williamsAD(TSLA)
-#'
-#' # Using default parameters and appending
-#' ad_result2 <- add_williamsAD(TSLA, append = TRUE)
+#' mkt_data <- data.frame(
+#'   date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+#'   code   = rep(c("AAPL", "MSFT"), each = 60),
+#'   name   = rep(c("Apple", "Microsoft"), each = 60),
+#'   high   = c(runif(60, 155, 205), runif(60, 305, 405)),
+#'   low    = c(runif(60, 145, 195), runif(60, 295, 395)),
+#'   close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+#'   volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
+#' )
+#' # Example 1: Default parameters
+#' result <- add_williamsAD(mkt_data)
+#' # Example 2: Slim output
+#' result <- add_williamsAD(mkt_data, append = FALSE)
+#' # Example 3: Return as data.frame
+#' result <- add_williamsAD(mkt_data, output = "data.frame")
 #' }
-add_williamsAD <- function(OHLCV, append = FALSE) {
-  # Assume we use High - Low - Close prices for calculation, can be adjusted
-  HLC <- OHLCV[, c("High", "Low", "Close")]
-  HLC <- try.xts(HLC, error = as.matrix)
+add_williamsAD <- function(mkt_data, append = TRUE, output = c("tibble", "data.frame")) {
 
-  # Calculate change in close, and true high/low
-  dCl <- momentum(HLC[, 3], 1)
-  atr <- ATR(HLC)
+  # ── Argument resolution ────────────────────────────────────────────────────
+  output <- match.arg(output)
 
-  # Calculate AD
-  ad <- HLC[, 3] - ifelse(dCl > 0, atr[, "trueLow"], atr[, "trueHigh"])
-  ad[dCl == 0] <- 0
-
-  ad.na <- naCheck(ad)
-  ad <- cumsum(ad[ad.na$nonNA])
-  ad <- c(rep(NA, ad.na$NAs), ad)
-
-  ad <- reclass(ad, HLC)
-
-  if (append) {
-    ohlcv <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(ohlcv, ad)
-    return(combined_result)
-  } else {
-    return(ad)
+  # ── Input validation ───────────────────────────────────────────────────────
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, high, low, close.")
   }
+  required_cols <- c("date", "code", "high", "low", "close")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
+  }
+
+  # ── Split-apply-combine ────────────────────────────────────────────────────
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
+
+    h  <- sub$high
+    l  <- sub$low
+    cl <- sub$close
+
+    prior_close <- c(NA, cl[-length(cl)])
+    true_low    <- pmin(l, prior_close)
+    true_high   <- pmax(h, prior_close)
+
+    d_cl <- cl - prior_close  # change in close
+
+    ad_raw <- cl - ifelse(d_cl > 0, true_low, true_high)
+    ad_raw[!is.na(d_cl) & d_cl == 0] <- 0
+    ad_raw[is.na(d_cl)] <- NA
+
+    non_na <- !is.na(ad_raw)
+    ad_val <- rep(NA_real_, length(ad_raw))
+    ad_val[non_na] <- cumsum(ad_raw[non_na])
+
+    sub[["williamsAD"]] <- ad_val
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  # ── Optionally drop original OHLCV columns ─────────────────────────────────
+  if (!append) {
+    keep <- intersect(c("date", "code", "name", "williamsAD"), colnames(res))
+    res <- res[, keep, drop = FALSE]
+  }
+
+  # ── Return in requested format ─────────────────────────────────────────────
+  if (output == "tibble") tibble::as_tibble(res) else as.data.frame(res, stringsAsFactors = FALSE)
 }

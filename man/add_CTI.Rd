@@ -2,72 +2,58 @@
 % Please edit documentation in R/add_CTI.R
 \name{add_CTI}
 \alias{add_CTI}
-\title{Calculate Ehler's Correlation Trend Indicator}
+\title{Correlation Trend Indicator (CTI)}
 \usage{
-add_CTI(OHLCV, n = 20, slope = 1, append = FALSE)
+add_CTI(
+  mkt_data,
+  n = 20,
+  slope = 1,
+  append = TRUE,
+  output = c("tibble", "data.frame")
+)
 }
 \arguments{
-\item{OHLCV}{Price series that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and \code{close}.}
 
-\item{n}{Number of periods to use. Defaults to 20.}
+\item{n}{Integer. Look-back window. Defaults to \code{20}.}
 
-\item{slope}{Slope of desired trend. Defaults to 1.}
+\item{slope}{Numeric. Slope of the reference linear trend used as the
+ideal sequence against which \code{close} is correlated. Defaults to
+\code{1}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated Ehler's Correlation Trend Indicator
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-Ehler's Correlation Trend Indicator values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append result columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a matrix (if \code{try.xts} fails) with the column:
-\describe{
-\item{cti}{ The Correlation Trend Indicator. }
-}
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated Ehler's Correlation Trend Indicator values appended, maintaining the integrity of the time - series
-alignment.
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with column \code{CTI_<n>} containing the Spearman
+rank-correlation trend values in the range \code{[-1, 1]}.
 }
 \description{
-Ehler's Correlation Trend Indicator (CTI) measures the Spearman correlation
-of the price with the ideal trend line: a straight line with increasing
-slope.
-The CTI measures the Spearman correlation between the price and the ideal
-trend line with slope of \code{slope}, over the past \code{n} days.
-See URL in references section for further details.
-}
-\note{
-Positive/negative CTI values signal positive/negative correlation with
-the desired trend line slope. A simple strategy could be long when the CTI
-is positive and, short when it is negative.
+Calculates the Correlation Trend Indicator for each security in a long-format
+panel data frame. CTI measures the Spearman rank correlation between closing
+prices and an idealized linear trend within a rolling window of length
+\code{n}. Values near \code{1} indicate a strong uptrend; values near
+\code{-1} indicate a strong downtrend; values near \code{0} indicate no
+clear trend. Required column: \code{close}.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-cti_result1 <- add_CTI(TSLA)
-
-# Modifying n and without appending
-cti_result2 <- add_CTI(TSLA, n = 30)
-
-# Using default parameters and appending
-cti_result3 <- add_CTI(TSLA, append = TRUE)
-
-# Modifying n and appending
-cti_result4 <- add_CTI(TSLA, n = 30, append = TRUE)
+mkt_data <- data.frame(
+  date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code   = rep(c("AAPL", "MSFT"), each = 60),
+  name   = rep(c("Apple", "Microsoft"), each = 60),
+  close  = c(runif(60, 150, 200), runif(60, 300, 400))
+)
+# Example 1: Default parameters (n = 20)
+result <- add_CTI(mkt_data)
+# Example 2: Custom look-back window of 30
+result <- add_CTI(mkt_data, n = 30)
+# Example 3: Slim output with n = 50
+result <- add_CTI(mkt_data, n = 50, append = FALSE)
 }
 }
-\references{
-John Ehlers, Correlation Trend Indicator, Stocks & Commodities May - 2020
-The following site(s) were used to code/document this indicator:\cr
-\url{https://financial - hacker.com/petra - on - programming - a - unique - trend - indicator/}\cr
-}
-\seealso{
-See \code{\link{aroon}}, \code{\link{CCI}}, \code{\link{ADX}},
-\code{\link{VHF}}, \code{\link{GMMA}}, \code{\link{TDI}} for other
-indicators that measure trend direction/strength.
-}
-\author{
-Ethan Smith, Joshua Ulrich
-}
-\keyword{ts}

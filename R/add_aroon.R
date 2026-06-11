@@ -1,114 +1,95 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025 - 2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Aroon
+#' @title Aroon Indicator
 #' @description
-#' The Aroon indicator attempts to identify starting trends. The indicator
-#' consists of up and down lines, which measure how long it has been since the
-#' highest high / lowest low has occurred in the last \code{n} periods. The Aroon
-#' indicator is developed by Tushar Chande in 1995.
-#' @details
-#' Aroon up (down) is the elapsed time, expressed as a percentage, between today
-#' and the highest (lowest) price in the last \code{n} periods. If today's
-#' price is a new high (low) Aroon up (down) will be 100. Each subsequent period
-#' without another new high (low) causes Aroon up (down) to decrease by \eqn{(1/
-#' n*100}.
-#' @aliases add_Aroon
-#' @param OHLCV Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume data.
-#' @param n Number of periods to use in the calculation. Defaults to 20.
-#' @param append A logical value. If \code{TRUE}, the calculated result columns
-#' (aroonUp, aroonDn, oscillator) will be appended to the \code{OHLCV} input data, ensuring
-#' proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' result data will be returned. Defaults to \code{FALSE}.
-#' @return If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-#' (or a matrix if \code{try.xts} fails) containing the columns:
-#' \describe{
-#'   \item{aroonUp}{The Aroon up indicator.}
-#'   \item{aroonDn}{The Aroon down indicator.}
-#'   \item{oscillator}{The Aroon oscillator (\code{aroonUp - aroonDn}).}
-#' }
-#' If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-#' calculated columns appended, maintaining the integrity of the time - series
-#' alignment.
-#' @note If High - Low prices are given, the function calculates the max/min using
-#' the high/low prices. Otherwise the function calculates the max/min of the
-#' single series.
-#' Up (down) trends are indicated when the aroonUp(Dn) is between 70 and 100.
-#' Strong trends are indicated when when the aroonUp(Dn) is above 70 while the
-#' aroonDn(Up) is below 30. Also, crossovers may be useful.
-#' @author DengYishuo
-#' @seealso See \code{\link{CCI}}, \code{\link{ADX}}, \code{\link{TDI}},
-#' \code{\link{VHF}}, \code{\link{GMMA}} for other indicators that measure trend
-#' direction/strength.
-#' @references The following site(s) were used to code/document this
-#' indicator:\cr \url{https://www.fmlabs.com/reference/Aroon.htm}\cr
-#' \url{https://www.fmlabs.com/reference/AroonOscillator.htm}\cr
-#' \url{https://www.linnsoft.com/techind/aroon - arn}\cr
-#' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:aroon}\cr
-#' @keywords ts
+#' Calculates the Aroon indicator for each security in a long-format panel data
+#' frame. The Aroon indicator identifies the start of new trends by measuring
+#' how recently the highest high (\code{aroonUp}) or lowest low (\code{aroonDn})
+#' occurred within the last \code{n} periods. Both lines range from 0 to 100.
+#' \code{aroonUp} near 100 signals a strong uptrend; \code{aroonDn} near 100
+#' signals a strong downtrend. The oscillator (\code{aroonOsc}) is the
+#' difference \code{aroonUp - aroonDn}, ranging from -100 to 100. Developed by
+#' Tushar Chande in 1995. Required columns: \code{high}, \code{low}.
+#'
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, \code{high}, and \code{low}.
+#' @param n Integer. Look-back window. Defaults to \code{20}.
+#' @param append Logical. If \code{TRUE} (default), append result columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#'
+#' @return A \code{tibble} or \code{data.frame} sorted by \code{date} then
+#'   \code{code}, with columns:
+#'   \describe{
+#'     \item{aroonUp_<n>}{Aroon up line (0 to 100): percentage of periods since
+#'       the highest high within the look-back window.}
+#'     \item{aroonDn_<n>}{Aroon down line (0 to 100): percentage of periods
+#'       since the lowest low within the look-back window.}
+#'     \item{aroonOsc_<n>}{Aroon oscillator: \code{aroonUp_<n>} minus
+#'       \code{aroonDn_<n>}, ranging from -100 to 100.}
+#'   }
 #' @export
+#' @importFrom xts xts
+#' @importFrom tibble as_tibble
+#' @importFrom TTR aroon
 #' @examples
 #' \dontrun{
-#' # Load required data, assume TSLA is data in the appropriate format
-#' data(TSLA)
-#'
-#' # Use default parameters
-#' aroon_result1 <- add_aroon(TSLA)
-#'
-#' # Modify the n parameter
-#' aroon_result2 <- add_aroon(TSLA, n = 30)
-#'
-#' # Set append to TRUE
-#' aroon_result3 <- add_aroon(TSLA, append = TRUE)
-#'
-#' # Combine modifying the n parameter and setting append to TRUE
-#' aroon_result4 <- add_aroon(TSLA, n = 30, append = TRUE)
+#' mkt_data <- data.frame(
+#'   date = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+#'   code = rep(c("AAPL", "MSFT"), each = 60),
+#'   name = rep(c("Apple", "Microsoft"), each = 60),
+#'   high = c(runif(60, 155, 205), runif(60, 305, 405)),
+#'   low  = c(runif(60, 145, 195), runif(60, 295, 395))
+#' )
+#' # Example 1: Default parameters (n = 20)
+#' result <- add_aroon(mkt_data)
+#' # Example 2: Custom window with slim output
+#' result <- add_aroon(mkt_data, n = 30, append = FALSE)
+#' # Example 3: Return as data.frame
+#' result <- add_aroon(mkt_data, output = "data.frame")
 #' }
-add_aroon <- function(OHLCV, n = 20, append = FALSE) {
-  # 从OHLCV中提取HL数据
-  hl <- OHLCV[, c("High", "Low")]
+add_aroon <- function(mkt_data, n = 20, append = TRUE, output = c("tibble", "data.frame")) {
+  # ── Argument resolution ────────────────────────────────────────────────────
+  output <- match.arg(output)
 
-  hl <- try.xts(hl, error = as.matrix)
-  # Calculation if price vector is given
-  if (NCOL(hl) == 1) {
-    high <- hl
-    low <- hl
-  } else
-  # Calculation if HL series is given
-  if (NCOL(hl) == 2) {
-    high <- hl[, 1]
-    low <- hl[, 2]
-  } else {
-    stop("Price series must be either High - Low, or Close")
+  # ── Input validation ───────────────────────────────────────────────────────
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, high, low.")
   }
-  # Calculate Aroon UP and DOWN
-  aroonUp <- .Call(aroon_max, high, n)
-  aroonDn <- .Call(aroon_max, -low, n)
-  oscillator <- aroonUp - aroonDn
-  result <- cbind(aroonUp, aroonDn, oscillator)
-  colnames(result) <- c("aroonUp", "aroonDn", "oscillator")
-  result <- reclass(result, hl)
+  required_cols <- c("date", "code", "high", "low")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
+  }
 
-  if (append) {
-    OHLCV <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(OHLCV, result)
-    return(combined_result)
-  } else {
-    return(result)
+  # ── Split-apply-combine ────────────────────────────────────────────────────
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
+
+    # Build HL xts
+    hl <- xts::xts(
+      cbind(High = sub$high, Low = sub$low),
+      order.by = sub$date
+    )
+
+    aroon_val <- TTR::aroon(hl, n = n)
+    sub[[paste0("aroonUp_", n)]] <- as.numeric(aroon_val[, "aroonUp"])
+    sub[[paste0("aroonDn_", n)]] <- as.numeric(aroon_val[, "aroonDn"])
+    sub[[paste0("aroonOsc_", n)]] <- as.numeric(aroon_val[, "oscillator"])
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  # ── Optionally drop original columns ──────────────────────────────────────
+  if (!append) {
+    new_cols <- c(paste0("aroonUp_", n), paste0("aroonDn_", n), paste0("aroonOsc_", n))
+    keep <- intersect(c("date", "code", "name", new_cols), colnames(res))
+    res <- res[, keep, drop = FALSE]
   }
+
+  # ── Output format ──────────────────────────────────────────────────────────
+  if (output == "tibble") tibble::as_tibble(res) else as.data.frame(res, stringsAsFactors = FALSE)
 }

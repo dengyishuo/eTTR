@@ -1,143 +1,114 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025 - 2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Calculate Relative Strength Index
-#' @description
-#' The Relative Strength Index (RSI) calculates a ratio of the recent upward
-#' price movements to the absolute price movement. Developed by J. Welles
-#' Wilder.
-#' The RSI calculation is \code{RSI = 100 - 100 / ( 1 + RS )}, where \code{RS}
-#' is the smoothed ratio of 'average' gains over 'average' losses. The
-#' 'averages' aren't true averages, since they're divided by the value of
-#' \code{n} and not the number of periods in which there are  gains/losses.
-#' @param OHLCV Object that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.
-#' @param n Number of periods for moving averages. Defaults to 14.
-#' @param maType Either:
-#'  \enumerate{
-#'    \item A function or a string naming the function to be called.
-#'    \item A \emph{list} with the first component like (1) above, and
-#'      additional parameters specified as \emph{named} components.
-#'      See Examples.
-#'  }
-#' @param append A logical value. If \code{TRUE}, the calculated Relative Strength Index
-#' values will be appended to the \code{OHLCV} input data, ensuring
-#' proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' Relative Strength Index values will be returned. Defaults to \code{FALSE}.
-#' @param ... Other arguments to be passed to the \code{maType} function in
-#' case (1) above.
-#' @return If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-#' or a vector (if \code{try.xts} fails) containing the RSI values.
-#' If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-#' calculated Relative Strength Index values appended, maintaining the integrity of the time - series
-#' alignment.
-#' @note The RSI is usually interpreted as an overbought/oversold (over 70 /
-#' below 30) indicator. Divergence with price may also be useful. For example,
-#' if price is making new highs/lows, but RSI is not, it could indicate a
-#' reversal.
-#' You can calculate a stochastic RSI by using the function \code{\link{stoch}}
-#' on RSI values.
-#' @author DengYishuo
-#' @seealso See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
-#' options; and note Warning section. See \code{\link{CMO}} for a variation on
-#' RSI.
-#' @references The following site(s) were used to code/document this
-#' indicator:
-#' \cr Relative Strength Index:\cr
-#' \url{https://www.fmlabs.com/reference/RSI.htm}\cr
-#' \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=100}\cr
-#' \url{https://www.linnsoft.com/techind/relative - strength - index - rsi}\cr
-#' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:relative_strength_index_rsi}\cr
-#' \cr Stochastic RSI:\cr
-#' \url{https://www.fmlabs.com/reference/StochRSI.htm}\cr
-#' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:stochrsi}\cr
-#' @keywords ts
+#' @title Add Relative Strength Index (RSI)
+#'
+#' @description Computes the Relative Strength Index for each asset in a
+#'   long-format panel data frame and appends the result as a new column named
+#'   \code{RSI_<n>}. RSI measures the speed and magnitude of price changes on
+#'   a 0-100 scale; readings above 70 are typically considered overbought and
+#'   below 30 oversold.
+#'
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, and the required price columns.
+#' @param n Integer. Look-back window. Defaults to \code{14}.
+#' @param maType Character or list. Moving average type used to smooth up and
+#'   down moves. Defaults to \code{"EMA"} (with Wilder smoothing).
+#' @param append Logical. If \code{TRUE} (default), append new columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#' @param ... Additional arguments passed to the moving average function.
+#'
+#' @return The input data frame with an additional column \code{RSI_<n>}
+#'   containing RSI values in the range \code{[0, 100]}.
+#'
 #' @export
+#' @importFrom xts xts
+#' @importFrom tibble as_tibble
+#'
 #' @examples
 #' \dontrun{
-#' data(TSLA)
-#' # Using default parameters without appending
-#' rsi_result1 <- add_RSI(TSLA)
-#'
-#' # Modifying n and without appending
-#' rsi_result2 <- add_RSI(TSLA, n = 20)
-#'
-#' # Using default parameters and appending
-#' rsi_result3 <- add_RSI(TSLA, append = TRUE)
-#'
-#' # Modifying n and appending
-#' rsi_result4 <- add_RSI(TSLA, n = 20, append = TRUE)
+#' mkt_data <- data.frame(
+#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+#'   code  = rep(c("AAPL", "MSFT"), each = 60),
+#'   name  = rep(c("Apple", "Microsoft"), each = 60),
+#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
+#' )
+#' # Example 1: Default parameters
+#' result <- add_RSI(mkt_data)
+#' # Example 2: Custom window
+#' result <- add_RSI(mkt_data, n = 9)
+#' # Example 3: Slim output
+#' result <- add_RSI(mkt_data, n = 21, append = FALSE)
 #' }
-add_RSI <- function(OHLCV, n = 14, maType, append = FALSE, ...) {
-  # Assume we use Close price for calculation, can be adjusted
-  price <- OHLCV[, "Close"]
-  price <- try.xts(price, error = as.matrix)
+add_RSI <- function(mkt_data, n = 14, maType, append = TRUE,
+                    output = c("tibble", "data.frame"), ...) {
 
-  # Calculate price momentum
-  up <- momentum(price, n = 1, na.pad = TRUE)
-  which.dn <- which(up < 0)
-  dn <- up * 0
-  dn[which.dn] <- -up[which.dn]
-  up[which.dn] <- 0
+  # ── Argument resolution ────────────────────────────────────────────────────
+  output <- match.arg(output)
+  if (missing(maType)) maType <- "EMA"
 
-  maArgs <- list(n = n, ...)
-  # Default Welles Wilder EMA
-  if (missing(maType)) {
-    maType <- "EMA"
-    if (is.null(maArgs$wilder)) {
-      # do not overwrite user-provided value
+  # ── Input validation ───────────────────────────────────────────────────────
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, close.")
+  }
+  required_cols <- c("date", "code", "close")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
+  }
+
+  col_name <- paste0("RSI_", n)
+
+  # ── Split-apply-combine ────────────────────────────────────────────────────
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
+
+    close_xts <- xts::xts(sub$close, order.by = as.Date(sub$date))
+
+    # Calculate price momentum
+    up <- momentum(close_xts, n = 1, na.pad = TRUE)
+    which.dn <- which(up < 0)
+    dn <- up * 0
+    dn[which.dn] <- -up[which.dn]
+    up[which.dn] <- 0
+
+    maArgs <- list(n = n, ...)
+    ma_type <- maType
+    if (identical(ma_type, "EMA") && is.null(maArgs$wilder)) {
       maArgs$wilder <- TRUE
     }
-  }
 
-  # Case of two different 'maType's for both MAs.
-  if (is.list(maType)) {
-    # Ensure maType is a list of lists with exactly 2 elements
-    if (!all(sapply(maType, is.list)) || length(maType) != 2) {
-      stop("If'maType' is a list, you must specify *two* MAs (see Examples section of?RSI)")
-    }
-    # Check if 'n' is specified for each MA function in the list
-    for (i in 1:2) {
-      if (!is.null(formals(maType[[i]][[1]])$n) && is.null(maType[[i]]$n)) {
-        maType[[i]]$n <- n
+    if (is.list(ma_type)) {
+      if (!all(sapply(ma_type, is.list)) || length(ma_type) != 2) {
+        stop("If 'maType' is a list, you must specify *two* MAs")
       }
+      for (i in 1:2) {
+        if (!is.null(formals(ma_type[[i]][[1]])$n) && is.null(ma_type[[i]]$n)) {
+          ma_type[[i]]$n <- n
+        }
+      }
+      mavgUp <- do.call(ma_type[[1]][[1]], c(list(up), ma_type[[1]][-1]))
+      mavgDn <- do.call(ma_type[[2]][[1]], c(list(dn), ma_type[[2]][-1]))
+    } else {
+      mavgUp <- do.call(ma_type, c(list(up), maArgs))
+      mavgDn <- do.call(ma_type, c(list(dn), maArgs))
     }
-    mavgUp <- do.call(maType[[1]][[1]], c(list(up), maType[[1]][-1]))
-    mavgDn <- do.call(maType[[2]][[1]], c(list(dn), maType[[2]][-1]))
-  }
-  # Case of one 'maType' for both MAs.
-  else {
-    mavgUp <- do.call(maType, c(list(up), maArgs))
-    mavgDn <- do.call(maType, c(list(dn), maArgs))
+
+    rsi <- 100 * mavgUp / (mavgUp + mavgDn)
+    sub[[col_name]] <- as.numeric(rsi)
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  # ── Column selection ───────────────────────────────────────────────────────
+  if (!append) {
+    keep <- intersect(c("date", "code", "name", col_name), colnames(res))
+    res <- res[, keep, drop = FALSE]
   }
 
-  rsi <- 100 * mavgUp / (mavgUp + mavgDn)
-
-  if (!is.null(dim(rsi)) && ncol(rsi) == 1L) {
-    colnames(rsi) <- "rsi"
-  }
-
-  rsi <- reclass(rsi, price)
-
-  if (append) {
-    ohlcv <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(ohlcv, rsi)
-    return(combined_result)
-  } else {
-    return(rsi)
-  }
+  # ── Output format ──────────────────────────────────────────────────────────
+  if (output == "tibble") tibble::as_tibble(res) else as.data.frame(res, stringsAsFactors = FALSE)
 }

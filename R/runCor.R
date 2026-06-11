@@ -1,40 +1,24 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025-2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Moving Window Correlation (runCor)
-#' @description
-#' Calculate the correlation over a moving window of periods.
+#' Rolling Correlation Coefficient
 #'
-#' @param x Object coercible to xts or matrix.
-#' @param y Object coercible to xts or matrix.
-#' @param n Number of periods in the window (1 <= n <= nrow(x)).
-#' @param sample Logical; if TRUE, use sample covariance (n-1 denominator).
-#' @param cumulative Logical; if TRUE, use from-inception calculation.
-#' @return An object of the same class as \code{x} with correlation values.
-#' @keywords ts
+#' Calculate rolling or cumulative Pearson correlation between two time series.
+#' Derived from rolling covariance divided by product of rolling standard deviations.
+#'
+#' @param x Numeric time series (vector, matrix, xts/zoo object), first variable for correlation calculation.
+#' @param y Numeric time series (vector, matrix, xts/zoo object), second variable for correlation calculation.
+#' @param n Integer rolling window length, must satisfy \code{1 <= n <= NROW(x)}. Default 10.
+#' @param sample Logical, use sample variance/covariance divisor (n-1) if TRUE; population divisor (n) if FALSE. Default \code{TRUE}.
+#' @param cumulative Logical, if \code{TRUE} compute expanding cumulative window instead of fixed rolling window. Default \code{FALSE}.
+#'
+#' @details
+#' Pearson rolling correlation formula:
+#' \deqn{runCor(x,y) = \frac{runCov(x,y)}{runSD(x) \times runSD(y)}}
+#' All input validation, xts coercion, NA handling and index alignment are delegated to \code{\link{runCov}} and \code{\link{runSD}}.
+#'
+#' @return Object with identical class as input \code{x}, containing rolling correlation values ranging between -1 and 1.
+#'
 #' @export
-#' @examples
-#' data(TSLA)
-#' cor_20 <- runCor(TSLA[, "Close"], TSLA[, "Volume"], 20)
-#' head(cor_20)
 runCor <- function(x, y, n = 10, sample = TRUE, cumulative = FALSE) {
   result <- runCov(x, y, n, sample = sample, cumulative = cumulative) /
-    (runSD(x, n, sample = sample, cumulative) *
-      runSD(y, n, sample = sample, cumulative))
+    (runSD(x, n, sample = sample, cumulative) * runSD(y, n, sample = sample, cumulative))
   return(result)
 }

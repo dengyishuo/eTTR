@@ -1,118 +1,98 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025 - 2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Calculate Arnaud Legoux Moving Average (ALMA)
+#' @title Arnaud Legoux Moving Average (ALMA)
 #' @description
-#' Calculate a Gaussian - weighted moving average with reduced lag. The Arnaud Legoux Moving Average (ALMA)
-#' uses a Gaussian - shaped weight distribution to calculate the moving average. This results in a more
-#' responsive moving average compared to traditional moving averages, as it can be adjusted to emphasize
-#' recent prices more effectively.
+#' Computes the Arnaud Legoux Moving Average for each security in a long-format
+#' panel data frame. ALMA is a Gaussian-weighted moving average that reduces lag
+#' while maintaining smoothness. The Gaussian window is controlled by \code{offset}
+#' (center position) and \code{sigma} (spread), allowing flexible tuning between
+#' responsiveness and noise reduction.
 #'
-#' @param OHLCV Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume data.
-#' The function will extract the closing price from this object for ALMA calculation.
-#' @param n Number of periods to average over. This parameter determines the window size of the moving average.
-#' A larger \code{n} will result in a smoother ALMA, but it may be less responsive to recent price changes.
-#' @param offset Percentile for weight distribution center (0 - 1). A higher \code{offset} value emphasizes
-#' more recent prices in the moving average calculation. For example, an \code{offset} close to 1 will
-#' give more weight to the most recent data points.
-#' @param sigma Standard deviation of the Gaussian distribution. A lower \code{sigma} reduces the smoothing
-#' effect, making the ALMA more sensitive to short - term price fluctuations.
-#' @param append A logical value. If \code{TRUE}, the calculated ALMA values will be appended to the \code{OHLCV} input data,
-#' ensuring proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' ALMA values will be returned. Defaults to \code{FALSE}.
-#' @return
-#' If \code{append} is \code{FALSE}, an object of the same class as \code{OHLCV} (or a vector if \code{try.xts} fails)
-#' containing the ALMA values.
-#' If \code{append} is \code{TRUE}, an object of the same class as \code{OHLCV} with the calculated ALMA values appended,
-#' maintaining the integrity of the time - series alignment.
-#' @note
-#' Higher \code{offset} emphasizes recent prices; lower \code{sigma} reduces smoothing.
-#' It's important to note that the choice of \code{offset} and \code{sigma} can significantly impact the
-#' behavior of the ALMA. Traders should carefully consider these parameters based on the characteristics
-#' of the price series and their trading strategies.
-#' @keywords ts
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, and \code{close}.
+#' @param n Integer. Look-back window. Defaults to \code{9}.
+#' @param offset Numeric. Percentile for the Gaussian weight center in
+#'   \code{[0, 1]}. Higher values emphasize more recent prices. Defaults to
+#'   \code{0.85}.
+#' @param sigma Numeric. Standard deviation of the Gaussian distribution.
+#'   Lower values narrow the bell curve and reduce smoothing. Defaults to
+#'   \code{6}.
+#' @param append Logical. If \code{TRUE} (default), append result columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#'
+#' @return A \code{tibble} or \code{data.frame} sorted by \code{date} then
+#'   \code{code}, with column \code{ALMA_\{n\}} (e.g., \code{ALMA_9}) containing
+#'   the Gaussian-weighted moving average values.
 #' @export
+#' @importFrom xts xts
+#' @importFrom tibble as_tibble
 #' @examples
 #' \dontrun{
-#' data(TSLA)
-#' # Using default parameters without appending
-#' alma_result1 <- add_ALMA(TSLA)
-#'
-#' # Using default parameters and appending
-#' alma_result2 <- add_ALMA(TSLA, append = TRUE)
-#'
-#' # Changing n and without appending
-#' alma_result3 <- add_ALMA(TSLA, n = 12)
-#'
-#' # Changing n and appending
-#' alma_result4 <- add_ALMA(TSLA, n = 12, append = TRUE)
-#'
-#' # Changing offset and without appending
-#' alma_result5 <- add_ALMA(TSLA, offset = 0.9)
-#'
-#' # Changing sigma and without appending
-#' alma_result6 <- add_ALMA(TSLA, sigma = 4)
+#' mkt_data <- data.frame(
+#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+#'   code  = rep(c("AAPL", "MSFT"), each = 60),
+#'   name  = rep(c("Apple", "Microsoft"), each = 60),
+#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
+#' )
+#' # Example 1: Default parameters
+#' result <- add_ALMA(mkt_data)
+#' # Example 2: Slim output with larger window
+#' result <- add_ALMA(mkt_data, n = 21, append = FALSE)
+#' # Example 3: Less smoothing via lower sigma
+#' result <- add_ALMA(mkt_data, n = 12, sigma = 4, output = "data.frame")
 #' }
-add_ALMA <- function(OHLCV, n = 9, offset = 0.85, sigma = 6, append = FALSE) {
-  # Check if OHLCV contains 'Close' column
-  if (!"Close" %in% colnames(OHLCV)) {
-    stop("OHLCV must contain 'Close' column")
+add_ALMA <- function(mkt_data, n = 9, offset = 0.85, sigma = 6, append = TRUE,
+                     output = c("tibble", "data.frame")) {
+  # ── Argument resolution ────────────────────────────────────────────────────
+  output <- match.arg(output)
+
+  # ── Input validation ───────────────────────────────────────────────────────
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, close.")
   }
-
-  # Extract the closing price
-  x <- OHLCV[, "Close"]
-  x <- try.xts(x, error = as.matrix)
-
-  # Validate offset
-  if (offset < 0 || offset > 1) {
-    stop("Please ensure 0 <= offset <= 1")
+  required_cols <- c("date", "code", "close")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
   }
+  if (offset < 0 || offset > 1) stop("Please ensure 0 <= offset <= 1")
+  if (sigma <= 0) stop("sigma must be > 0")
 
-  # Validate sigma
-  if (sigma <= 0) {
-    stop("sigma must be > 0")
-  }
-
-  # Calculate parameters for Gaussian weights
+  # ── Pre-compute Gaussian weights (shared across all assets) ───────────────
   m <- floor(offset * (n - 1))
   s <- n / sigma
   wts <- exp(-((seq(0, n - 1) - m)^2) / (2 * s * s))
   sumWeights <- sum(wts)
-  if (sumWeights != 0) {
-    wts <- wts / sumWeights
+  if (sumWeights != 0) wts <- wts / sumWeights
+
+  # ── Split-apply-combine over each asset ───────────────────────────────────
+  col_name <- paste0("ALMA_", n)
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
+
+    if (n > nrow(sub)) {
+      warning(sprintf("Skipping code '%s': n = %d exceeds available rows (%d).", cd, n, nrow(sub)))
+      sub[[col_name]] <- NA_real_
+      return(sub)
+    }
+
+    close_xts <- xts::xts(sub$close, order.by = sub$date)
+    alma <- WMA(close_xts, n = n, wts = wts)
+    sub[[col_name]] <- as.numeric(alma)
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  # ── Slim output when append = FALSE ───────────────────────────────────────
+  if (!append) {
+    keep <- intersect(c("date", "code", "name", col_name), colnames(res))
+    res <- res[, keep, drop = FALSE]
   }
 
-  alma <- x * NA_real_
-  for (i in seq_len(NCOL(x))) {
-    alma[, i] <- WMA(x[, i], n, wts)
-  }
-
-  if (!is.null(dim(alma))) {
-    colnames(alma) <- "ALMA"
-  }
-
-  alma <- reclass(alma, x)
-
-  if (append) {
-    ohlcv <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(ohlcv, alma)
-    return(combined_result)
-  } else {
-    return(alma)
-  }
+  # ── Output format conversion ───────────────────────────────────────────────
+  if (output == "tibble") tibble::as_tibble(res) else as.data.frame(res, stringsAsFactors = FALSE)
 }

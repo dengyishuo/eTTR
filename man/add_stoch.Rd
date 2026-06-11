@@ -2,72 +2,79 @@
 % Please edit documentation in R/add_stoch.R
 \name{add_stoch}
 \alias{add_stoch}
-\title{Calculate Stochastic Oscillator}
+\title{Stochastic Oscillator}
 \usage{
 add_stoch(
-  OHLCV,
+  mkt_data,
   nFastK = 14,
   nFastD = 3,
   nSlowD = 3,
   maType,
   bounded = TRUE,
   smooth = 1,
-  append = FALSE,
+  append = TRUE,
+  output = c("tibble", "data.frame"),
   ...
 )
 }
 \arguments{
-\item{OHLCV}{Object coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, \code{high}, \code{low}, and
+\code{close}.}
 
-\item{nFastK}{Number of periods for fast \%K calculation (default: 14).}
+\item{nFastK}{Integer. Look-back window for fast \%K. Defaults to \code{14}.}
 
-\item{nFastD}{Number of periods for fast \%D calculation (default: 3).}
+\item{nFastD}{Integer. Smoothing periods for fast \%D. Defaults to \code{3}.}
 
-\item{nSlowD}{Number of periods for slow \%D calculation (default: 3).}
+\item{nSlowD}{Integer. Smoothing periods for slow \%D. Defaults to \code{3}.}
 
-\item{maType}{Moving average type: function, string, or list of configurations
-(default: "SMA").}
+\item{maType}{Character. Moving average type applied to \%K and \%D. Defaults
+to \code{"SMA"}.}
 
-\item{bounded}{Logical, use current period in range calculation (default: TRUE).}
+\item{bounded}{Logical. If \code{TRUE} (default), values are bounded to
+\code{[0, 1]}.}
 
-\item{smooth}{Internal smoothing periods for FastK (default: 1).}
+\item{smooth}{Integer. Smoothing applied to fast \%K before computing fast \%D.
+Defaults to \code{1} (no additional smoothing).}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated Stochastic Oscillator
-values (fast \%K, fast \%D, slow \%D) will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-Stochastic Oscillator values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append result columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
 
-\item{...}{Additional arguments passed to moving average functions.}
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
+
+\item{...}{Additional arguments passed to the \code{maType} function.}
 }
 \value{
-If \code{append = FALSE}, an xts or matrix object with columns: fastK, fastD, slowD.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated Stochastic Oscillator values appended, maintaining the integrity of the time - series
-alignment.
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with columns:
+\describe{
+\item{fastK_\{nFastK\}}{Fast \%K values.}
+\item{fastD_\{nFastK\}}{Fast \%D values (smoothed fast \%K).}
+\item{slowD_\{nFastK\}}{Slow \%D values (smoothed fast \%D).}
+}
 }
 \description{
-Calculates the fast \%K, fast \%D, and slow \%D values of
-the stochastic oscillator.
+Computes the Stochastic Oscillator for each security in a long-format panel
+data frame. Returns fast \%K, fast \%D (smoothed \%K), and slow \%D (smoothed
+fast \%D) for each ticker. The oscillator measures the position of the close
+relative to the high-low range over the look-back period.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-stoch_result1 <- add_stoch(TSLA)
-
-# Modifying nFastK and without appending
-stoch_result2 <- add_stoch(TSLA, nFastK = 10)
-
-# Using default parameters and appending
-stoch_result3 <- add_stoch(TSLA, append = TRUE)
-
-# Modifying nFastK and appending
-stoch_result4 <- add_stoch(TSLA, nFastK = 10, append = TRUE)
+mkt_data <- data.frame(
+  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code  = rep(c("AAPL", "MSFT"), each = 60),
+  name  = rep(c("Apple", "Microsoft"), each = 60),
+  high  = c(runif(60, 155, 205), runif(60, 305, 405)),
+  low   = c(runif(60, 145, 195), runif(60, 295, 395)),
+  close = c(runif(60, 150, 200), runif(60, 300, 400))
+)
+# Example 1: Default parameters
+result <- add_stoch(mkt_data)
+# Example 2: Custom look-back window
+result <- add_stoch(mkt_data, nFastK = 20, nFastD = 5, nSlowD = 5)
+# Example 3: Slim output as data.frame
+result <- add_stoch(mkt_data, append = FALSE, output = "data.frame")
 }
 }
-\author{
-DengYishuo
-}
-\keyword{indicator}
-\keyword{momentum}
-\keyword{ts}

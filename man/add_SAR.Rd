@@ -2,66 +2,57 @@
 % Please edit documentation in R/add_SAR.R
 \name{add_SAR}
 \alias{add_SAR}
-\title{Calculate Parabolic Stop - and - Reverse}
+\title{Parabolic SAR}
 \usage{
-add_SAR(OHLCV, accel = c(0.02, 0.2), append = FALSE)
+add_SAR(
+  mkt_data,
+  accel = c(0.02, 0.2),
+  append = TRUE,
+  output = c("tibble", "data.frame")
+)
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, \code{high}, and \code{low}.}
 
-\item{accel}{A vector where \code{accel[1]} is the initial acceleration factor
-and \code{accel[2]} is the maximum acceleration factor. Defaults to c(.02, .2).}
+\item{accel}{Numeric vector of length 2. Acceleration factor: the first
+element is the initial step and the second is the maximum step. Defaults
+to \code{c(0.02, 0.2)}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated Parabolic Stop - and - Reverse
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-Parabolic Stop - and - Reverse values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append result columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a vector (if \code{try.xts} fails) containing the Parabolic Stop and Reverse values.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated Parabolic Stop and Reverse values appended, maintaining the integrity of the time - series
-alignment.
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with column:
+\describe{
+\item{sar}{Parabolic SAR value for each row.}
+}
 }
 \description{
-The Parabolic Stop - and - Reverse calculates a trailing stop. Developed by J.
-Welles Wilder.
-The calculation for the SAR is quite complex. See the URLs in the references
-section for calculation notes.
-The SAR assumes that you are always in the market, and calculates the Stop
-And Reverse point when you would close a long position and open a short
-position or vice versa.
+Computes the Parabolic Stop-and-Reverse (SAR) indicator for each security in
+a long-format panel data frame. The SAR is a trend-following indicator that
+provides potential entry and exit points. Developed by J. Welles Wilder.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-sar_result1 <- add_SAR(TSLA)
-
-# Modifying accel and without appending
-sar_result2 <- add_SAR(TSLA, accel = c(0.03, 0.25))
-
-# Using default parameters and appending
-sar_result3 <- add_SAR(TSLA, append = TRUE)
-
-# Modifying accel and appending
-sar_result4 <- add_SAR(TSLA, accel = c(0.03, 0.25), append = TRUE)
+mkt_data <- data.frame(
+  date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code   = rep(c("AAPL", "MSFT"), each = 60),
+  name   = rep(c("Apple", "Microsoft"), each = 60),
+  high   = c(runif(60, 155, 205), runif(60, 305, 405)),
+  low    = c(runif(60, 145, 195), runif(60, 295, 395)),
+  close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+  volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
+)
+# Example 1: Default parameters
+result <- add_SAR(mkt_data)
+# Example 2: Faster acceleration factor
+result <- add_SAR(mkt_data, accel = c(0.04, 0.4))
+# Example 3: Slim output
+result <- add_SAR(mkt_data, append = FALSE)
 }
 }
-\references{
-The following site(s) were used to code/document this
-indicator:\cr
-\url{https://www.linnsoft.com/techind/parabolic - sar - sar}\cr
-\url{https://www.fmlabs.com/reference/SAR.htm}\cr
-\url{https://school.stockcharts.com/doku.php?id=technical_indicators:parabolic_sar}\cr
-\url{https://www.metastock.com/Customer/Resources/TAAZ/?p=87}
-}
-\seealso{
-See \code{\link{ATR}} and \code{\link{ADX}}, which were also
-developed by Welles Wilder.
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

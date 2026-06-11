@@ -5,8 +5,22 @@
 #' Finance.
 #'
 #' Users will probably be most interested in the following functions:\cr
-#' \code{\link{ADX}}\cr \code{\link{BBands}}\cr \code{\link{MACD}}\cr
-#' \code{\link{RSI}}\cr \code{\link{stoch}}\cr \code{\link{VWAP}}\cr
+#' \code{\link[TTR]{ADX}}\cr \code{\link[TTR]{BBands}}\cr \code{\link[TTR]{MACD}}\cr
+#' \code{\link[TTR]{RSI}}\cr \code{\link[TTR]{stoch}}\cr \code{\link[TTR]{VWAP}}\cr
+#'
+#' Global import functions from external packages, effective for all package scripts
+#' @keywords internal
+#' @importFrom stats embed is.ts
+#' @importFrom xts try.xts is.xts merge.xts last reclass
+#' @importFrom zoo index coredata na.approx
+#' @importFrom TTR SMA EMA WMA DEMA ZLEMA EVWMA TR SAR OBV stoch
+#' @importFrom quantmod HLC Hi Lo
+#' @export runPercentRank
+#' @export runSum
+#' @export wilderSum
+#' @export runMAD
+#' @export runSD
+#' @export runVar
 #' @name eTTR
 #' @aliases eTTR-package
 #' @author DengYishuo
@@ -16,20 +30,18 @@
 #' \url{https://www.linnsoft.com/indicators}\cr
 #' \url{https://school.stockcharts.com/doku.php?id=technical_indicators}\cr
 #' @keywords package
-#' @examples
-#' data(TSLA)
-#' data(AAPL)
-#' # Bollinger Bands
-#' bbands <- BBands(TSLA[, c("High", "Low", "Close")])
-#' # Directional Movement Index
-#' adx <- ADX(TSLA[, c("High", "Low", "Close")])
-#' # Moving Averages
-#' ema <- EMA(TSLA[, "Close"], n = 20)
-#' sma <- SMA(TSLA[, "Close"], n = 20)
-#' # MACD
-#' macd <- MACD(AAPL[, "Close"])
-#' # RSI
-#' rsi <- RSI(AAPL[, "Close"])
-#' # Stochastics
-#' stochOsc <- stoch(AAPL[, c("High", "Low", "Close")])
 "_PACKAGE"
+
+# Declare all internal global variables to eliminate no visible binding notes
+utils::globalVariables(c(
+  "WilderSum",
+  "runcov",
+  "runmad",
+  "runmax",
+  "runmedian",
+  "runmin",
+  "runsum",
+  "adjRatios",
+  "ettr_zigzag",
+  "ettr_rollPercentRank"
+))

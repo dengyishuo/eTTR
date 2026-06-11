@@ -2,51 +2,48 @@
 % Please edit documentation in R/add_CLV.R
 \name{add_CLV}
 \alias{add_CLV}
-\title{Calculate Close Location Value}
+\title{Close Location Value (CLV)}
 \usage{
-add_CLV(OHLCV, append = FALSE)
+add_CLV(mkt_data, append = TRUE, output = c("tibble", "data.frame"))
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume prices.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, \code{high}, \code{low}, and
+\code{close}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated Close Location Values
-will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-Close Location Values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append result columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a vector (if \code{try.xts} fails) containing the Close Location Values of a
-High - Low - Close price series.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated Close Location Values appended, maintaining the integrity of the time - series
-alignment.
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with column \code{CLV} containing values in \code{[-1, 1]}.
 }
 \description{
-The Close Location Value (CLV) relates the day's close to its trading range.
-The CLV will fall in a range of -1 to +1.  If the CLV is +/-1, the close is
-at the high/low; if the CLV is 0, the close is directly between the high and
-low.
+Computes the Close Location Value for each security in a long-format panel
+data frame. CLV relates the closing price to the day's trading range,
+returning values in \code{[-1, 1]}. A value of \code{+1} means the close
+is at the high; \code{-1} means it is at the low; \code{0} means it is
+exactly at the midpoint. CLV is used as a building block for the Chaikin
+Accumulation/Distribution line.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-clv_result1 <- add_CLV(TSLA)
-
-# Using default parameters and appending
-clv_result2 <- add_CLV(TSLA, append = TRUE)
+mkt_data <- data.frame(
+  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code  = rep(c("AAPL", "MSFT"), each = 60),
+  name  = rep(c("Apple", "Microsoft"), each = 60),
+  high  = c(runif(60, 155, 205), runif(60, 305, 405)),
+  low   = c(runif(60, 145, 195), runif(60, 295, 395)),
+  close = c(runif(60, 150, 200), runif(60, 300, 400))
+)
+# Example 1: Default parameters
+result <- add_CLV(mkt_data)
+# Example 2: Slim output
+result <- add_CLV(mkt_data, append = FALSE)
+# Example 3: Return as data.frame
+result <- add_CLV(mkt_data, output = "data.frame")
 }
 }
-\references{
-The following site(s) were used to code/document this
-indicator:\cr
-\url{https://school.stockcharts.com/doku.php?id=technical_indicators:accumulation_distribution_line}\cr
-}
-\seealso{
-See \code{\link{chaikinAD}}, which uses CLV.
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

@@ -2,30 +2,30 @@
 % Please edit documentation in R/runCor.R
 \name{runCor}
 \alias{runCor}
-\title{Moving Window Correlation (runCor)}
+\title{Rolling Correlation Coefficient}
 \usage{
 runCor(x, y, n = 10, sample = TRUE, cumulative = FALSE)
 }
 \arguments{
-\item{x}{Object coercible to xts or matrix.}
+\item{x}{Numeric time series (vector, matrix, xts/zoo object), first variable for correlation calculation.}
 
-\item{y}{Object coercible to xts or matrix.}
+\item{y}{Numeric time series (vector, matrix, xts/zoo object), second variable for correlation calculation.}
 
-\item{n}{Number of periods in the window (1 <= n <= nrow(x)).}
+\item{n}{Integer rolling window length, must satisfy \code{1 <= n <= NROW(x)}. Default 10.}
 
-\item{sample}{Logical; if TRUE, use sample covariance (n-1 denominator).}
+\item{sample}{Logical, use sample variance/covariance divisor (n-1) if TRUE; population divisor (n) if FALSE. Default \code{TRUE}.}
 
-\item{cumulative}{Logical; if TRUE, use from-inception calculation.}
+\item{cumulative}{Logical, if \code{TRUE} compute expanding cumulative window instead of fixed rolling window. Default \code{FALSE}.}
 }
 \value{
-An object of the same class as \code{x} with correlation values.
+Object with identical class as input \code{x}, containing rolling correlation values ranging between -1 and 1.
 }
 \description{
-Calculate the correlation over a moving window of periods.
+Calculate rolling or cumulative Pearson correlation between two time series.
+Derived from rolling covariance divided by product of rolling standard deviations.
 }
-\examples{
-data(TSLA)
-cor_20 <- runCor(TSLA[, "Close"], TSLA[, "Volume"], 20)
-head(cor_20)
+\details{
+Pearson rolling correlation formula:
+\deqn{runCor(x,y) = \frac{runCov(x,y)}{runSD(x) \times runSD(y)}}
+All input validation, xts coercion, NA handling and index alignment are delegated to \code{\link{runCov}} and \code{\link{runSD}}.
 }
-\keyword{ts}

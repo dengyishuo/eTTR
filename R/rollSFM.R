@@ -1,58 +1,55 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025-2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-
-#' @title Analysis of Running/Rolling/Moving Windows
-#' @description
-#' Various functions to analyze data over a moving window of periods.
-#' @param Ra Object coercible to xts or matrix, containing the excess
-#' return for an individual security
-#' @param Rb Object coercible to xts or matrix, containing the market
-#' / benchmark return
-#' @param n Number of periods to use in the window
+#' Rolling Single Factor Model
 #'
-#' @return A object of the same class as \code{Ra} (and \code{Rb}?) or a vector
-#' (if \code{try.xts} fails).
-#'  \describe{
-#'   \item{rollSFM}{returns single-factor model parameters and R-squared
-#'     over a n-period moving window.}
-#'  }
+#' Estimate rolling single-factor linear regression metrics over a fixed window: alpha, beta, and R-squared.
+#' All calculations rely on fast rolling summary utility functions provided by this package.
 #'
-#' @aliases rollFun rollSFM
-#' @author DengYishuo
-#' @references The following site(s) were used to code/document this
-#' indicator:
-#' \url{https://en.wikipedia.org/wiki/Simple_linear_regression}\cr
-#' @keywords ts
+#' @param Ra xts object, return series of the asset to be modeled (dependent variable).
+#' @param Rb xts object, factor benchmark return series (independent explanatory variable).
+#' @param n Integer rolling window length, default 60 periods.
+#'
+#' @details
+#' The single factor model formula:
+#' \deqn{R_a = \alpha + \beta R_b + \epsilon}
+#'
+#' Computation steps:
+#' 1. Rolling beta: covariance of asset & factor divided by factor variance
+#' \deqn{\beta = \frac{runCov(R_a, R_b, n)}{runVar(R_b, n)}}
+#' 2. Rolling alpha: de-meaned asset return minus beta times de-meaned factor return
+#' \deqn{\alpha = runMean(R_a, n) - \beta \times runMean(R_b, n)}
+#' 3. Rolling R-squared: 1 minus ratio of residual variance to asset total variance
+#'
+#' All intermediate rolling statistics use internal compiled rolling functions for performance.
+#' Output is a merged xts object aligned to the input index of \code{Ra}.
+#'
+#' @return xts object with three columns:
+#' \itemize{
+#'   \item \code{alpha}: Rolling single-factor intercept
+#'   \item \code{beta}: Rolling single-factor slope coefficient
+#'   \item \code{r.squared}: Rolling model R-squared goodness-of-fit
+#' }
+#'
+#' @importFrom xts merge.xts
 #' @export
 rollSFM <- function(Ra, Rb, n = 60) {
-  # Calculate a rolling single-factor model
-  #  stopifnot(is.xts(Ra) && is.xts(Rb))
-  # calculate beta
+  # Calculate rolling single-factor model coefficients and fit statistics
+
+  # Rolling beta coefficient
   beta <- runCov(Ra, Rb, n) / runVar(Rb, n = n)
-  # calculate alpha
+
+  # Rolling alpha intercept
   alpha <- runMean(Ra, n) - beta * runMean(Rb, n)
-  # calculate R-squared
+
+  # Rolling residual variance
   se.resid <-
     1 / (n * (n - 2)) * (n * runSum(Ra^2, n) - runSum(Ra, n)^2
       - beta^2 * (n * runSum(Rb^2, n) - runSum(Rb, n)^2))
+
+  # Rolling total variance of asset returns
   se.Ra <- runVar(Ra, n = n) * (n - 1) / (n - 2)
+
+  # Rolling R-squared
   r.squared <- 1 - se.resid / se.Ra
+
   result <- merge(alpha, beta, r.squared)
   return(result)
 }

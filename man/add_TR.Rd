@@ -2,47 +2,52 @@
 % Please edit documentation in R/add_TR.R
 \name{add_TR}
 \alias{add_TR}
-\title{Calculate True Range}
+\title{True Range}
 \usage{
-add_TR(OHLCV, append = FALSE)
+add_TR(mkt_data, append = TRUE, output = c("tibble", "data.frame"))
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, \code{high}, \code{low}, and
+\code{close}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated True Range, True High, and True Low
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-True Range, True High, and True Low values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append result columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a matrix (if \code{try.xts} fails) containing the columns:
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with columns:
 \describe{
-\item{tr}{The true range of the series.}
-\item{trueHigh}{The true high used in calculating the true range.}
-\item{trueLow}{The true low used in calculating the true range.}
+\item{tr}{True range.}
+\item{trueHigh}{True high used in the TR calculation.}
+\item{trueLow}{True low used in the TR calculation.}
 }
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated True Range, True High, and True Low values appended, maintaining the integrity of the time - series
-alignment.
 }
 \description{
-Calculates the True Range of a price series.
+Computes the True Range for each security in a long-format panel data frame.
+True Range is the greatest of: current high minus current low, absolute value
+of current high minus previous close, and absolute value of current low minus
+previous close.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-tr_result1 <- add_TR(TSLA)
-
-# Using default parameters and appending
-tr_result2 <- add_TR(TSLA, append = TRUE)
+mkt_data <- data.frame(
+  date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code   = rep(c("AAPL", "MSFT"), each = 60),
+  name   = rep(c("Apple", "Microsoft"), each = 60),
+  high   = c(runif(60, 155, 205), runif(60, 305, 405)),
+  low    = c(runif(60, 145, 195), runif(60, 295, 395)),
+  close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+  volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
+)
+# Example 1: Default parameters
+result <- add_TR(mkt_data)
+# Example 2: Return slim output
+result <- add_TR(mkt_data, append = FALSE)
+# Example 3: Return as data.frame
+result <- add_TR(mkt_data, output = "data.frame")
 }
 }
-\seealso{
-\code{\link{ATR}} for Average True Range.
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

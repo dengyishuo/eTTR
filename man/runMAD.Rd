@@ -2,7 +2,7 @@
 % Please edit documentation in R/runMAD.R
 \name{runMAD}
 \alias{runMAD}
-\title{Moving Window Median Absolute Deviation (runMAD)}
+\title{Rolling Median Absolute Deviation (MAD)}
 \usage{
 runMAD(
   x,
@@ -15,30 +15,40 @@ runMAD(
 )
 }
 \arguments{
-\item{x}{Object coercible to xts or matrix.}
+\item{x}{Univariate time series vector, matrix or xts object.}
 
-\item{n}{Number of periods in the window (1 <= n <= nrow(x)).}
+\item{n}{Integer rolling window size, must satisfy \code{1 <= n <= NROW(x)}. Default 10.}
 
-\item{center}{Central tendency to use (NULL for median).}
+\item{center}{Numeric vector/xts, precomputed central tendency series used for absolute deviation calculation.
+If \code{NULL}, rolling median of \code{x} with window \code{n} is used automatically. Default \code{NULL}.}
 
-\item{stat}{Type of MAD: 'median' (default) or 'mean'.}
+\item{stat}{Character string specifying central statistic for deviation aggregation; one of \code{c("median", "mean")}.
+\code{"median"} computes median absolute deviation; \code{"mean"} computes mean absolute deviation. Default \code{"median"}.}
 
-\item{constant}{Scale factor for median MAD (default 1.4826).}
+\item{constant}{Numeric scaling constant to multiply raw MAD values (standard stats MAD constant = 1.4826). Default 1.4826.}
 
-\item{non.unique}{Handling of even-sized windows: 'mean', 'max', or 'min'.}
+\item{non.unique}{Character string handling ties in window absolute deviations; one of \code{c("mean", "max", "min")}.
+\code{"mean"} average tied values; \code{"max"} pick maximum tie value; \code{"min"} pick minimum tie value. Default \code{"mean"}.}
 
-\item{cumulative}{Logical; if TRUE, use from-inception calculation.}
+\item{cumulative}{Logical flag, if \code{TRUE} compute expanding/cumulative window instead of rolling fixed window. Default \code{FALSE}.}
 }
 \value{
-An object of the same class as \code{x} with MAD values.
+Object with identical class as input \code{x}, containing rolling MAD values.
 }
 \description{
-Calculate the median absolute deviation over a moving window of periods.
+Compute rolling Median Absolute Deviation over a fixed-width moving window.
+Supports cumulative mode and configurable MAD scaling constant for consistency with stats::mad.
 }
-\examples{
-data(TSLA)
-mad_20 <- runMAD(TSLA[, "Close"], 20)
-head(mad_20)
+\details{
+Internal computation is implemented via compiled C function \code{runmad} for high performance.
+Workflow:
+\enumerate{
+\item Coerce input to xts with \code{\link[xts]{try.xts}}.
+\item Validate window length and univariate input constraint.
+\item Auto-generate rolling median center series if no \code{center} input is provided.
+\item Map character configuration arguments to integer flags for C call interface.
+\item Execute fast rolling calculation via native C code.
+\item Apply standard MAD scaling constant when median-based deviation is selected.
+\item Revert output to original input class using \code{\link[xts]{reclass}}.
 }
-\keyword{internal}
-\keyword{ts}
+}

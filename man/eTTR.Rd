@@ -12,25 +12,10 @@ Finance.
 }
 \details{
 Users will probably be most interested in the following functions:\cr
-\code{\link{ADX}}\cr \code{\link{BBands}}\cr \code{\link{MACD}}\cr
-\code{\link{RSI}}\cr \code{\link{stoch}}\cr \code{\link{VWAP}}\cr
-}
-\examples{
-data(TSLA)
-data(AAPL)
-# Bollinger Bands
-bbands <- BBands(TSLA[, c("High", "Low", "Close")])
-# Directional Movement Index
-adx <- ADX(TSLA[, c("High", "Low", "Close")])
-# Moving Averages
-ema <- EMA(TSLA[, "Close"], n = 20)
-sma <- SMA(TSLA[, "Close"], n = 20)
-# MACD
-macd <- MACD(AAPL[, "Close"])
-# RSI
-rsi <- RSI(AAPL[, "Close"])
-# Stochastics
-stochOsc <- stoch(AAPL[, c("High", "Low", "Close")])
+\code{\link[TTR]{ADX}}\cr \code{\link[TTR]{BBands}}\cr \code{\link[TTR]{MACD}}\cr
+\code{\link[TTR]{RSI}}\cr \code{\link[TTR]{stoch}}\cr \code{\link[TTR]{VWAP}}\cr
+
+Global import functions from external packages, effective for all package scripts
 }
 \references{
 The following sites were used to code/document this package:\cr
@@ -50,4 +35,5 @@ Useful links:
 \author{
 DengYishuo
 }
+\keyword{internal}
 \keyword{package}

@@ -2,29 +2,35 @@
 % Please edit documentation in R/runMedian.R
 \name{runMedian}
 \alias{runMedian}
-\title{Moving Window Median (runMedian)}
+\title{Rolling Median}
 \usage{
 runMedian(x, n = 10, non.unique = "mean", cumulative = FALSE)
 }
 \arguments{
-\item{x}{Object coercible to xts or matrix.}
+\item{x}{Univariate numeric time series, accepts vector, matrix or xts/zoo object.}
 
-\item{n}{Number of periods in the window (1 <= n <= nrow(x)).}
+\item{n}{Integer rolling window length, must satisfy \code{1 <= n <= NROW(x)}. Default 10.}
 
-\item{non.unique}{Handling of even-sized windows: 'mean', 'max', or 'min'.}
+\item{non.unique}{Character string specifying tie resolution method for even-sized windows;
+allowed values: \code{c("mean", "max", "min")}.
+\code{"mean"} = average of two middle values; \code{"max"} = upper middle value; \code{"min"} = lower middle value.
+Default \code{"mean"}.}
 
-\item{cumulative}{Logical; if TRUE, use from-inception calculation.}
+\item{cumulative}{Logical scalar. If \code{TRUE}, calculate expanding cumulative median; fixed rolling median when \code{FALSE}. Default \code{FALSE}.}
 }
 \value{
-An object of the same class as \code{x} with median values.
+Object with identical class as input \code{x}, containing rolling or cumulative median values.
 }
 \description{
-Calculate the median value over a moving window of periods.
+Compute rolling fixed-window or expanding cumulative median for univariate time series via compiled C backend.
+Provides configurable tie-handling strategy for windows with even number of observations.
 }
-\examples{
-data(TSLA)
-median_10 <- runMedian(TSLA[, "Close"], 10)
-head(median_10)
+\details{
+\enumerate{
+\item Input is coerced to xts with \code{\link[xts]{try.xts}}.
+\item Validate window bounds and restrict input to univariate series only.
+\item Map character \code{non.unique} option to integer flag for native C function interface.
+\item Core median calculation executed via compiled C routine \code{runmedian} through \code{.Call}.
+\item Restore output to the original input data class with \code{\link[xts]{reclass}}.
 }
-\keyword{internal}
-\keyword{ts}
+}

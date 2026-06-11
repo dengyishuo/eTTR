@@ -1,114 +1,96 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025 - 2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Calculate Arms' Ease of Movement Value
+#' @title Ease of Movement (EMV)
 #' @description
-#' Arms' Ease of Movement Value (EMV) emphasizes days where the security moves
-#' easily and minimizes days where the security does not move easily. Developed
-#' by Richard W. Arms, Jr.
-#' The EMV is calculated by dividing the midpoint \code{[high + low\]/2} move by
-#' the 'Box Ratio' (volume divided by the high minus low).
-#' @param OHLCV Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume prices.
-#' @param n Number of periods for moving average. Defaults to 9.
-#' @param maType A function or a string naming the function to be called.
-#' @param vol.divisor An increment to make the results larger and easier to work
-#' with. Defaults to 10000.
-#' @param append A logical value. If \code{TRUE}, the calculated Arms' Ease of Movement Value
-#' values will be appended to the \code{OHLCV} input data, ensuring
-#' proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' Arms' Ease of Movement Value values will be returned. Defaults to \code{FALSE}.
-#' @param ... Other arguments to be passed to the \code{maType} function.
-#' @return If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-#' or a matrix (if \code{try.xts} fails) containing the columns:
-#'  \describe{
-#'   \item{ emv }{ The ease of movement values. }
-#'   \item{ maEMV }{ The smoothed (as specified by \code{ma}) ease of movement values. }
-#'  }
-#' If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-#' calculated Arms' Ease of Movement Value values appended, maintaining the integrity of the time - series
-#' alignment.
-#' @note A buy/sell signal is generated when the EMV crosses above/below zero.
-#' When the EMV hovers around zero, there are small price movements and/or high
-#' volume, and the price is not moving easily.
-#' @author DengYishuo
-#' @seealso See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
-#' options; and note Warning section.
-#' @references The following site(s) were used to code/document this
-#' indicator:\cr \url{https://www.fmlabs.com/reference/ArmsEMV.htm}\cr
-#' \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=51}\cr
-#' \url{https://www.linnsoft.com/techind/arms - ease - movement}\cr
-#' @keywords ts
+#' Computes the Ease of Movement indicator for each security in a long-format
+#' panel data frame. EMV relates price change to volume to identify how easily a
+#' security moves in price. Developed by Richard Arms.
+#'
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, and the required price/volume columns.
+#' @param n Integer. Look-back window for the moving average of raw EMV. Defaults
+#'   to \code{9}.
+#' @param maType Character. Moving average type applied to raw EMV. Defaults to
+#'   \code{"SMA"}.
+#' @param vol.divisor Numeric. Divisor applied to volume to scale EMV values.
+#'   Defaults to \code{10000}.
+#' @param append Logical. If \code{TRUE} (default), append new columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#' @param ... Additional arguments passed to the \code{maType} function.
+#'
+#' @return A \code{tibble} or \code{data.frame} sorted by \code{date} then
+#'   \code{code}, with columns:
+#'   \describe{
+#'     \item{emv}{Raw Ease of Movement value.}
+#'     \item{maEMV}{Smoothed Ease of Movement using \code{maType} over \code{n}
+#'       periods.}
+#'   }
 #' @export
+#' @importFrom tibble as_tibble
 #' @examples
 #' \dontrun{
-#' data(TSLA)
-#' # Using default parameters without appending
-#' emv_result1 <- add_EMV(TSLA)
-#'
-#' # Modifying n and without appending
-#' emv_result2 <- add_EMV(TSLA, n = 12)
-#'
-#' # Using default parameters and appending
-#' emv_result3 <- add_EMV(TSLA, append = TRUE)
-#'
-#' # Modifying n and appending
-#' emv_result4 <- add_EMV(TSLA, n = 12, append = TRUE)
+#' mkt_data <- data.frame(
+#'   date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+#'   code   = rep(c("AAPL", "MSFT"), each = 60),
+#'   name   = rep(c("Apple", "Microsoft"), each = 60),
+#'   high   = c(runif(60, 155, 205), runif(60, 305, 405)),
+#'   low    = c(runif(60, 145, 195), runif(60, 295, 395)),
+#'   close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+#'   volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
+#' )
+#' # Example 1: Default parameters
+#' result <- add_EMV(mkt_data)
+#' # Example 2: Custom window
+#' result <- add_EMV(mkt_data, n = 14)
+#' # Example 3: Slim output
+#' result <- add_EMV(mkt_data, n = 9, append = FALSE)
 #' }
-add_EMV <- function(OHLCV, n = 9, maType, vol.divisor = 10000, append = FALSE, ...) {
-  # Extract HL and volume from OHLCV
-  hl <- OHLCV[, c("High", "Low")]
-  volume <- OHLCV[, "Volume"]
+add_EMV <- function(mkt_data, n = 9, maType = "SMA", vol.divisor = 10000,
+                    append = TRUE, output = c("tibble", "data.frame"), ...) {
+  # ── Argument resolution ────────────────────────────────────────────────────
+  output <- match.arg(output)
 
-  if (missing(hl) || missing(volume)) {
-    stop("High - Low matrix (HL) and volume vector must be specified.")
+  # ── Input validation ───────────────────────────────────────────────────────
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, high, low, volume.")
+  }
+  required_cols <- c("date", "code", "high", "low", "volume")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
   }
 
-  hl <- try.xts(hl, error = as.matrix)
-  volume <- try.xts(volume, error = as.matrix)
+  # ── Split-apply-combine ────────────────────────────────────────────────────
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
 
-  if (!(is.xts(hl) && is.xts(volume))) {
-    hl <- as.matrix(hl)
-    volume <- as.matrix(volume)
+    h <- sub$high
+    l <- sub$low
+    vol <- sub$volume / vol.divisor
+
+    mid <- (h + l) / 2
+    mid_prev <- c(NA, mid[-length(mid)])
+    emv_raw <- (mid - mid_prev) / (vol / (h - l))
+
+    ma_args <- list(n = n, ...)
+    ma_emv <- do.call(maType, c(list(emv_raw), ma_args))
+
+    sub[["emv"]] <- as.numeric(emv_raw)
+    sub[["maEMV"]] <- as.numeric(ma_emv)
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  # ── Optionally drop original OHLCV columns ─────────────────────────────────
+  if (!append) {
+    keep <- intersect(c("date", "code", "name", "emv", "maEMV"), colnames(res))
+    res <- res[, keep, drop = FALSE]
   }
 
-  mid <- (hl[, 1] + hl[, 2]) / 2
-  volume <- volume / vol.divisor
-
-  emv <- momentum(mid, n = 1, na.pad = TRUE) / (volume / (hl[, 1] - hl[, 2]))
-
-  ma_args <- list(n = n, ...)
-  # Default MA
-  if (missing(maType)) {
-    maType <- "SMA"
-  }
-
-  maEMV <- do.call(maType, c(list(emv), ma_args))
-
-  result <- cbind(emv, maEMV)
-  colnames(result) <- c("emv", "maEMV")
-
-  result <- reclass(result, hl)
-
-  if (append) {
-    ohlcv <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(ohlcv, result)
-    return(combined_result)
-  } else {
-    return(result)
-  }
+  # ── Return in requested format ─────────────────────────────────────────────
+  if (output == "tibble") tibble::as_tibble(res) else as.data.frame(res, stringsAsFactors = FALSE)
 }

@@ -1,32 +1,28 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2007-2013  Deng Yishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Align an object with a target index
-#' @description
-#' Ensures that the input object is aligned with the specified target index,
-#' filling missing values with NA if necessary.
+#' Align Time Series Data to Target Index
 #'
-#' @param x The input object (numeric vector or xts).
-#' @param target_index The target index to align with.
-#' @param fill_value The value to use for filling missing positions, default is NA.
-#' @return An xts object aligned with the target index.
-#' @importFrom zoo index
-#' @keywords internal
+#' Align input time series object to a specified target index sequence.
+#' Automatically convert non-xts input to xts, truncate excess rows or pad missing leading observations with fill value.
+#'
+#' @param x Input time series object, can be numeric vector, matrix or xts/zoo object.
+#' @param target_index Vector of date/time index to align \code{x} against; accepts Date, POSIXct, numeric index.
+#' @param fill_value Scalar value used to fill newly padded leading rows, default \code{NA}.
+#'
+#' @details
+#' Logic flow:
+#' 1. If \code{target_index} is NULL, return original input unchanged.
+#' 2. If input is xts with identical index length as target, directly return \code{x}.
+#' 3. Non-xts input will be wrapped into an xts object with \code{target_index}, original values placed at the tail, front padded with fill value.
+#' 4. For xts input with mismatched index length:
+#' \itemize{
+#'   \item Shorter input: pad leading rows with fill value, attach target index.
+#'   \item Longer input: truncate to match target index length via \code{\link{head}}.
+#'   \item Same length different index: overwrite index with target index.
+#' }
+#'
+#' @return An xts object aligned to \code{target_index}.
+#'
+#' @importFrom xts is.xts xts
+#' @importFrom zoo index coredata
 #' @export
 align_with_index <- function(x, target_index, fill_value = NA) {
   if (is.null(target_index)) {
@@ -34,11 +30,11 @@ align_with_index <- function(x, target_index, fill_value = NA) {
   }
 
   # If x is already xts and length matches, return directly
-  if (is.xts(x) && length(zoo::index(x)) == length(target_index)) {
+  if (is.xts(x) && length(index(x)) == length(target_index)) {
     return(x)
   }
 
-  # If x is not xts, convert to xts
+  # If x is not xts, convert to xts and pad front with fill value
   if (!is.xts(x)) {
     x_xts <- xts(rep(fill_value, length(target_index)), order.by = target_index)
     if (length(x) > 0) {
@@ -47,21 +43,21 @@ align_with_index <- function(x, target_index, fill_value = NA) {
     return(x_xts)
   }
 
-  # If x is xts but length doesn't match, extend or truncate
+  # If x is xts but length doesn't match target index length
   current_length <- length(zoo::index(x))
   target_length <- length(target_index)
 
   if (current_length == target_length) {
-    # Same length but indices might differ, reset index
+    # Same length, replace original index with target index
     zoo::index(x) <- target_index
     return(x)
   } else if (current_length < target_length) {
-    # Extend and fill with NA
+    # Extend series, fill leading positions with fill_value
     new_x <- xts(rep(fill_value, target_length), order.by = target_index)
     new_x[(target_length - current_length + 1):target_length] <- coredata(x)
     return(new_x)
   } else {
-    # Truncate
+    # Truncate xts to target length
     return(head(x, target_length))
   }
 }

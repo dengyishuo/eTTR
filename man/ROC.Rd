@@ -4,33 +4,21 @@
 \alias{ROC}
 \title{Rate of Change (ROC)}
 \usage{
-ROC(x, n = 1, type = c("continuous", "discrete"), na.pad = TRUE)
+ROC(x, n = 1, type = c("discrete", "continuous"), na.pad = TRUE)
 }
 \arguments{
-\item{x}{Price, volume, etc. series that is coercible to xts or matrix.}
+\item{x}{Price series (numeric vector, matrix, or xts object).}
 
-\item{n}{Number of periods to use.}
+\item{n}{Number of periods for the ROC calculation. Default 1.}
 
-\item{type}{Compounding type; either \code{"continuous"} (the default) or
-\code{"discrete"}.}
+\item{type}{Type of ROC: \code{"discrete"} (price ratio - 1) or \code{"continuous"} (log difference). Default \code{"discrete"}.}
 
-\item{na.pad}{Should periods prior to \code{n} be appended? Default is \code{TRUE}.}
+\item{na.pad}{Logical. If \code{TRUE}, pad the result with NAs at the beginning. Default \code{TRUE}.}
 }
 \value{
-A object of the same class as \code{x} or a vector (if \code{try.xts}
-fails) containing the rate-of-change values.
+An object of the same class as \code{x} containing the ROC values.
 }
 \description{
-Calculate the rate of change of a series over \code{n} periods.
-
-The ROC indicator provides the percentage difference of a series over two
-observations. It can be calculated using either continuous or discrete compounding.
+Calculate the Rate of Change (ROC) of a series. ROC can be computed as either
+discrete (price ratio) or continuous (log difference).
 }
-\examples{
-data(TSLA)
-roc <- ROC(TSLA[, "Close"])
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

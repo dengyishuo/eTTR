@@ -2,47 +2,46 @@
 % Please edit documentation in R/add_VWAP.R
 \name{add_VWAP}
 \alias{add_VWAP}
-\title{Calculate Volume - Weighted Average Price (VWAP)}
+\title{Add Volume Weighted Average Price (VWAP)}
 \usage{
-add_VWAP(OHLCV, n = 10, append = FALSE)
+add_VWAP(mkt_data, n = 10, append = TRUE, output = c("tibble", "data.frame"))
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume data.
-The function will extract the closing price and volume from this object for VWAP calculation.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, \code{close}, and \code{volume}.}
 
-\item{n}{Number of periods to average over. This parameter determines the window size for the VWAP calculation.
-A larger \code{n} will result in a smoother VWAP, but it may be less responsive to recent price and volume changes.}
+\item{n}{Integer. Look-back window. Defaults to \code{10}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated VWAP values will be appended to the \code{OHLCV} input data,
-ensuring proper alignment of time - series data. If \code{FALSE}, only the calculated
-VWAP values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append} is \code{FALSE}, an object of the same class as \code{OHLCV} (or a vector if \code{try.xts} fails)
-containing the VWAP values.
-If \code{append} is \code{TRUE}, an object of the same class as \code{OHLCV} with the calculated VWAP values appended,
-maintaining the integrity of the time - series alignment.
+The input data frame with an additional column \code{VWAP}
+containing the volume weighted average price.
 }
 \description{
-Calculate the volume - weighted moving average price. The VWAP is a trading benchmark
-that represents the average price at which a security has traded throughout the day,
-weighted by the volume traded at each price level. It is commonly used by traders
-to assess the fair value of a security during a specific period.
+Computes the Volume Weighted Average Price over a rolling
+look-back window for each asset in a long-format panel data frame and
+appends the result as a new column named \code{VWAP}. VWAP is calculated
+as a volume-weighted moving average of \code{close} prices.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-vwap_result1 <- add_VWAP(TSLA)
-
-# Using default parameters and appending
-vwap_result2 <- add_VWAP(TSLA, append = TRUE)
-
-# Changing n and without appending
-vwap_result3 <- add_VWAP(TSLA, n = 15)
-
-# Changing n and appending
-vwap_result4 <- add_VWAP(TSLA, n = 15, append = TRUE)
+mkt_data <- data.frame(
+  date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code   = rep(c("AAPL", "MSFT"), each = 60),
+  name   = rep(c("Apple", "Microsoft"), each = 60),
+  close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+  volume = c(runif(60, 1e6, 5e6), runif(60, 2e6, 8e6))
+)
+# Example 1: Default parameters
+result <- add_VWAP(mkt_data)
+# Example 2: Custom window
+result <- add_VWAP(mkt_data, n = 20)
+# Example 3: Slim output
+result <- add_VWAP(mkt_data, n = 30, append = FALSE)
 }
 }
-\keyword{ts}

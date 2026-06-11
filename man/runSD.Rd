@@ -2,28 +2,27 @@
 % Please edit documentation in R/runSD.R
 \name{runSD}
 \alias{runSD}
-\title{Moving Window Standard Deviation (runSD)}
+\title{Rolling Standard Deviation}
 \usage{
 runSD(x, n = 10, sample = TRUE, cumulative = FALSE)
 }
 \arguments{
-\item{x}{Object coercible to xts or matrix.}
+\item{x}{Univariate numeric time series, can be vector, matrix or xts/zoo object.}
 
-\item{n}{Number of periods in the window (1 <= n <= nrow(x)).}
+\item{n}{Integer rolling window size, must satisfy \code{1 <= n <= NROW(x)}. Default 10.}
 
-\item{sample}{Logical; if TRUE, use sample standard deviation (n-1 denominator).}
+\item{sample}{Logical, whether to compute sample standard deviation (divide by n-1) or population standard deviation (divide by n). Default \code{TRUE}.}
 
-\item{cumulative}{Logical; if TRUE, use from-inception calculation.}
+\item{cumulative}{Logical, if \code{TRUE} use expanding cumulative window instead of fixed rolling window. Default \code{FALSE}.}
 }
 \value{
-An object of the same class as \code{x} with standard deviation values.
+Object with the same class as input \code{x}, containing rolling standard deviation values.
 }
 \description{
-Calculate the standard deviation over a moving window of periods.
+Calculate rolling or cumulative standard deviation by taking square root of rolling covariance of the series with itself.
 }
-\examples{
-data(TSLA)
-sd_20 <- runSD(TSLA[, "Close"], 20)
-head(sd_20)
+\details{
+Standard deviation is derived from rolling covariance:
+\deqn{runSD(x) = \sqrt{runCov(x, x)}}
+All input coercion, window validation, NA handling and xts class restoration logic are delegated to internal \code{\link{runCov}}.
 }
-\keyword{ts}

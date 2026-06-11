@@ -7,33 +7,31 @@
 runRegression(x, n = 14, include.intercept = TRUE, output = "all")
 }
 \arguments{
-\item{x}{A time series (vector or xts object).}
+\item{x}{Numeric vector or xts object.}
 
-\item{n}{The size of the sliding window (number of periods for regression). Default is 14.}
+\item{n}{Window size (number of observations per regression).}
 
-\item{include.intercept}{Logical indicating whether to include an intercept term. Default is TRUE.}
+\item{include.intercept}{Logical. If \code{TRUE}, includes an intercept term.}
 
-\item{output}{The type of output: "all" returns all regression results, "slope" returns only the slope.}
+\item{output}{Character. Either \code{"all"} (return full list of statistics)
+or \code{"slope"} (return only the slope coefficient).}
 }
 \value{
-If output is "slope", returns a vector or xts object containing slope values.
-If output is "all", returns a list of class "runRegression" containing coefficients,
-R-squared, adjusted R-squared, F-statistic, and p-value.
+Depending on \code{output}:
+\itemize{
+\item \code{"slope"}: a vector (or xts) of slope coefficients.
+\item \code{"all"}: a list with elements \code{coefficients}, \code{r.squared},
+\code{adj.r.squared}, \code{f.statistic}, \code{p.value}. If \code{x} is
+xts, these are xts objects; otherwise they are numeric vectors.
+}
 }
 \description{
-Performs linear regression over a sliding window on a time series,
-providing coefficients and statistical metrics for each window.
-}
-\details{
-This function computes linear regression over a sliding window of specified size.
-It is particularly useful for analyzing trends and momentum in financial time series.
+Computes rolling linear regressions over a fixed-size window.
 }
 \examples{
-# Generate sample data
+# Generate sample data and run regression
 set.seed(123)
 x <- xts::xts(rnorm(100), order.by = Sys.Date() - 99:0)
-# Calculate slope-only results
-slopes <- runRegression(x, n = 10, output = "slope")
-# Calculate full regression results
-reg_results <- runRegression(x, n = 10, output = "all")
+reg_results <- runRegression(x, n = 10)
+print(reg_results)
 }

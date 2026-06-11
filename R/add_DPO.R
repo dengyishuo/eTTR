@@ -1,104 +1,104 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025 - 2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Calculate De - Trended Price Oscillator
-#' @description
-#' The Detrended Price Oscillator (DPO) removes the trend in prices - or other
-#' series - by subtracting a moving average of the price from the price. The
-#' Detrended Price shows cycles and overbought / oversold conditions.
-#' @param OHLCV Price, volume, etc. series that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.
-#' @param n Number of periods for moving average. Defaults to 10.
-#' @param maType A function or a string naming the function to be called.
-#' @param shift The number of periods to shift the moving average. Defaults to n / 2 + 1.
-#' @param percent logical; if \code{TRUE}, the percentage difference between the
-#' slow and fast moving averages is returned, otherwise the difference between
-#' the respective averages is returned. Defaults to FALSE.
-#' @param append A logical value. If \code{TRUE}, the calculated De - Trended Price Oscillator
-#' values will be appended to the \code{OHLCV} input data, ensuring
-#' proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' De - Trended Price Oscillator values will be returned. Defaults to \code{FALSE}.
-#' @param ... Other arguments to be passed to the \code{maType} function.
-#' @return If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-#' or a vector (if \code{try.xts} fails) containing the DPO values.
-#' If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-#' calculated De - Trended Price Oscillator values appended, maintaining the integrity of the time - series
-#' alignment.
-#' @note
-#' DPO does not extend to the last date because it is based on a displaced moving
-#' average. The calculation shifts the results \code{shift} periods, so the last
-#' \code{shift} periods will be zero.\cr
-#' As stated above, the DPO can be used on any univariate series, not just price.
-#' @section Warning: The detrended price oscillator removes the trend in the
-#' series by centering the moving average. Centering the moving average causes it
-#' to include future data. Therefore, even though this indicator looks like a
-#' classic oscillator, it should not be used for trading rule signals.
-#' @author DengYishuo
-#' @seealso See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
-#' options; and note Warning section.  See \code{\link{MACD}} for a general
-#' oscillator.
-#' @references The following site(s) were used to code/document this
-#' indicator:\cr
-#' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:detrended_price_osci}\cr
-#' @keywords ts
+#' @title Add Detrended Price Oscillator (DPO)
+#'
+#' @description Computes the Detrended Price Oscillator for each asset in a
+#'   long-format panel data frame and appends the result as a new column named
+#'   \code{DPO_<n>}. The DPO removes the trend from price by subtracting a
+#'   shifted moving average, isolating shorter-term price cycles.
+#'
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, and the required price columns.
+#' @param n Integer. Look-back window for the moving average. Defaults to
+#'   \code{10}.
+#' @param maType Character or function. Moving average type. Defaults to
+#'   \code{"SMA"}.
+#' @param shift Integer. Number of periods to shift the MA back in time.
+#'   Defaults to \code{n / 2 + 1}.
+#' @param percent Logical. If \code{FALSE} (default), return the absolute
+#'   difference. If \code{TRUE}, return the percentage difference relative to
+#'   the shifted MA.
+#' @param append Logical. If \code{TRUE} (default), append new columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#' @param ... Additional arguments passed to the moving average function.
+#'
+#' @return The input data frame with an additional column \code{DPO_<n>}
+#'   containing the detrended price oscillator values.
+#'
 #' @export
+#' @importFrom xts xts
+#' @importFrom tibble as_tibble
+#'
 #' @examples
 #' \dontrun{
-#' data(TSLA)
-#' # Using default parameters without appending
-#' priceDPO_result1 <- add_DPO(TSLA)
-#'
-#' # Modifying n and without appending
-#' priceDPO_result2 <- add_DPO(TSLA, n = 15)
-#'
-#' # Using default parameters and appending
-#' priceDPO_result3 <- add_DPO(TSLA, append = TRUE)
-#'
-#' # Modifying n and appending
-#' priceDPO_result4 <- add_DPO(TSLA, n = 15, append = TRUE)
+#' mkt_data <- data.frame(
+#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+#'   code  = rep(c("AAPL", "MSFT"), each = 60),
+#'   name  = rep(c("Apple", "Microsoft"), each = 60),
+#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
+#' )
+#' # Example 1: Default parameters
+#' result <- add_DPO(mkt_data)
+#' # Example 2: Custom window with EMA
+#' result <- add_DPO(mkt_data, n = 20, maType = "EMA")
+#' # Example 3: Slim output as percentage
+#' result <- add_DPO(mkt_data, n = 14, percent = TRUE, append = FALSE)
 #' }
-add_DPO <- function(OHLCV, n = 10, maType, shift = n / 2 + 1, percent = FALSE, append = FALSE, ...) {
-  # Assume we use Close price for calculation, can be adjusted
-  x <- OHLCV[, "Close"]
+add_DPO <- function(mkt_data, n = 10, maType, shift = n / 2 + 1, percent = FALSE,
+                    append = TRUE, output = c("tibble", "data.frame"), ...) {
 
-  x <- try.xts(x, error = as.matrix)
+  # ── Argument resolution ────────────────────────────────────────────────────
+  output <- match.arg(output)
+  if (missing(maType)) maType <- "SMA"
 
-  ma_args <- list(n = n, ...)
-  # Default MA
-  if (missing(maType)) {
-    maType <- "SMA"
+  # ── Input validation ───────────────────────────────────────────────────────
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, close.")
+  }
+  required_cols <- c("date", "code", "close")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
   }
 
-  mavg <- do.call(maType, c(list(x), ma_args))
-  mavg <- lag.xts(mavg, -shift)
+  # ── Split-apply-combine over each asset ───────────────────────────────────
+  col_name <- paste0("DPO_", n)
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
 
-  if (percent) {
-    dpo <- 100 * (x[, 1] / mavg - 1)
-  } else {
-    dpo <- x[, 1] - mavg
+    if (n > nrow(sub)) {
+      warning(sprintf("Skipping code '%s': n = %d exceeds available rows (%d).", cd, n, nrow(sub)))
+      sub[[col_name]] <- NA_real_
+      return(sub)
+    }
+
+    close_xts <- xts::xts(sub$close, order.by = sub$date)
+
+    ma_args <- list(n = n, ...)
+    mavg <- do.call(maType, c(list(close_xts), ma_args))
+    mavg <- xts::lag.xts(mavg, -shift)
+
+    if (percent) {
+      dpo <- 100 * (close_xts / mavg - 1)
+    } else {
+      dpo <- close_xts - mavg
+    }
+
+    sub[[col_name]] <- as.numeric(dpo)
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  # ── Slim output when append = FALSE ───────────────────────────────────────
+  if (!append) {
+    keep <- intersect(c("date", "code", "name", col_name), colnames(res))
+    res <- res[, keep, drop = FALSE]
   }
 
-  dpo <- reclass(dpo, x)
-
-  if (append) {
-    ohlcv <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(ohlcv, dpo)
-    return(combined_result)
-  } else {
-    return(dpo)
-  }
+  # ── Output format conversion ───────────────────────────────────────────────
+  if (output == "tibble") tibble::as_tibble(res) else as.data.frame(res, stringsAsFactors = FALSE)
 }

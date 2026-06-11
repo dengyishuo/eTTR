@@ -2,66 +2,51 @@
 % Please edit documentation in R/add_CMF.R
 \name{add_CMF}
 \alias{add_CMF}
-\title{Calculate Chaikin Money Flow}
+\title{Chaikin Money Flow (CMF)}
 \usage{
-add_CMF(OHLCV, n = 20, append = FALSE)
+add_CMF(mkt_data, n = 20, append = TRUE, output = c("tibble", "data.frame"))
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume prices.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, \code{high}, \code{low}, \code{close},
+and \code{volume}.}
 
-\item{n}{Number of periods to use. Defaults to 20.}
+\item{n}{Integer. Look-back window. Defaults to \code{20}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated Chaikin Money Flow
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-Chaikin Money Flow values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append result columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a vector (if \code{try.xts} fails) containing the Chaikin Money Flow values.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated Chaikin Money Flow values appended, maintaining the integrity of the time - series
-alignment.
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with column \code{CMF} containing values typically in
+\code{[-1, 1]}.
 }
 \description{
-Chaikin Money Flow compares total volume over the last \code{n} time periods
-to total volume times the Close Location Value (CLV) over the last \code{n}
-time periods. Developed by Marc Chaikin.
-Chaikin Money Flow is calculated by taking dividing the sum of the Chaikin
-Accumulation / Distribution line over the past \code{n} periods by the sum of
-volume over the past \code{n} periods.
-}
-\note{
-When Chaikin Money Flow is above/below +/- 0.25 it is a bullish/bearish
-signal. If Chaikin Money Flow remains below zero while the price is rising,
-it indicates a probable reversal.
+Computes Chaikin Money Flow for each security in a long-format panel data
+frame. CMF compares the rolling sum of volume-weighted Close Location Values
+to the rolling sum of total volume over \code{n} periods. Values above
+\code{+0.25} suggest accumulation (bullish); values below \code{-0.25}
+suggest distribution (bearish). Developed by Marc Chaikin.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-cmf_result1 <- add_CMF(TSLA)
-
-# Modifying n and without appending
-cmf_result2 <- add_CMF(TSLA, n = 30)
-
-# Using default parameters and appending
-cmf_result3 <- add_CMF(TSLA, append = TRUE)
-
-# Modifying n and appending
-cmf_result4 <- add_CMF(TSLA, n = 30, append = TRUE)
+mkt_data <- data.frame(
+  date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code   = rep(c("AAPL", "MSFT"), each = 60),
+  name   = rep(c("Apple", "Microsoft"), each = 60),
+  high   = c(runif(60, 155, 205), runif(60, 305, 405)),
+  low    = c(runif(60, 145, 195), runif(60, 295, 395)),
+  close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+  volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
+)
+# Example 1: Default parameters
+result <- add_CMF(mkt_data)
+# Example 2: Custom window
+result <- add_CMF(mkt_data, n = 30)
+# Example 3: Slim output as data.frame
+result <- add_CMF(mkt_data, n = 20, append = FALSE, output = "data.frame")
 }
 }
-\references{
-The following site(s) were used to code/document this
-indicator:\cr \url{https://www.fmlabs.com/reference/ChaikinMoneyFlow.htm}\cr
-\url{https://www.linnsoft.com/techind/chaikin - money - flow - cmf}\cr
-\url{https://school.stockcharts.com/doku.php?id=technical_indicators:chaikin_money_flow_cmf}\cr
-}
-\seealso{
-See \code{\link{CLV}}, and \code{\link{chaikinAD}}.
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

@@ -2,66 +2,46 @@
 % Please edit documentation in R/add_CMO.R
 \name{add_CMO}
 \alias{add_CMO}
-\title{Calculate Chande Momentum Oscillator}
+\title{Chande Momentum Oscillator (CMO)}
 \usage{
-add_CMO(OHLCV, n = 14, append = FALSE)
+add_CMO(mkt_data, n = 14, append = TRUE, output = c("tibble", "data.frame"))
 }
 \arguments{
-\item{OHLCV}{Price, volume, etc. series that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and \code{close}.}
 
-\item{n}{Number of periods to use. Defaults to 14.}
+\item{n}{Integer. Look-back window. Defaults to \code{14}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated Chande Momentum Oscillator
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-Chande Momentum Oscillator values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append result columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a vector (if \code{try.xts} fails) containing Chande Momentum Oscillator values.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated Chande Momentum Oscillator values appended, maintaining the integrity of the time - series
-alignment.
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with column \code{CMO_\{n\}} containing values in the range
+\code{[-100, 100]}.
 }
 \description{
-The Chande Momentum Oscillator (CMO) is a modified RSI. Developed by Tushar
-S. Chande.
-The CMO divides the total movement by the net movement ((up - down) / (up + down)),
-where RSI divides the upward movement by the net movement (up / (up + down)).
-}
-\note{
-There are several ways to interpret the CMO:
-\enumerate{
-\item Values over/under +/- 50 indicate overbought/oversold conditions.
-\item High CMO values indicate strong trends.
-\item When the CMO crosses above/below a moving average of the CMO,
-it is a buy/sell signal.
-}
+Computes the Chande Momentum Oscillator for each security in a long-format
+panel data frame. CMO measures momentum by comparing the sum of recent gains
+to the sum of recent losses over a look-back period, returning values between
+-100 and +100. Developed by Tushar Chande.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-cmo_result1 <- add_CMO(TSLA)
-
-# Modifying n and without appending
-cmo_result2 <- add_CMO(TSLA, n = 20)
-
-# Using default parameters and appending
-cmo_result3 <- add_CMO(TSLA, append = TRUE)
-
-# Modifying n and appending
-cmo_result4 <- add_CMO(TSLA, n = 20, append = TRUE)
+mkt_data <- data.frame(
+  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code  = rep(c("AAPL", "MSFT"), each = 60),
+  name  = rep(c("Apple", "Microsoft"), each = 60),
+  close = c(runif(60, 150, 200), runif(60, 300, 400))
+)
+# Example 1: Default parameters
+result <- add_CMO(mkt_data)
+# Example 2: Custom window
+result <- add_CMO(mkt_data, n = 20)
+# Example 3: Slim output as data.frame
+result <- add_CMO(mkt_data, n = 14, append = FALSE, output = "data.frame")
 }
 }
-\references{
-The following site(s) were used to code/document this
-indicator:\cr \url{https://www.fmlabs.com/reference/CMO.htm}\cr
-}
-\seealso{
-See \code{\link{RSI}}.
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

@@ -2,46 +2,47 @@
 % Please edit documentation in R/add_EVWMA.R
 \name{add_EVWMA}
 \alias{add_EVWMA}
-\title{Calculate Elastic Volume - Weighted Moving Average (EVWMA)}
+\title{Add Elastic Volume Weighted Moving Average (EVWMA)}
 \usage{
-add_EVWMA(OHLCV, n = 10, append = FALSE)
+add_EVWMA(mkt_data, n = 10, append = TRUE, output = c("tibble", "data.frame"))
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume data.
-The function will extract the closing price and volume from this object for EVWMA calculation.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, \code{close}, and \code{volume}.}
 
-\item{n}{Number of periods to average over. This determines the window size for the moving average calculation.
-A larger \code{n} will result in a smoother EVWMA, but it may be less responsive to recent price changes.}
+\item{n}{Integer. Look-back window. Defaults to \code{10}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated EVWMA values will be appended to the \code{OHLCV} input data,
-ensuring proper alignment of time - series data. If \code{FALSE}, only the calculated
-EVWMA values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append} is \code{FALSE}, an object of the same class as \code{OHLCV} (or a vector if \code{try.xts} fails)
-containing the EVWMA values.
-If \code{append} is \code{TRUE}, an object of the same class as \code{OHLCV} with the calculated EVWMA values appended,
-maintaining the integrity of the time - series alignment.
+The input data frame with an additional column \code{EVWMA}
+containing the elastic volume weighted moving average.
 }
 \description{
-Calculate a volume - weighted moving average that adjusts to trading volume.
-The EVWMA takes into account the trading volume when calculating the moving average,
-giving more importance to periods with higher volume.
+Computes an Elastic Volume Weighted Moving Average for each
+asset in a long-format panel data frame and appends the result as a new
+column named \code{EVWMA}. The EVWMA uses cumulative volume as its
+smoothing factor, making it more responsive to periods of high trading
+activity.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-evwma_result1 <- add_EVWMA(TSLA)
-
-# Using default parameters and appending
-evwma_result2 <- add_EVWMA(TSLA, append = TRUE)
-
-# Changing n and without appending
-evwma_result3 <- add_EVWMA(TSLA, n = 15)
-
-# Changing n and appending
-evwma_result4 <- add_EVWMA(TSLA, n = 15, append = TRUE)
+mkt_data <- data.frame(
+  date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code   = rep(c("AAPL", "MSFT"), each = 60),
+  name   = rep(c("Apple", "Microsoft"), each = 60),
+  close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+  volume = c(runif(60, 1e6, 5e6), runif(60, 2e6, 8e6))
+)
+# Example 1: Default parameters
+result <- add_EVWMA(mkt_data)
+# Example 2: Custom window
+result <- add_EVWMA(mkt_data, n = 20)
+# Example 3: Slim output
+result <- add_EVWMA(mkt_data, n = 30, append = FALSE)
 }
 }
-\keyword{ts}

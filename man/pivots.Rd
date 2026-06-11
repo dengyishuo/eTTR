@@ -2,44 +2,21 @@
 % Please edit documentation in R/pivots.R
 \name{pivots}
 \alias{pivots}
-\title{Calculate Technical Analysis Pivot Points}
+\title{Pivot Points}
 \usage{
 pivots(data, lagts = TRUE)
 }
 \arguments{
-\item{data}{An xts object containing OHLCV price data}
+\item{data}{An xts object containing at least columns \code{High}, \code{Low}, \code{Close}
+(case‑sensitive). Typically, the output of \code{quantmod::HLC()}.}
 
-\item{lagts}{Logical indicating whether to lag the results (default is TRUE)}
+\item{lagts}{Logical. If \code{TRUE}, the results are lagged by one period so that
+today's pivots are based on yesterday's data. Default \code{TRUE}.}
 }
 \value{
-An xts object with the following columns:
-\describe{
-\item{center}{Central pivot point, calculated as \eqn{(High + Low + Close)/3}}
-\item{R1}{First resistance level, calculated as \eqn{(2 \times P) - Low}}
-\item{R2}{Second resistance level, calculated as \eqn{P + (R1 - S1)}}
-\item{S1}{First support level, calculated as \eqn{(2 \times P) - High}}
-\item{S2}{Second support level, calculated as \eqn{P - (R1 - S1)}}
-}
+An xts object with columns: \code{center} (pivot), \code{R1}, \code{R2}, \code{S1}, \code{S2}.
 }
 \description{
-Computes pivot points (central pivot, resistance levels, and support levels)
-based on OHLCV data using the standard 3-point pivot calculation method.
-}
-\examples{
-\dontrun{
-# Load sample data
-data(TSLA)
-prices <- Cl(TSLA)
-
-# Calculate pivot points
-pivot_points <- pivots(prices)
-head(pivot_points)
-}
-}
-\references{
-http://www.investopedia.com/articles/forex/05/FXpivots.asp
-http://www.investopedia.com/articles/technical/04/041404.asp
-}
-\author{
-Brian G. Peterson
+Calculate standard pivot points (central pivot, support and resistance levels)
+based on the high, low, and closing prices.
 }

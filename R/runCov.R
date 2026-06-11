@@ -1,38 +1,26 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025-2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-
-#' @title Moving Window Covariance (runCov)
-#' @description
-#' Calculate the covariance over a moving window of periods.
+#' Rolling Covariance
 #'
-#' @param x Object coercible to xts or matrix.
-#' @param y Object coercible to xts or matrix (if NULL, use x).
-#' @param n Number of periods in the window (1 <= n <= nrow(x)).
-#' @param sample Logical; if TRUE, use sample covariance (n-1 denominator).
-#' @param cumulative Logical; if TRUE, use from-inception calculation.
-#' @return An object of the same class as \code{x} with covariance values.
-#' @keywords ts internal
+#' Compute rolling or cumulative covariance between two univariate time series via compiled C backend.
+#' Supports both xts time series and regular numeric vectors/matrices as input.
+#'
+#' @param x Univariate numeric time series (vector, matrix, xts/zoo object), first input series.
+#' @param y Univariate numeric time series (vector, matrix, xts/zoo object), second input series.
+#' @param n Integer rolling window length, must satisfy \code{1 <= n <= NROW(x)}. Default 10.
+#' @param sample Logical scalar. If \code{TRUE}, calculate sample covariance (divisor \code{n-1});
+#'   if \code{FALSE}, calculate population covariance (divisor \code{n}). Default \code{TRUE}.
+#' @param cumulative Logical scalar. If \code{TRUE}, use expanding cumulative window instead of fixed rolling window. Default \code{FALSE}.
+#'
+#' @details
+#' 1. Coerce both input series to xts with \code{\link[xts]{try.xts}}.
+#' 2. Combine two series into a two-column matrix; preserve xts index if both inputs are xts.
+#' 3. Validate window size range and enforce univariate constraint for x and y.
+#' 4. Fast covariance computation is delegated to native C function \code{runcov} via \code{.Call}.
+#' 5. Restore original input data class with \code{\link[xts]{reclass}} before returning output.
+#'
+#' @return Object with identical class as input \code{x}, containing rolling covariance values.
+#'
+#' @importFrom xts try.xts reclass
 #' @export
-#' @examples
-#' data(TSLA)
-#' cov_20 <- runCov(TSLA[, "Close"], TSLA[, "Volume"], 20)
-#' head(cov_20)
 runCov <- function(x, y, n = 10, sample = TRUE, cumulative = FALSE) {
   x <- try.xts(x, error = as.matrix)
   y <- try.xts(y, error = as.matrix)

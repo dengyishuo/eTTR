@@ -1,93 +1,85 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025 - 2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Calculate Zero - Lag Exponential Moving Average (ZLEMA)
-#' @description
-#' Calculate an exponential moving average with reduced lag. The Zero - Lag Exponential Moving
-#' Average (ZLEMA) is designed to provide a more timely representation of price trends
-#' by reducing the lag typically associated with traditional exponential moving averages.
+#' @title Add Zero-Lag Exponential Moving Average (ZLEMA)
 #'
-#' @param OHLCV Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume data.
-#' The function will extract the closing price from this object for ZLEMA calculation.
-#' @param n Number of periods to average over. This parameter affects the smoothness and
-#' responsiveness of the ZLEMA. A larger \code{n} will result in a smoother ZLEMA,
-#' but it may be less responsive to recent price changes.
-#' @param ratio A smoothing/decay ratio. This ratio determines how much weight is given
-#' to recent observations in the ZLEMA calculation. If specified, it overrides the
-#' default calculation based on \code{n}.
-#' @param append A logical value. If \code{TRUE}, the calculated ZLEMA values will be appended to the \code{OHLCV} input data,
-#' ensuring proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' ZLEMA values will be returned. Defaults to \code{FALSE}.
-#' @return
-#' If \code{append} is \code{FALSE}, an object of the same class as \code{OHLCV} (or a vector if \code{try.xts} fails)
-#' containing the ZLEMA values.
-#' If \code{append} is \code{TRUE}, an object of the same class as \code{OHLCV} with the calculated ZLEMA values appended,
-#' maintaining the integrity of the time - series alignment.
-#' @keywords ts
+#' @description Computes a Zero-Lag Exponential Moving Average for each asset
+#'   in a long-format panel data frame and appends the result as a new column
+#'   named \code{ZLEMA_<n>}. ZLEMA reduces the inherent lag of traditional EMAs
+#'   by adjusting the input series with a lagged difference term.
+#'
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, and the required price columns.
+#' @param n Integer. Look-back window. Defaults to \code{10}.
+#' @param ratio Numeric. Custom smoothing ratio. Defaults to \code{NULL}.
+#' @param append Logical. If \code{TRUE} (default), append new columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#'
+#' @return The input data frame with an additional column \code{ZLEMA_<n>}
+#'   containing the zero-lag exponential moving average of \code{close}.
+#'
 #' @export
+#' @importFrom xts xts
+#' @importFrom tibble as_tibble
+#'
 #' @examples
 #' \dontrun{
-#' data(TSLA)
-#' # Using default parameters without appending
-#' zlema_result1 <- add_ZLEMA(TSLA)
-#'
-#' # Using default parameters and appending
-#' zlema_result2 <- add_ZLEMA(TSLA, append = TRUE)
-#'
-#' # Changing n and without appending
-#' zlema_result3 <- add_ZLEMA(TSLA, n = 15)
-#'
-#' # Changing n and appending
-#' zlema_result4 <- add_ZLEMA(TSLA, n = 15, append = TRUE)
+#' mkt_data <- data.frame(
+#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+#'   code  = rep(c("AAPL", "MSFT"), each = 60),
+#'   name  = rep(c("Apple", "Microsoft"), each = 60),
+#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
+#' )
+#' # Example 1: Default parameters
+#' result <- add_ZLEMA(mkt_data)
+#' # Example 2: Custom window
+#' result <- add_ZLEMA(mkt_data, n = 20)
+#' # Example 3: Slim output
+#' result <- add_ZLEMA(mkt_data, n = 50, append = FALSE)
 #' }
-add_ZLEMA <- function(OHLCV, n = 10, ratio = NULL, append = FALSE) {
-  # Check if OHLCV contains 'Close' column
-  if (!"Close" %in% colnames(OHLCV)) {
-    stop("OHLCV must contain 'Close' column")
+add_ZLEMA <- function(mkt_data, n = 10, ratio = NULL, append = TRUE,
+                      output = c("tibble", "data.frame")) {
+
+  # ── Argument resolution ────────────────────────────────────────────────────
+  output <- match.arg(output)
+
+  # ── Input validation ───────────────────────────────────────────────────────
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, close.")
+  }
+  required_cols <- c("date", "code", "close")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
   }
 
-  # Extract the closing price
-  x <- OHLCV[, "Close"]
-  x <- try.xts(x, error = as.matrix)
+  # ── Split-apply-combine over each asset ───────────────────────────────────
+  col_name <- paste0("ZLEMA_", n)
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
 
-  # Validate the number of columns in x
-  if (NCOL(x) > 1) {
-    stop("ncol(x) > 1. ZLEMA only supports univariate 'x'")
+    if (n > nrow(sub)) {
+      warning(sprintf("Skipping code '%s': n = %d exceeds available rows (%d).", cd, n, nrow(sub)))
+      sub[[col_name]] <- NA_real_
+      return(sub)
+    }
+
+    close_xts <- xts::xts(sub$close, order.by = sub$date)
+    ma <- ZLEMA(close_xts, n = n, ratio = ratio)
+    sub[[col_name]] <- as.numeric(ma)
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  # ── Slim output when append = FALSE ───────────────────────────────────────
+  if (!append) {
+    keep <- intersect(c("date", "code", "name", col_name), colnames(res))
+    res <- res[, keep, drop = FALSE]
   }
 
-  # If ratio is specified, and n is not, set n to approx 'correct' value
-  if (missing(n) && !missing(ratio)) {
-    n <- NULL
-  }
-
-  # Call C routine (assuming.CALL is defined)
-  ma <- .Call(zlema, x, n, ratio)
-  ma <- reclass(ma, x)
-
-  if (!is.null(dim(ma))) {
-    colnames(ma) <- "ZLEMA"
-  }
-
-  if (append) {
-    ohlcv <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(ohlcv, ma)
-    return(combined_result)
-  } else {
-    return(ma)
-  }
+  # ── Output format conversion ───────────────────────────────────────────────
+  if (output == "tibble") tibble::as_tibble(res) else as.data.frame(res, stringsAsFactors = FALSE)
 }

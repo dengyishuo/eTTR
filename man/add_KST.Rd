@@ -2,99 +2,69 @@
 % Please edit documentation in R/add_KST.R
 \name{add_KST}
 \alias{add_KST}
-\title{Calculate Know Sure Thing}
+\title{Add Know Sure Thing (KST) Oscillator}
 \usage{
 add_KST(
-  OHLCV,
+  mkt_data,
   n = c(10, 10, 10, 15),
   nROC = c(10, 15, 20, 30),
   nSig = 9,
   maType,
   wts = 1:NROW(n),
-  append = FALSE,
+  append = TRUE,
+  output = c("tibble", "data.frame"),
   ...
 )
 }
 \arguments{
-\item{OHLCV}{Price series that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and the required price columns.}
 
-\item{n}{A vector of the number of periods to use in the MA calculations. Defaults to c(10, 10, 10, 15).}
+\item{n}{Integer vector of length 4. Look-back windows for the four smoothed
+ROC components. Defaults to \code{c(10, 10, 10, 15)}.}
 
-\item{nROC}{A vector of the number of periods to use in the ROC calculations. Defaults to c(10, 15, 20, 30).}
+\item{nROC}{Integer vector of length 4. Rate-of-change periods.
+Defaults to \code{c(10, 15, 20, 30)}.}
 
-\item{nSig}{The number of periods to use for the KST signal line. Defaults to 9.}
+\item{nSig}{Integer. Signal line smoothing period. Defaults to \code{9}.}
 
-\item{maType}{Either:
-\enumerate{
-\item A function or a string naming the function to be called.
-\item A \emph{list} with the first component like (1) above, and
-additional parameters specified as \emph{named} components.
-See Examples.
-}}
+\item{maType}{Character or list. Moving average type(s). Defaults to
+\code{"SMA"}.}
 
-\item{wts}{A vector the same length as \code{n}, of the weight for each
-period (need not sum to one). Defaults to 1:NROW(n).}
+\item{wts}{Numeric vector. Weights for the four ROC components.
+Defaults to \code{1:NROW(n)}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated Know Sure Thing
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-Know Sure Thing values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
 
-\item{...}{Other arguments to be passed to the \code{maType} function in
-case (1) above.}
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
+
+\item{...}{Additional arguments passed to the moving average function.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a vector (if \code{try.xts} fails) containing the Know Sure Thing values.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated Know Sure Thing values appended, maintaining the integrity of the time - series
-alignment.
+The input data frame with additional columns \code{KST_<n>} (the KST
+oscillator value) and \code{KSTsig_<n>} (the signal line).
 }
 \description{
-The Know Sure Thing (KST) is a smooth, summed, rate of change indicator.
-Developed by Martin Pring.
-For each day (week, month, etc.), the KST calculates the ROC over several
-periods. Those ROCs are smoothed using the given moving averages, then
-multiplied by their respective weighting values. The resulting values are
-summed for each day (month, week, etc.).
-}
-\note{
-The KST indicates bullish/bearish momentum as it crosses above/below
-its moving average. Because the KST tends to lead price action, look for
-trend confirmation in the price.
-The default arguments are for the daily KST. There is also the Long - Term
-KST, with arguments: \code{n=c(9, 12, 18, 24)} - where the periods are
-months, not days - and the moving average periods are 6, 6, 6, and 9 months,
-respectively.
+Computes the Know Sure Thing momentum oscillator and its signal
+line for each asset in a long-format panel data frame. The KST is a
+weighted sum of four smoothed Rate-of-Change values. Results are appended
+as columns \code{KST_<n>} and \code{KSTsig_<n>}.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-kst_result1 <- add_KST(TSLA)
-
-# Modifying n and without appending
-kst_result2 <- add_KST(TSLA, n = c(12, 12, 12, 18))
-
-# Using default parameters and appending
-kst_result3 <- add_KST(TSLA, append = TRUE)
-
-# Modifying n and appending
-kst_result4 <- add_KST(TSLA, n = c(12, 12, 12, 18), append = TRUE)
+mkt_data <- data.frame(
+  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 120), 2),
+  code  = rep(c("AAPL", "MSFT"), each = 120),
+  name  = rep(c("Apple", "Microsoft"), each = 120),
+  close = c(runif(120, 150, 200), runif(120, 300, 400))
+)
+# Example 1: Default parameters
+result <- add_KST(mkt_data)
+# Example 2: Custom ROC periods
+result <- add_KST(mkt_data, nROC = c(5, 10, 15, 20))
+# Example 3: Slim output
+result <- add_KST(mkt_data, append = FALSE)
 }
 }
-\references{
-The following site(s) were used to code/document this
-indicator:\cr
-\url{https://web.archive.org/web/20110715112957/http://www.pring.com/movieweb/daily_kst.htm}\cr
-\url{https://web.archive.org/web/20100101162707/http://www.pring.com/movieweb/KST_MCM.htm}\cr
-}
-\seealso{
-See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
-options; and note Warning section.  See \code{\link{ROC}} for the
-rate - of - change function.  See \code{\link{MACD}} for a generic oscillator.
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

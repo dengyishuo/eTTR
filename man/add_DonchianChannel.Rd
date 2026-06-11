@@ -2,77 +2,63 @@
 % Please edit documentation in R/add_DonchianChannel.R
 \name{add_DonchianChannel}
 \alias{add_DonchianChannel}
-\alias{ADD_DonchianChannel}
-\alias{add_Donchian}
-\title{Calculate Donchian Channel}
+\title{Donchian Channel}
 \usage{
-add_DonchianChannel(OHLCV, n = 10, include.lag = FALSE, append = FALSE)
+add_DonchianChannel(
+  mkt_data,
+  n = 10,
+  include.lag = FALSE,
+  append = TRUE,
+  output = c("tibble", "data.frame")
+)
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume prices.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, \code{high}, and \code{low}.}
 
-\item{n}{Number of periods for moving average. Defaults to 10.}
+\item{n}{Integer. Look-back window for rolling high and low. Defaults to
+\code{10}.}
 
-\item{include.lag}{Should values be lagged so that today's prices are not
-included in the calculation? See Note. Defaults to FALSE.}
+\item{include.lag}{Logical. If \code{TRUE}, lag the channel by one period so
+the current bar is excluded from the calculation. Defaults to
+\code{FALSE}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated Donchian Channel
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-Donchian Channel values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append result columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a matrix (if \code{try.xts} fails) containing the columns:
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with columns:
 \describe{
-\item{ high }{ The highest high series. }
-\item{ mid }{ The average of \code{high} and \code{low}. }
-\item{ low }{ The lowest low series. }
+\item{dc_high_\{n\}}{Upper Donchian Channel band (rolling \code{n}-period high).}
+\item{dc_mid_\{n\}}{Midpoint of the upper and lower bands.}
+\item{dc_low_\{n\}}{Lower Donchian Channel band (rolling \code{n}-period low).}
 }
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated Donchian Channel values appended, maintaining the integrity of the time - series
-alignment.
 }
 \description{
-Donchian Channels were created by Richard Donchian and were used to generate
-buy and sell signals for the Turtle Trading system. Donchian Channels consist
-of two (sometimes three) lines: The top line is the highest high of the past
-\code{n} periods.  The bottom line is the lowest low of the past \code{n}
-periods.  The middle line is the average of the top and bottom lines.
-}
-\note{
-The default of \code{include.lag = FALSE} makes \code{DonchainChannel}
-consistent with other \pkg{eTTR} functions, in that it includes the current
-period in the calculation.
-The default is different than the original calculation, which would calculate
-the indicator using periods t - 1 through t - n. Setting \code{include.lag = TRUE}
-will return the result of the original calculation. The default of this
-argument may change in the future.
+Computes the Donchian Channel for each security in a long-format panel data
+frame. The channel is defined by the highest high and lowest low over a
+rolling look-back window, with a midpoint midline.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-dc_result1 <- add_DonchianChannel(TSLA)
-
-# Modifying n and without appending
-dc_result2 <- add_DonchianChannel(TSLA, n = 15)
-
-# Using default parameters and appending
-dc_result3 <- add_DonchianChannel(TSLA, append = TRUE)
-
-# Modifying n and appending
-dc_result4 <- add_DonchianChannel(TSLA, n = 15, append = TRUE)
+mkt_data <- data.frame(
+  date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code   = rep(c("AAPL", "MSFT"), each = 60),
+  name   = rep(c("Apple", "Microsoft"), each = 60),
+  high   = c(runif(60, 155, 205), runif(60, 305, 405)),
+  low    = c(runif(60, 145, 195), runif(60, 295, 395)),
+  close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+  volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
+)
+# Example 1: Default parameters
+result <- add_DonchianChannel(mkt_data)
+# Example 2: Custom window
+result <- add_DonchianChannel(mkt_data, n = 20)
+# Example 3: Slim output with lag
+result <- add_DonchianChannel(mkt_data, n = 10, include.lag = TRUE, append = FALSE)
 }
 }
-\references{
-The following site(s) were used to code/document this
-indicator:\cr \url{https://www.linnsoft.com/techind/donchian - channels}\cr
-}
-\seealso{
-See \code{\link{BBands}}.
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

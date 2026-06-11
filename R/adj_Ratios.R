@@ -1,47 +1,21 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025-2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Split and dividend adjustment ratios
-#' @description Create split and dividend adjustment ratio vectors.
-#' @usage adj_Ratios(splits, dividends, close)
-#' @aliases adjRatios adjust
-#' @param splits Split series that is coercible to xts.
-#' @param dividends Dividend series that is coercible to xts.
-#' @param close Close price series that is coercible to xts.
-#' @return A xts object containing the columns:
-#'  \describe{
-#'    \item{ Split }{ The split adjustment ratio. }
-#'    \item{ Div }{ The dividend adjustment ratio. }
-#'  }
-#' @details
-#'  \itemize{
-#'    \item If only \code{splits} is provided, the resulting object will
-#'      only have as many observations as \code{splits}.
-#'    \item If \code{splits} and \code{close} are provided, the resulting
-#'      object will have as many observations as \code{max(NROW(splits),
-#'      NROW(close))}.
-#'    \item \code{close} is required if \code{dividends} is provided.
-#'  }
+#' Adjustment Ratios for Splits and Dividends
+#'
+#' Calculates price adjustment ratios to adjust historical prices for stock splits and dividends.
+#'
+#' @param splits Univariate xts object of stock split ratios.
+#' @param dividends Univariate xts object of dividend payments.
+#' @param close Univariate xts object of closing prices (required for dividend adjustments).
+#'
+#' @return Xts object with two columns: Split (adjustment ratio for splits) and Div (adjustment ratio for dividends).
 #' @author DengYishuo
 #' @keywords ts
-#' @useDynLib eTTR, .registration = TRUE
-#' @importFrom xts merge.xts try.xts
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Example usage
+#' adj <- adj_Ratios(splits, dividends, close)
+#' }
 adj_Ratios <-
   function(splits, dividends, close) {
     if (!missing(dividends) &&

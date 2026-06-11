@@ -4,74 +4,51 @@
 \alias{add_BBands}
 \title{Calculate Bollinger Bands}
 \usage{
-add_BBands(OHLCV, n = 20, maType, sd = 2, append = FALSE, ...)
+add_BBands(
+  mkt_data,
+  n = 20,
+  maType,
+  sd = 2,
+  append = TRUE,
+  output = c("tibble", "data.frame"),
+  ...
+)
 }
 \arguments{
-\item{OHLCV}{Object coercible to xts/matrix containing Open - High - Low - Close - Volume prices.}
+\item{mkt_data}{A data.frame or tibble with columns: date, code, high, low, close.}
 
-\item{n}{Number of periods for moving average (default 20).}
+\item{n}{Moving average period. Default 20.}
 
-\item{maType}{Function or string naming moving average type.}
+\item{maType}{Moving average function. Default "SMA".}
 
-\item{sd}{Number of standard deviations (default 2).}
+\item{sd}{Number of standard deviations. Default 2.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated result columns
-("dn", "mavg", "up", "pctB") will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-result data will be returned. Defaults to \code{FALSE}.}
+\item{append}{If TRUE, append columns to input data.}
 
-\item{...}{Additional arguments passed to \code{maType}.}
+\item{output}{Output format: "tibble" or "data.frame".}
+
+\item{...}{Additional parameters for moving average functions.}
 }
 \value{
-If \code{append = FALSE}, an object matching \code{OHLCV} class with columns:
-\itemize{
-\item \code{dn}: Lower band
-\item \code{mavg}: Moving average
-\item \code{up}: Upper band
-\item \code{pctB}: \%B value
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated columns appended, maintaining the integrity of the time - series
-alignment.
-}
+Data frame with Bollinger Band columns added.
 }
 \description{
-Calculates Bollinger Bands, a volatility indicator comparing price levels over time.
-}
-\details{
-Calculates three bands:
-\itemize{
-\item Middle: SMA of typical price \eqn{(high + low + close)/3}
-\item Upper: \code{sd} standard deviations above MA
-\item Lower: \code{sd} standard deviations below MA
-Uses univariate series directly if provided.
-}
-}
-\note{
-Non - SMA averages cause inconsistencies since SD calculations assume SMA.
+Calculates Bollinger Bands for each security in a long-format panel data frame.
+The middle band is an SMA of the typical price (high + low + close)/3.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-bbands_result1 <- add_BBands(TSLA)
-
-# Modifying n and without appending
-bbands_result2 <- add_BBands(TSLA, n = 30)
-
-# Using default parameters and appending
-bbands_result3 <- add_BBands(TSLA, append = TRUE)
-
-# Modifying n and appending
-bbands_result4 <- add_BBands(TSLA, n = 30, append = TRUE)
+mkt_data <- data.frame(
+  date = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code = rep(c("AAA", "BBB"), each = 60),
+  high = runif(120, 20, 30),
+  low = runif(120, 5, 15),
+  close = runif(120, 10, 25)
+)
+result <- add_BBands(mkt_data)
 }
 }
-\references{
-\itemize{
-\item \url{https://www.fmlabs.com/reference/Bollinger.htm}
-\item \url{https://school.stockcharts.com/doku.php?id=technical_indicators:bollinger_bands}
-}
-}
-\seealso{
-Moving average functions: \code{\link[=SMA]{SMA()}}, \code{\link[=EMA]{EMA()}}
+\author{
+DengYishuo
 }
 \keyword{ts}

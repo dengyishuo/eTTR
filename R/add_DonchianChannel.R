@@ -1,111 +1,103 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025 - 2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Calculate Donchian Channel
+#' @title Donchian Channel
 #' @description
-#' Donchian Channels were created by Richard Donchian and were used to generate
-#' buy and sell signals for the Turtle Trading system. Donchian Channels consist
-#' of two (sometimes three) lines: The top line is the highest high of the past
-#' \code{n} periods.  The bottom line is the lowest low of the past \code{n}
-#' periods.  The middle line is the average of the top and bottom lines.
-#' @aliases ADD_DonchianChannel add_Donchian
-#' @param OHLCV Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume prices.
-#' @param n Number of periods for moving average. Defaults to 10.
-#' @param include.lag Should values be lagged so that today's prices are not
-#' included in the calculation? See Note. Defaults to FALSE.
-#' @param append A logical value. If \code{TRUE}, the calculated Donchian Channel
-#' values will be appended to the \code{OHLCV} input data, ensuring
-#' proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' Donchian Channel values will be returned. Defaults to \code{FALSE}.
-#' @return If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-#' or a matrix (if \code{try.xts} fails) containing the columns:
-#'  \describe{
-#'   \item{ high }{ The highest high series. }
-#'   \item{ mid }{ The average of \code{high} and \code{low}. }
-#'   \item{ low }{ The lowest low series. }
-#'  }
-#' If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-#' calculated Donchian Channel values appended, maintaining the integrity of the time - series
-#' alignment.
-#' @note The default of \code{include.lag = FALSE} makes \code{DonchainChannel}
-#' consistent with other \pkg{eTTR} functions, in that it includes the current
-#' period in the calculation.
-#' The default is different than the original calculation, which would calculate
-#' the indicator using periods t - 1 through t - n. Setting \code{include.lag = TRUE}
-#' will return the result of the original calculation. The default of this
-#' argument may change in the future.
-#' @author DengYishuo
-#' @seealso See \code{\link{BBands}}.
-#' @references The following site(s) were used to code/document this
-#' indicator:\cr \url{https://www.linnsoft.com/techind/donchian - channels}\cr
-#' @keywords ts
+#' Computes the Donchian Channel for each security in a long-format panel data
+#' frame. The channel is defined by the highest high and lowest low over a
+#' rolling look-back window, with a midpoint midline.
+#'
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, \code{high}, and \code{low}.
+#' @param n Integer. Look-back window for rolling high and low. Defaults to
+#'   \code{10}.
+#' @param include.lag Logical. If \code{TRUE}, lag the channel by one period so
+#'   the current bar is excluded from the calculation. Defaults to
+#'   \code{FALSE}.
+#' @param append Logical. If \code{TRUE} (default), append result columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#'
+#' @return A \code{tibble} or \code{data.frame} sorted by \code{date} then
+#'   \code{code}, with columns:
+#'   \describe{
+#'     \item{dc_high_\{n\}}{Upper Donchian Channel band (rolling \code{n}-period high).}
+#'     \item{dc_mid_\{n\}}{Midpoint of the upper and lower bands.}
+#'     \item{dc_low_\{n\}}{Lower Donchian Channel band (rolling \code{n}-period low).}
+#'   }
 #' @export
+#' @importFrom xts xts
+#' @importFrom tibble as_tibble
 #' @examples
 #' \dontrun{
-#' data(TSLA)
-#' # Using default parameters without appending
-#' dc_result1 <- add_DonchianChannel(TSLA)
-#'
-#' # Modifying n and without appending
-#' dc_result2 <- add_DonchianChannel(TSLA, n = 15)
-#'
-#' # Using default parameters and appending
-#' dc_result3 <- add_DonchianChannel(TSLA, append = TRUE)
-#'
-#' # Modifying n and appending
-#' dc_result4 <- add_DonchianChannel(TSLA, n = 15, append = TRUE)
+#' mkt_data <- data.frame(
+#'   date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+#'   code   = rep(c("AAPL", "MSFT"), each = 60),
+#'   name   = rep(c("Apple", "Microsoft"), each = 60),
+#'   high   = c(runif(60, 155, 205), runif(60, 305, 405)),
+#'   low    = c(runif(60, 145, 195), runif(60, 295, 395)),
+#'   close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+#'   volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
+#' )
+#' # Example 1: Default parameters
+#' result <- add_DonchianChannel(mkt_data)
+#' # Example 2: Custom window
+#' result <- add_DonchianChannel(mkt_data, n = 20)
+#' # Example 3: Slim output with lag
+#' result <- add_DonchianChannel(mkt_data, n = 10, include.lag = TRUE, append = FALSE)
 #' }
-add_DonchianChannel <- function(OHLCV, n = 10, include.lag = FALSE, append = FALSE) {
-  # Extract HL from OHLCV
-  hl <- OHLCV[, c("High", "Low")]
+add_DonchianChannel <- function(mkt_data, n = 10, include.lag = FALSE, append = TRUE,
+                                output = c("tibble", "data.frame")) {
 
-  hl <- try.xts(hl, error = as.matrix)
+  # ── Argument resolution ────────────────────────────────────────────────────
+  output <- match.arg(output)
 
-  if (!(NCOL(hl) %in% c(1, 2))) {
-    stop("Price series must be either High - Low, or Close/univariate.")
+  # ── Input validation ───────────────────────────────────────────────────────
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, high, low.")
   }
-  if (NCOL(hl) == 2) {
-    hi <- hl[, 1]
-    lo <- hl[, 2]
-  } else {
-    hi <- hl
-    lo <- hl
-  }
-
-  high <- runMax(hi, n)
-  low <- runMin(lo, n)
-  mid <- (high + low) / 2
-
-  result <- cbind(high, mid, low)
-  colnames(result) <- c("high", "mid", "low")
-
-  if (include.lag) {
-    # use lag.xts in case 'result' is a matrix
-    result <- lag.xts(result)
+  required_cols <- c("date", "code", "high", "low")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
   }
 
-  result <- reclass(result, hl)
+  # ── Split-apply-combine ────────────────────────────────────────────────────
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
 
-  if (append) {
-    ohlcv <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(ohlcv, result)
-    return(combined_result)
-  } else {
-    return(result)
+    # Build HL xts
+    hl <- xts::xts(
+      cbind(High = sub$high, Low = sub$low),
+      order.by = sub$date
+    )
+
+    high_val <- runMax(hl[, 1], n)
+    low_val  <- runMin(hl[, 2], n)
+    mid_val  <- (high_val + low_val) / 2
+
+    if (include.lag) {
+      high_val <- xts::lag.xts(high_val)
+      mid_val  <- xts::lag.xts(mid_val)
+      low_val  <- xts::lag.xts(low_val)
+    }
+
+    sub[[paste0("dc_high_", n)]] <- as.numeric(high_val)
+    sub[[paste0("dc_mid_",  n)]] <- as.numeric(mid_val)
+    sub[[paste0("dc_low_",  n)]] <- as.numeric(low_val)
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  # ── Optionally drop original columns ──────────────────────────────────────
+  if (!append) {
+    new_cols <- c(paste0("dc_high_", n), paste0("dc_mid_", n), paste0("dc_low_", n))
+    keep <- intersect(c("date", "code", "name", new_cols), colnames(res))
+    res <- res[, keep, drop = FALSE]
   }
+
+  # ── Output format ──────────────────────────────────────────────────────────
+  if (output == "tibble") tibble::as_tibble(res) else as.data.frame(res, stringsAsFactors = FALSE)
 }

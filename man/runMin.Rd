@@ -2,27 +2,41 @@
 % Please edit documentation in R/runMin.R
 \name{runMin}
 \alias{runMin}
-\title{Moving Window Minimum (runMin)}
+\title{Rolling Minimum Value}
 \usage{
 runMin(x, n = 10, cumulative = FALSE)
 }
 \arguments{
-\item{x}{Object coercible to xts or matrix.}
+\item{x}{Univariate numeric time series, supports vector, matrix or xts/zoo object.}
 
-\item{n}{Number of periods in the window (1 <= n <= nrow(x)).}
+\item{n}{Integer rolling window size, must satisfy \code{1 <= n <= NROW(x)}. Default 10.}
 
-\item{cumulative}{Logical; if TRUE, use from-inception cumulative min.}
+\item{cumulative}{Logical, if \code{TRUE} compute expanding cumulative minimum; fixed rolling minimum when \code{FALSE}. Default \code{FALSE}.}
 }
 \value{
-An object of the same class as \code{x} with minimum values.
+Object with identical class as input \code{x}, containing rolling/cumulative minimum values.
 }
 \description{
-Calculate the minimum value over a moving window of periods.
+Calculate rolling fixed-window minimum or expanding cumulative minimum for univariate time series.
+Rolling mode uses high-performance compiled C implementation; cumulative mode uses base \code{\link[base]{cummin}}.
 }
-\examples{
-data(TSLA)
-min_10 <- runMin(TSLA[, "Close"], 10)
-head(min_10)
+\details{
+Workflow:
+\enumerate{
+\item Coerce input to xts format with \code{\link[xts]{try.xts}}.
+\item Validate window range and enforce univariate input constraint.
+\item Two computation branches:
+\itemize{
+\item Non-cumulative (rolling): Fast calculation via native C function \code{runmin} using \code{.Call}.
+\item Cumulative: Check only leading NAs are allowed, fill NA for initial incomplete window rows,
+compute cumulative minimum with \code{cummin} on valid non-NA tail segment.
 }
-\keyword{internal}
-\keyword{ts}
+\item Restore output to original input class via \code{\link[xts]{reclass}}.
+}
+}
+\section{NA Restriction for Cumulative Mode}{
+
+Cumulative minimum only permits leading missing values. Any non-leading NA will throw an error.
+If total leading NAs plus window length exceed total rows, insufficient valid data error is raised.
+}
+

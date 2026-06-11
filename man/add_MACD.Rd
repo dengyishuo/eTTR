@@ -2,111 +2,67 @@
 % Please edit documentation in R/add_MACD.R
 \name{add_MACD}
 \alias{add_MACD}
-\title{Calculate MACD Oscillator}
+\title{Add Moving Average Convergence/Divergence (MACD)}
 \usage{
 add_MACD(
-  OHLCV,
+  mkt_data,
   nFast = 12,
   nSlow = 26,
   nSig = 9,
   maType,
   percent = TRUE,
-  append = FALSE,
+  append = TRUE,
+  output = c("tibble", "data.frame"),
   ...
 )
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and the required price columns.}
 
-\item{nFast}{Number of periods for fast moving average. Defaults to 12.}
+\item{nFast}{Integer. Fast moving average period. Defaults to \code{12}.}
 
-\item{nSlow}{Number of periods for slow moving average. Defaults to 26.}
+\item{nSlow}{Integer. Slow moving average period. Defaults to \code{26}.}
 
-\item{nSig}{Number of periods for signal moving average. Defaults to 9.}
+\item{nSig}{Integer. Signal line smoothing period. Defaults to \code{9}.}
 
-\item{maType}{Either:
-\enumerate{
-\item A function or a string naming the function to be called.
-\item A \emph{list} with the first component like (1) above, and
-additional parameters specified as \emph{named} components.
-See Examples.
-}}
+\item{maType}{Character or list. Moving average type(s). Defaults to
+\code{"EMA"}.}
 
-\item{percent}{logical; if \code{TRUE}, the percentage difference between the
-fast and slow moving averages is returned, otherwise the difference between
-the respective averages is returned. Defaults to TRUE.}
+\item{percent}{Logical. If \code{TRUE} (default), return MACD as a
+percentage ratio. If \code{FALSE}, return the absolute difference.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated MACD values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-MACD values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
 
-\item{...}{Other arguments to be passed to the \code{maType} function in
-case (1) above.}
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
+
+\item{...}{Additional arguments passed to the moving average function.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a matrix (if \code{try.xts} fails) containing the columns:
-\describe{
-\item{ macd }{ The price (volume, etc.) oscillator. }
-\item{ signal }{ The oscillator signal line (a moving average of the oscillator). }
-}
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated MACD values appended, maintaining the integrity of the time - series
-alignment.
+The input data frame with additional columns \code{macd} (the MACD
+oscillator) and \code{signal} (the signal line).
 }
 \description{
-The MACD was developed by Gerald Appel and is probably the most popular price
-oscillator.  The MACD function documented in this page compares a fast moving
-average (MA) of a series with a slow MA of the same series.  It can be used
-as a generic oscillator for any univariate series, not only price.
-The MACD function either subtracts the fast MA from the slow MA, or finds the
-rate of change between the fast MA and the slow MA.
-}
-\note{
-The MACD is a special case of the general oscillator applied to price.
-The MACD can be used as a general oscillator applied to any series. Time
-periods for the MACD are often given as 26 and 12, but the original formula
-used exponential constants of 0.075 and 0.15, which are closer to
-25.6667 and 12.3333 periods.
+Computes the MACD oscillator and its signal line for each asset
+in a long-format panel data frame. The MACD is the difference (or
+percentage ratio) between a fast and a slow moving average of \code{close}.
+Results are appended as columns \code{macd} and \code{signal}.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-macd_result1 <- add_MACD(TSLA)
-
-# Modifying nFast and without appending
-macd_result2 <- add_MACD(TSLA, nFast = 14)
-
-# Using default parameters and appending
-macd_result3 <- add_MACD(TSLA, append = TRUE)
-
-# Modifying nFast and appending
-macd_result4 <- add_MACD(TSLA, nFast = 14, append = TRUE)
+mkt_data <- data.frame(
+  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code  = rep(c("AAPL", "MSFT"), each = 60),
+  name  = rep(c("Apple", "Microsoft"), each = 60),
+  close = c(runif(60, 150, 200), runif(60, 300, 400))
+)
+# Example 1: Default parameters
+result <- add_MACD(mkt_data)
+# Example 2: Custom fast/slow periods
+result <- add_MACD(mkt_data, nFast = 8, nSlow = 21)
+# Example 3: Slim output with absolute difference
+result <- add_MACD(mkt_data, percent = FALSE, append = FALSE)
 }
 }
-\references{
-The following site(s) were used to code/document this
-indicator:
-\cr Moving Average Convergence/Divergence (MACD):\cr
-\url{https://www.fmlabs.com/reference/MACD.htm}\cr
-\url{https://www.metastock.com/Customer/Resources/TAAZ/?p=66}\cr
-\url{https://www.linnsoft.com/techind/macd}\cr
-\url{https://school.stockcharts.com/doku.php?id=technical_indicators:moving_average_convergence_divergence_macd}\cr
-\cr Price Oscillator:\cr
-\url{https://www.fmlabs.com/reference/PriceOscillator.htm}\cr
-\url{https://www.fmlabs.com/reference/PriceOscillatorPct.htm}\cr
-\url{https://www.metastock.com/Customer/Resources/TAAZ/?p=94}\cr
-\url{https://school.stockcharts.com/doku.php?id=technical_indicators:price_oscillators_ppo}\cr
-\cr Volume Oscillator:\cr
-\url{https://www.fmlabs.com/reference/PVO.htm}\cr
-\url{https://www.metastock.com/Customer/Resources/TAAZ/?p=122}\cr
-}
-\seealso{
-See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
-options; and note Warning section.
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

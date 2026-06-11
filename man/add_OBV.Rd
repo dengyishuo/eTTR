@@ -2,59 +2,47 @@
 % Please edit documentation in R/add_OBV.R
 \name{add_OBV}
 \alias{add_OBV}
-\title{Calculate On Balance Volume (OBV)}
+\title{On-Balance Volume (OBV)}
 \usage{
-add_OBV(OHLCV, append = FALSE)
+add_OBV(mkt_data, append = TRUE, output = c("tibble", "data.frame"))
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume data.
-The function will extract the closing price and volume from this object for OBV calculation.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and the required price/volume columns.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated OBV values will be appended to the \code{OHLCV} input data,
-ensuring proper alignment of time - series data. If \code{FALSE}, only the calculated
-OBV values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append} is \code{FALSE}, an object of the same class as \code{OHLCV} (or a vector if \code{try.xts} fails)
-containing the OBV values.
-If \code{append} is \code{TRUE}, an object of the same class as \code{OHLCV} with the calculated OBV values appended,
-maintaining the integrity of the time - series alignment.
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with column \code{OBV} containing the cumulative On-Balance
+Volume values.
 }
 \description{
-On Balance Volume (OBV) is a momentum - based technical indicator that measures
-the cumulative flow of volume to determine the strength of a price trend.
-It uses volume flow to predict changes in stock prices by adding volume on
-up days and subtracting volume on down days.
-}
-\note{
-OBV is typically used to confirm price trends or identify potential
-divergences between volume flow and price movements.
+Computes the On-Balance Volume for each security in a long-format panel data
+frame. OBV is a cumulative volume indicator that adds volume on up-close days
+and subtracts it on down-close days, serving as a proxy for buying and selling
+pressure.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-obv_result1 <- add_OBV(TSLA)
-
-# Using default parameters and appending
-obv_result2 <- add_OBV(TSLA, append = TRUE)
+mkt_data <- data.frame(
+  date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code   = rep(c("AAPL", "MSFT"), each = 60),
+  name   = rep(c("Apple", "Microsoft"), each = 60),
+  high   = c(runif(60, 155, 205), runif(60, 305, 405)),
+  low    = c(runif(60, 145, 195), runif(60, 295, 395)),
+  close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+  volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
+)
+# Example 1: Default parameters
+result <- add_OBV(mkt_data)
+# Example 2: Slim output
+result <- add_OBV(mkt_data, append = FALSE)
+# Example 3: Return as data.frame
+result <- add_OBV(mkt_data, output = "data.frame")
 }
 }
-\references{
-\itemize{
-\item https://www.fmlabs.com/reference/OBV.htm
-\item https://www.metastock.com/Customer/Resources/TAAZ/?p=82
-\item https://www.linnsoft.com/techind/balance - open - interest
-\item https://school.stockcharts.com/doku.php?id=technical_indicators:on_balance_volume_obv
-}
-}
-\seealso{
-See \code{\link{chaikinAD}} for a similar volume - based indicator.
-}
-\author{
-DengYishuo
-}
-\keyword{indicator}
-\keyword{momentum}
-\keyword{ts}
-\keyword{volume}

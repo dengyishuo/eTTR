@@ -2,25 +2,30 @@
 % Please edit documentation in R/wilderSum.R
 \name{wilderSum}
 \alias{wilderSum}
-\title{Welles Wilder Style Sum (wilderSum)}
+\title{Wilder's Smoothed Rolling Sum}
 \usage{
 wilderSum(x, n = 10)
 }
 \arguments{
-\item{x}{Object coercible to xts or matrix.}
+\item{x}{Univariate numeric time series, supports vector, matrix or xts/zoo object.}
 
-\item{n}{Number of periods in the window (1 <= n <= nrow(x)).}
+\item{n}{Integer smoothing window length, must satisfy \code{1 <= n <= NROW(x)}. Default 10.}
 }
 \value{
-An object of the same class as \code{x} with Wilder-style sums.
+Object with identical class as input \code{x}, containing Wilder's smoothed rolling sum values.
 }
 \description{
-Calculate a weighted sum using Welles Wilder's method.
+Compute Wilder's smoothed moving sum, a recursive rolling average algorithm widely used in technical indicators such as RSI and ATR.
+Calculation is powered by compiled C backend for high performance.
 }
-\examples{
-data(TSLA)
-wilder_14 <- wilderSum(TSLA[, "High"] - TSLA[, "Low"], 14)
-head(wilder_14)
+\details{
+\itemize{
+\item Coerce input to xts format with \code{\link[xts]{try.xts}}.
+\item Validate window range and restrict input to univariate series only.
+\item Execute NA validity check via internal helper function \code{naCheck}.
+\item Core Wilder smoothed sum calculation runs through native compiled C function \code{WilderSum}.
+\item Restore output to the original input data class with \code{\link[xts]{reclass}}.
 }
-\keyword{internal}
-\keyword{ts}
+Wilder's smoothing formula recursively updates values instead of equal-weight rolling sum:
+\deqn{WS_t = \frac{WS_{t-1} \times (n-1) + x_t}{n}}
+}

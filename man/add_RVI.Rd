@@ -2,67 +2,62 @@
 % Please edit documentation in R/add_RVI.R
 \name{add_RVI}
 \alias{add_RVI}
-\title{Calculate Relative Vigor Index (RVI)}
+\title{Relative Vigor Index (RVI)}
 \usage{
-add_RVI(OHLCV, n = 14, ema.n = 3, keepNA = TRUE, append = FALSE)
+add_RVI(
+  mkt_data,
+  n = 14,
+  ema.n = 3,
+  keepNA = TRUE,
+  append = TRUE,
+  output = c("tibble", "data.frame")
+)
 }
 \arguments{
-\item{OHLCV}{An object that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and \code{close}.}
 
-\item{n}{The period for calculating standard deviation, default is 14.}
+\item{n}{Integer. Look-back window for rolling standard deviation. Defaults
+to \code{14}.}
 
-\item{ema.n}{The period for exponential moving average (EMA) smoothing, default is 3.}
+\item{ema.n}{Integer. Look-back window for EMA smoothing applied to the
+rolling standard deviations. Defaults to \code{3}.}
 
-\item{keepNA}{Logical indicating whether to keep NA values in the result. Default is TRUE.}
+\item{keepNA}{Logical. If \code{TRUE} (default), leading \code{NA} values
+are preserved in the output.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated Relative Vigor Index
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-Relative Vigor Index values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append result columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append = FALSE}, an object of the same type as the input (vector or xts) containing RVI values.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated Relative Vigor Index values appended, maintaining the integrity of the time - series
-alignment.
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with column \code{RVI_\{n\}} containing values in
+\code{[0, 100]}.
 }
 \description{
-Computes the Relative Vigor Index (RVI), a momentum oscillator that measures the
-strength of a trend by comparing closing prices to trading ranges. The RVI is
-considered bullish when above its signal line and bearish when below.
-}
-\details{
-The RVI is calculated by:
-\enumerate{
-\item Separating price changes into upward and downward movements
-\item Calculating the standard deviation of these movements over a specified period
-\item Applying exponential smoothing to the standard deviations
-\item Computing the ratio of smoothed upward movements to total movements
-}
+Computes the Relative Vigor Index for each security in a long-format panel
+data frame. RVI is a momentum oscillator that measures the strength of a
+trend by comparing upward price movement standard deviations to total
+movement. Rolling standard deviations are computed over \code{n} periods and
+then smoothed with an EMA of length \code{ema.n}. Values range between 0 and
+100.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-rvi_result1 <- add_RVI(TSLA)
-
-# Modifying n and without appending
-rvi_result2 <- add_RVI(TSLA, n = 20)
-
-# Using default parameters and appending
-rvi_result3 <- add_RVI(TSLA, append = TRUE)
-
-# Modifying n and appending
-rvi_result4 <- add_RVI(TSLA, n = 20, append = TRUE)
+mkt_data <- data.frame(
+  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code  = rep(c("AAPL", "MSFT"), each = 60),
+  name  = rep(c("Apple", "Microsoft"), each = 60),
+  close = c(runif(60, 150, 200), runif(60, 300, 400))
+)
+# Example 1: Default parameters
+result <- add_RVI(mkt_data)
+# Example 2: Custom look-back window
+result <- add_RVI(mkt_data, n = 20, ema.n = 5)
+# Example 3: Slim output as data.frame
+result <- add_RVI(mkt_data, append = FALSE, output = "data.frame")
 }
-}
-\references{
-\enumerate{
-\item Wilder, J. Welles (1978). New Concepts in Technical Trading Systems.
-\item Carver, Constance M. (1992). The New Technical Trader.
-}
-}
-\seealso{
-\code{\link{EMA}} for exponential moving average calculation.
-\code{\link{runSD}} for rolling standard deviation calculation.
 }

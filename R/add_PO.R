@@ -1,123 +1,106 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2007 - 2013  Deng Yishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Calculate Price Oscillator (PO)
-#' @description
-#' Calculates the Price Oscillator (PO), a momentum indicator that measures the difference
-#' between two moving averages of different periods. It helps identify trends and potential
-#' reversal points in financial markets.
-#' @param OHLCV An object that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.
-#' @param n_short The period for the short - term moving average, default is 12.
-#' @param n_long The period for the long - term moving average, default is 26.
-#' @param type The type of return value: "difference" for the absolute difference,
-#'             "percent" for the percentage difference. Default is "difference".
-#' @param ma_type The type of moving average, supports "SMA" (Simple Moving Average)
-#'                and "EMA" (Exponential Moving Average). Default is "SMA".
-#' @param append A logical value. If \code{TRUE}, the calculated Price Oscillator
-#' values will be appended to the \code{OHLCV} input data, ensuring
-#' proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' Price Oscillator values will be returned. Defaults to \code{FALSE}.
-#' @return If \code{append = FALSE}, a PO indicator series of the same type as the input price series (extracted from OHLCV).
-#' If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-#' calculated Price Oscillator values appended, maintaining the integrity of the time - series
-#' alignment.
-#' @details
-#' The Price Oscillator (PO) measures momentum by calculating the difference between
-#' a short - term and a long - term moving average of prices. A positive PO value indicates
-#' upward momentum, while a negative value suggests downward momentum.
-#' @references
-#' Murphy, J. (1999). Technical Analysis of the Financial Markets. New York Institute of Finance.
-#' @seealso
-#' \code{\link{SMA}}, \code{\link{EMA}} for moving average calculations.
-#' @importFrom utils head
-#' @importFrom stats is.ts
-#' @importFrom xts xts is.xts
+#' @title Add Price Oscillator (PO)
+#'
+#' @description Computes the Price Oscillator for each asset in a long-format
+#'   panel data frame and appends the result as a new column named \code{PO}.
+#'   The PO is the difference (or percentage ratio) between a short-period and
+#'   a long-period moving average of \code{close}.
+#'
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, and the required price columns.
+#' @param n_short Integer. Short-period window. Must be positive and less than
+#'   \code{n_long}. Defaults to \code{12}.
+#' @param n_long Integer. Long-period window. Must be greater than
+#'   \code{n_short}. Defaults to \code{26}.
+#' @param type Character. \code{"difference"} (default) returns the absolute
+#'   difference between the two MAs; \code{"percent"} returns the percentage
+#'   difference relative to the long-period MA.
+#' @param ma_type Character. Moving average type: \code{"SMA"} (default) or
+#'   \code{"EMA"}.
+#' @param append Logical. If \code{TRUE} (default), append new columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#'
+#' @return The input data frame with an additional column \code{PO} containing
+#'   the Price Oscillator values.
+#'
+#' @export
+#' @importFrom xts xts
+#' @importFrom tibble as_tibble
+#'
 #' @examples
 #' \dontrun{
-#' data(TSLA)
-#' # Using default parameters without appending
-#' po_result1 <- add_PO(TSLA)
-#'
-#' # Modifying n_short and without appending
-#' po_result2 <- add_PO(TSLA, n_short = 14)
-#'
-#' # Using default parameters and appending
-#' po_result3 <- add_PO(TSLA, append = TRUE)
-#'
-#' # Modifying n_short and appending
-#' po_result4 <- add_PO(TSLA, n_short = 14, append = TRUE)
+#' mkt_data <- data.frame(
+#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+#'   code  = rep(c("AAPL", "MSFT"), each = 60),
+#'   name  = rep(c("Apple", "Microsoft"), each = 60),
+#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
+#' )
+#' # Example 1: Default parameters
+#' result <- add_PO(mkt_data)
+#' # Example 2: Percentage type with EMA
+#' result <- add_PO(mkt_data, type = "percent", ma_type = "EMA")
+#' # Example 3: Slim output
+#' result <- add_PO(mkt_data, n_short = 5, n_long = 20, append = FALSE)
 #' }
-#' @export
-add_PO <- function(OHLCV, n_short = 12, n_long = 26,
+add_PO <- function(mkt_data, n_short = 12, n_long = 26,
                    type = c("difference", "percent"),
-                   ma_type = c("SMA", "EMA"), append = FALSE) {
-  # Assume we use Close price for calculation, can be adjusted
-  price <- OHLCV[, "Close"]
+                   ma_type = c("SMA", "EMA"),
+                   append = TRUE,
+                   output = c("tibble", "data.frame")) {
 
-  # Validate input price series
-  if (missing(price)) {
-    stop("Price series must be provided as input")
-  }
-  # Check if price series is a vector, time series, or xts object
-  if (!is.vector(price) && !is.ts(price) && !inherits(price, "xts")) {
-    stop("Price series must be a vector, time series, or xts object")
-  }
-  # Validate moving average period parameters
-  if (!is.numeric(n_short) || !is.numeric(n_long) ||
-    n_short <= 0 || n_long <= 0 ||
-    n_short >= n_long) {
-    stop("Moving average periods must be positive integers, and n_short must be smaller than n_long")
-  }
-  # Validate return type parameter
-  type <- match.arg(type)
-  # Validate moving average type parameter
+  # ── Argument resolution ────────────────────────────────────────────────────
+  output  <- match.arg(output)
+  type    <- match.arg(type)
   ma_type <- match.arg(ma_type)
 
-  # Function to calculate moving average
-  calculate_ma <- function(p, n, ma_type) {
-    if (ma_type == "SMA") {
-      return(SMA(p, n = n))
+  # ── Input validation ───────────────────────────────────────────────────────
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, close.")
+  }
+  required_cols <- c("date", "code", "close")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
+  }
+  if (!is.numeric(n_short) || !is.numeric(n_long) || n_short <= 0 || n_long <= 0 || n_short >= n_long) {
+    stop("n_short must be a positive integer smaller than n_long")
+  }
+
+  # ── Split-apply-combine ────────────────────────────────────────────────────
+  calculate_ma <- function(p, n) {
+    if (ma_type == "SMA") SMA(p, n = n) else EMA(p, n = n)
+  }
+
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
+
+    close_xts <- xts::xts(sub$close, order.by = as.Date(sub$date))
+
+    ma_short <- calculate_ma(close_xts, n_short)
+    ma_long  <- calculate_ma(close_xts, n_long)
+
+    if (type == "difference") {
+      po_val <- ma_short - ma_long
     } else {
-      return(EMA(p, n = n))
+      po_val <- ((ma_short - ma_long) / ma_long) * 100
     }
+
+    sub[["PO"]] <- as.numeric(po_val)
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  # ── Column selection ───────────────────────────────────────────────────────
+  if (!append) {
+    keep <- intersect(c("date", "code", "name", "PO"), colnames(res))
+    res <- res[, keep, drop = FALSE]
   }
 
-  # Calculate moving averages
-  sma_short <- calculate_ma(price, n_short, ma_type)
-  sma_long <- calculate_ma(price, n_long, ma_type)
-
-  # Calculate PO indicator based on specified type
-  if (type == "difference") {
-    # Difference form: short MA - long MA
-    po <- sma_short - sma_long
-  } else {
-    # Percentage form: (short MA - long MA) / long MA * 100%
-    po <- ((sma_short - sma_long) / sma_long) * 100
-  }
-  colnames(po) <- "PO"
-
-  po <- reclass(po, price)
-
-  if (append) {
-    ohlcv <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(ohlcv, po)
-    return(combined_result)
-  } else {
-    return(po)
-  }
+  # ── Output format ──────────────────────────────────────────────────────────
+  if (output == "tibble") tibble::as_tibble(res) else as.data.frame(res, stringsAsFactors = FALSE)
 }

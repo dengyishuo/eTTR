@@ -1,148 +1,129 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025 - 2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Calculate Triple Smoothed Exponential Oscillator
-#' @description
-#' The TRIX indicator calculates the rate of change of a triple exponential
-#' moving average. Developed by Jack K. Hutson.
-#' The TRIX is calculated as follows:\cr 3MA = \code{MA}( \code{MA}(
-#' \code{MA}(\code{price}) ) )\cr \eqn{trix = 100 * [ 3MA(t) / 3MA(t - 1) - 1 ]}
-#' @param OHLCV Object that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.
-#' @param n Number of periods for moving average. Default is 20.
-#' @param nSig Number of periods for signal line moving average. Default is 9.
-#' @param maType Either:
-#'  \enumerate{
-#'    \item A function or a string naming the function to be called.
-#'    \item A \emph{list} with the first component like (1) above, and
-#'      additional parameters specified as \emph{named} components.
-#'      See Examples.
-#'  }
-#' @param percent logical; if \code{TRUE}, the rate of change is calculated
-#' using the \code{ROC} function, otherwise the \code{momentum} function is
-#' used. Default is \code{TRUE}.
-#' @param append A logical value. If \code{TRUE}, the calculated TRIX and signal line
-#' values will be appended to the \code{OHLCV} input data, ensuring
-#' proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' TRIX and signal line values will be returned. Defaults to \code{FALSE}.
-#' @param ... Other arguments to be passed to the \code{maType} function in
-#' case (1) above.
-#' @return If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-#' or a vector (if \code{try.xts} fails) containing the TRIX and signal line values.
-#' If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-#' calculated TRIX and signal line values appended, maintaining the integrity of the time - series
-#' alignment.
-#' @note Buy/sell signals are generated when the TRIX crosses above/below zero.
-#' A nine - period EMA of the TRIX is used as a default signal line. Buy/sell
-#' signals are generated when the TRIX crosses above/below the signal line and
-#' is also above/below zero.
-#' @author DengYishuo
-#' @seealso See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
-#' options; and note Warning section.
-#' @references The following site(s) were used to code/document this
-#' indicator:\cr
-#' \url{https://www.fmlabs.com/reference/default.htm?url=TRIX.htm}\cr
-#' \url{https://www.metastock.com/Customer/Resources/TAAZ/?p=114}\cr
-#' \url{https://www.linnsoft.com/techind/trix - triple - smoothed - exponential - oscillator}\cr
-#' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:trix}\cr
-#' @keywords ts
+#' @title Add Triple Exponential Average (TRIX) Oscillator
+#'
+#' @description Computes the TRIX oscillator (1-period rate of change of a
+#'   triple-smoothed moving average) and its signal line for each asset in a
+#'   long-format panel data frame. Results are appended as columns
+#'   \code{TRIX_<n>} and \code{TRIXsig_<n>}.
+#'
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, and the required price columns.
+#' @param n Integer. Look-back window for the triple smoothing. Defaults to
+#'   \code{20}.
+#' @param nSig Integer. Signal line smoothing period. Defaults to \code{9}.
+#' @param maType Character or list. Moving average type. Defaults to
+#'   \code{"EMA"}.
+#' @param percent Logical. If \code{TRUE} (default), express TRIX as a
+#'   percentage rate of change. If \code{FALSE}, return the absolute momentum.
+#' @param append Logical. If \code{TRUE} (default), append new columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#' @param ... Additional arguments passed to the moving average function.
+#'
+#' @return The input data frame with additional columns \code{TRIX_<n>} (the
+#'   TRIX oscillator) and \code{TRIXsig_<n>} (the signal line).
+#'
 #' @export
+#' @importFrom xts xts
+#' @importFrom tibble as_tibble
+#'
 #' @examples
 #' \dontrun{
-#' data(TSLA)
-#' # Using default parameters without appending
-#' trix_result1 <- add_TRIX(TSLA)
-#'
-#' # Modifying n and without appending
-#' trix_result2 <- add_TRIX(TSLA, n = 25)
-#'
-#' # Using default parameters and appending
-#' trix_result3 <- add_TRIX(TSLA, append = TRUE)
-#'
-#' # Modifying n and appending
-#' trix_result4 <- add_TRIX(TSLA, n = 25, append = TRUE)
+#' mkt_data <- data.frame(
+#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 120), 2),
+#'   code  = rep(c("AAPL", "MSFT"), each = 120),
+#'   name  = rep(c("Apple", "Microsoft"), each = 120),
+#'   close = c(runif(120, 150, 200), runif(120, 300, 400))
+#' )
+#' # Example 1: Default parameters
+#' result <- add_TRIX(mkt_data)
+#' # Example 2: Custom window
+#' result <- add_TRIX(mkt_data, n = 14)
+#' # Example 3: Slim output with absolute momentum
+#' result <- add_TRIX(mkt_data, n = 20, percent = FALSE, append = FALSE)
 #' }
-add_TRIX <- function(OHLCV, n = 20, nSig = 9, maType, percent = TRUE, append = FALSE, ...) {
-  # Assume we use Close price for calculation, can be adjusted
-  price <- OHLCV[, "Close"]
+add_TRIX <- function(mkt_data, n = 20, nSig = 9, maType, percent = TRUE, append = TRUE,
+                     output = c("tibble", "data.frame"), ...) {
 
-  # Default MA
-  if (missing(maType)) {
-    maType <- "EMA"
+  # ── Argument resolution ────────────────────────────────────────────────────
+  output <- match.arg(output)
+  if (missing(maType)) maType <- "EMA"
+
+  # ── Input validation ───────────────────────────────────────────────────────
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, close.")
+  }
+  required_cols <- c("date", "code", "close")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
   }
 
-  # Case of different 'maType's for all MAs.
-  if (is.list(maType)) {
-    # Make sure maType is a list of lists
-    maTypeInfo <- sapply(maType, is.list)
-    if (!(all(maTypeInfo) && length(maTypeInfo) == 4)) {
-      stop(
-        "If \'maType\' is a list, you must specify\n ",
-        "*four* MAs (see Examples section of ?TRIX)"
-      )
+  # ── Column names for outputs ───────────────────────────────────────────────
+  col_trix <- paste0("TRIX_", n)
+  col_sig  <- paste0("TRIXsig_", n)
+
+  # ── Split-apply-combine over each asset ───────────────────────────────────
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
+
+    min_rows <- if (is.list(maType)) n * 3 + nSig else n * 3 + nSig
+    if (min_rows > nrow(sub)) {
+      warning(sprintf("Skipping code '%s': insufficient rows for TRIX computation.", cd))
+      sub[[col_trix]] <- NA_real_
+      sub[[col_sig]]  <- NA_real_
+      return(sub)
     }
 
-    # If MA function has 'n' arg, see if it's populated in maType;
-    # if it isn't, populate it with function's formal 'n'
-    if (!is.null(formals(maType[[1]][[1]])$n) && is.null(maType[[1]]$n)) {
-      maType[[1]]$n <- n
+    close_xts <- xts::xts(sub$close, order.by = sub$date)
+
+    # Compute triple-smoothed MA
+    if (is.list(maType)) {
+      maTypeInfo <- sapply(maType, is.list)
+      if (!(all(maTypeInfo) && length(maTypeInfo) == 4)) {
+        stop("If 'maType' is a list, you must specify four MAs.")
+      }
+      for (i in 1:3) {
+        if (!is.null(formals(maType[[i]][[1]])$n) && is.null(maType[[i]]$n)) maType[[i]]$n <- n
+      }
+      if (!is.null(formals(maType[[4]][[1]])$n) && is.null(maType[[4]]$n)) maType[[4]]$n <- nSig
+      mavg1 <- do.call(maType[[1]][[1]], c(list(close_xts), maType[[1]][-1]))
+      mavg2 <- do.call(maType[[2]][[1]], c(list(mavg1),     maType[[2]][-1]))
+      mavg3 <- do.call(maType[[3]][[1]], c(list(mavg2),     maType[[3]][-1]))
+    } else {
+      mavg1 <- do.call(maType, c(list(close_xts), list(n = n, ...)))
+      mavg2 <- do.call(maType, c(list(mavg1),     list(n = n, ...)))
+      mavg3 <- do.call(maType, c(list(mavg2),     list(n = n, ...)))
     }
-    if (!is.null(formals(maType[[2]][[1]])$n) && is.null(maType[[2]]$n)) {
-      maType[[2]]$n <- n
-    }
-    if (!is.null(formals(maType[[3]][[1]])$n) && is.null(maType[[3]]$n)) {
-      maType[[3]]$n <- n
-    }
-    if (!is.null(formals(maType[[4]][[1]])$n) && is.null(maType[[4]]$n)) {
-      maType[[4]]$n <- nSig
+
+    if (percent) {
+      TRIX_val <- 100 * ROC(mavg3, n = 1, na.pad = TRUE, type = "discrete")
+    } else {
+      TRIX_val <- momentum(mavg3, n = 1, na.pad = TRUE)
     }
 
-    mavg1 <- do.call(maType[[1]][[1]], c(list(price), maType[[1]][-1]))
-    mavg2 <- do.call(maType[[2]][[1]], c(list(mavg1), maType[[2]][-1]))
-    mavg3 <- do.call(maType[[3]][[1]], c(list(mavg2), maType[[3]][-1]))
+    if (is.list(maType)) {
+      signal <- do.call(maType[[4]][[1]], c(list(TRIX_val), maType[[4]][-1]))
+    } else {
+      signal <- do.call(maType, c(list(TRIX_val), list(n = nSig, ...)))
+    }
+
+    sub[[col_trix]] <- as.numeric(TRIX_val)
+    sub[[col_sig]]  <- as.numeric(signal)
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  # ── Slim output when append = FALSE ───────────────────────────────────────
+  if (!append) {
+    keep <- intersect(c("date", "code", "name", col_trix, col_sig), colnames(res))
+    res <- res[, keep, drop = FALSE]
   }
 
-  # Case of one 'maType' for all MAs.
-  else {
-    mavg1 <- do.call(maType, c(list(price), list(n = n, ...)))
-    mavg2 <- do.call(maType, c(list(mavg1), list(n = n, ...)))
-    mavg3 <- do.call(maType, c(list(mavg2), list(n = n, ...)))
-  }
-
-  if (percent) {
-    TRIX <- 100 * ROC(mavg3, n = 1, na.pad = TRUE, type = "discrete")
-  } else {
-    TRIX <- momentum(mavg3, n = 1, na.pad = TRUE)
-  }
-
-  if (is.list(maType)) {
-    signal <- do.call(maType[[4]][[1]], c(list(TRIX), maType[[4]][-1]))
-  } else {
-    signal <- do.call(maType, c(list(TRIX), list(n = nSig, ...)))
-  }
-
-  result <- cbind(TRIX, signal)
-  colnames(result) <- c("TRIX", "signal")
-
-  if (append) {
-    ohlcv <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(ohlcv, result)
-    return(combined_result)
-  } else {
-    return(result)
-  }
+  # ── Output format conversion ───────────────────────────────────────────────
+  if (output == "tibble") tibble::as_tibble(res) else as.data.frame(res, stringsAsFactors = FALSE)
 }

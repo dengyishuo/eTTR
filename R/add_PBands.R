@@ -1,132 +1,121 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025 - 2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Construct (optionally further smoothed and centered ) volatility bands around prices
+#' @title Price Bands (Chandelier)
 #' @description
-#' John Bollinger's famous adaptive volatility bands most often use the typical
-#' price of an HLC series, or may be calculated on a univariate price series
-#' (see \code{\link{BBands}}).
-#' This function applies a second moving average denoted by \code{fastn} to
-#' filter out higher - frequency noise, making the bands somewhat more stable to
-#' temporary fluctuations and spikes.
-#' If \code{centered} is \code{TRUE}, the function also further smoothes and
-#' centers the bands around a centerline adjusted to remove this higher
-#' frequency noise.  If \code{lavg} is also \code{TRUE}, the smoothing applied
-#' for the middle band (but not the volatility bands) is doubled to further
-#' smooth the price - response function.
-#' If you have multiple different price series in \code{prices}, and want to use
-#' this function, call this functions using \code{lapply(prices,PBands,...)}.
-#' @aliases add_pbands add_priceBands
-#' @param OHLCV Object that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.
-#' @param n Number of periods to average over. Defaults to 20.
-#' @param maType A function or a string naming the function to be called. Defaults to "SMA".
-#' @param sd The number of standard deviations to use. Defaults to 2.
-#' @param fastn Number of periods to use for smoothing higher - frequency 'noise'. Defaults to 2.
-#' @param centered Whether to center the bands around a series adjusted for high
-#'  frequency noise, default \code{FALSE}.
-#' @param lavg Whether to use a longer \code{(n*2)} smoothing period for
-#'  centering, default \code{FALSE}.
-#' @param append A logical value. If \code{TRUE}, the calculated price volatility bands
-#' values will be appended to the \code{OHLCV} input data, ensuring
-#' proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' price volatility bands values will be returned. Defaults to \code{FALSE}.
-#' @param ... any other pass - thru parameters, usually for function named by
-#'  \code{maType}.
-#' @return If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-#' or a matrix (if \code{try.xts} fails) containing the columns:
-#'  \describe{
-#'     \item{ dn }{ The lower price volatility Band. }
-#'     \item{ center }{ The smoothed centerline (see details). }
-#'     \item{ up }{ The upper price volatility Band. }
-#'  }
-#' If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-#' calculated price volatility bands values appended, maintaining the integrity of the time - series
-#' alignment.
-#' @author Brian G. Peterson
-#' @seealso \code{\link{BBands}}
-#' @keywords ts
+#' Computes Price Bands (also known as Chandelier Bands) for each security in a
+#' long-format panel data frame. The bands are formed around a slow moving
+#' average. Band width is \code{sd} multiples of the rolling standard deviation
+#' of the difference between the slow and fast moving averages. When
+#' \code{centered = TRUE} the center line shifts to the normalized deviation
+#' from the slow average, optionally using a doubled window (\code{lavg}).
+#' Required column: \code{close}.
+#'
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, and \code{close}.
+#' @param n Integer. Look-back window for the slow moving average and rolling
+#'   standard deviation. Defaults to \code{20}.
+#' @param maType Character. Name of the moving average function to use (e.g.
+#'   \code{"SMA"}, \code{"EMA"}). Defaults to \code{"SMA"}.
+#' @param sd Numeric. Number of standard deviations used to set band width.
+#'   Defaults to \code{2}.
+#' @param fastn Integer. Look-back window for the fast moving average used to
+#'   compute the deviation. Defaults to \code{2}.
+#' @param centered Logical. If \code{TRUE}, shift the center line based on a
+#'   normalized slow-minus-fast deviation. Defaults to \code{FALSE}.
+#' @param lavg Logical. Applies only when \code{centered = TRUE}. If
+#'   \code{TRUE}, double \code{n} when computing the centering average.
+#'   Defaults to \code{FALSE}.
+#' @param append Logical. If \code{TRUE} (default), append result columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#' @param ... Additional arguments passed to the \code{maType} function.
+#'
+#' @return A \code{tibble} or \code{data.frame} sorted by \code{date} then
+#'   \code{code}, with columns:
+#'   \describe{
+#'     \item{PBands_dn}{Lower price band (center minus \code{sd} standard
+#'       deviations).}
+#'     \item{PBands_center}{Center band: the slow moving average (or the
+#'       adjusted center when \code{centered = TRUE}).}
+#'     \item{PBands_up}{Upper price band (center plus \code{sd} standard
+#'       deviations).}
+#'   }
 #' @export
+#' @importFrom xts xts
+#' @importFrom tibble as_tibble
 #' @examples
 #' \dontrun{
-#' data(TSLA)
-#' # Using default parameters without appending
-#' pbands_result1 <- add_PBands(TSLA)
-#'
-#' # Modifying n and without appending
-#' pbands_result2 <- add_PBands(TSLA, n = 25)
-#'
-#' # Using default parameters and appending
-#' pbands_result3 <- add_PBands(TSLA, append = TRUE)
-#'
-#' # Modifying n and appending
-#' pbands_result4 <- add_PBands(TSLA, n = 25, append = TRUE)
+#' mkt_data <- data.frame(
+#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+#'   code  = rep(c("AAPL", "MSFT"), each = 60),
+#'   name  = rep(c("Apple", "Microsoft"), each = 60),
+#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
+#' )
+#' # Example 1: Default parameters (n = 20, sd = 2)
+#' result <- add_PBands(mkt_data)
+#' # Example 2: Custom window and tighter band multiplier
+#' result <- add_PBands(mkt_data, n = 20, sd = 1.5)
+#' # Example 3: Slim output with n = 50
+#' result <- add_PBands(mkt_data, n = 50, append = FALSE)
 #' }
-add_PBands <- function(
-    OHLCV, n = 20, maType = "SMA", sd = 2, fastn = 2,
-    centered = FALSE, lavg = FALSE, append = FALSE, ...) {
-  # Assume we use Close price for calculation, can be adjusted
-  prices <- OHLCV[, "Close"]
+add_PBands <- function(mkt_data, n = 20, maType = "SMA", sd = 2, fastn = 2,
+                       centered = FALSE, lavg = FALSE, append = TRUE,
+                       output = c("tibble", "data.frame"), ...) {
 
-  if (!is.vector(prices) && ncol(prices) > 1) {
-    stop(
-      "prices should be a univariate series, maybe use",
-      "lapply(prices,PBands) instead?"
-    )
+  # ── Argument resolution ────────────────────────────────────────────────────
+  output <- match.arg(output)
+  if (missing(maType)) maType <- "SMA"
+
+  # ── Input validation ───────────────────────────────────────────────────────
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, close.")
+  }
+  required_cols <- c("date", "code", "close")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
   }
 
-  prices <- try.xts(prices, error = as.matrix)
+  # ── Split-apply-combine ────────────────────────────────────────────────────
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
 
-  # Default MA
-  if (missing(maType)) {
-    maType <- "SMA"
-  }
+    prices <- xts::xts(sub$close, order.by = as.Date(sub$date))
 
-  maArgs <- list(n = n, ...)
-  mavg <- do.call(maType, c(list(prices), maArgs))
+    maArgs     <- list(n = n, ...)
+    maFastArgs <- list(n = fastn, ...)
 
-  maFastArgs <- list(n = fastn, ...)
-  fastmavg <- do.call(maType, c(list(prices), maFastArgs))
+    mavg     <- do.call(maType, c(list(prices), maArgs))
+    fastmavg <- do.call(maType, c(list(prices), maFastArgs))
+    sdev     <- runSD((mavg - fastmavg), n = n, sample = FALSE)
 
-  sdev <- runSD((mavg - fastmavg), n = n, sample = FALSE)
-
-  if (!isTRUE(centered)) {
-    center <- mavg
-  } else {
-    centerrun <- (mavg - fastmavg) / sdev
-    if (isTRUE(lavg)) {
-      maArgs <- list(n = (n * 2), ...)
+    if (!isTRUE(centered)) {
+      center <- mavg
+    } else {
+      centerrun <- (mavg - fastmavg) / sdev
+      if (isTRUE(lavg)) maArgs <- list(n = (n * 2), ...)
+      center <- mavg + (do.call(maType, c(list(centerrun), maArgs)))
     }
-    center <- mavg + (do.call(maType, c(list(centerrun), maArgs)))
+
+    up <- center + sd * sdev
+    dn <- center - sd * sdev
+
+    sub[["PBands_dn"]]     <- as.numeric(dn)
+    sub[["PBands_center"]] <- as.numeric(center)
+    sub[["PBands_up"]]     <- as.numeric(up)
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  # ── Column selection ───────────────────────────────────────────────────────
+  if (!append) {
+    keep <- intersect(c("date", "code", "name", "PBands_dn", "PBands_center", "PBands_up"), colnames(res))
+    res <- res[, keep, drop = FALSE]
   }
 
-  up <- center + sd * sdev
-  dn <- center - sd * sdev
-
-  res <- cbind(dn, center, up)
-  colnames(res) <- c("dn", "center", "up")
-
-  res <- reclass(res, prices)
-
-  if (append) {
-    ohlcv <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(ohlcv, res)
-    return(combined_result)
-  } else {
-    return(res)
-  }
+  # ── Output format ──────────────────────────────────────────────────────────
+  if (output == "tibble") tibble::as_tibble(res) else as.data.frame(res, stringsAsFactors = FALSE)
 }

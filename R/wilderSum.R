@@ -1,33 +1,26 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025-2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Welles Wilder Style Sum (wilderSum)
-#' @description
-#' Calculate a weighted sum using Welles Wilder's method.
-#' @param x Object coercible to xts or matrix.
-#' @param n Number of periods in the window (1 <= n <= nrow(x)).
-#' @return An object of the same class as \code{x} with Wilder-style sums.
-#' @keywords ts internal
+#' Wilder's Smoothed Rolling Sum
+#'
+#' Compute Wilder's smoothed moving sum, a recursive rolling average algorithm widely used in technical indicators such as RSI and ATR.
+#' Calculation is powered by compiled C backend for high performance.
+#'
+#' @param x Univariate numeric time series, supports vector, matrix or xts/zoo object.
+#' @param n Integer smoothing window length, must satisfy \code{1 <= n <= NROW(x)}. Default 10.
+#'
+#' @details
+#' \itemize{
+#'   \item Coerce input to xts format with \code{\link[xts]{try.xts}}.
+#'   \item Validate window range and restrict input to univariate series only.
+#'   \item Execute NA validity check via internal helper function \code{naCheck}.
+#'   \item Core Wilder smoothed sum calculation runs through native compiled C function \code{WilderSum}.
+#'   \item Restore output to the original input data class with \code{\link[xts]{reclass}}.
+#' }
+#' Wilder's smoothing formula recursively updates values instead of equal-weight rolling sum:
+#' \deqn{WS_t = \frac{WS_{t-1} \times (n-1) + x_t}{n}}
+#'
+#' @return Object with identical class as input \code{x}, containing Wilder's smoothed rolling sum values.
+#'
+#' @importFrom xts try.xts reclass
 #' @export
-#' @examples
-#' data(TSLA)
-#' wilder_14 <- wilderSum(TSLA[, "High"] - TSLA[, "Low"], 14)
-#' head(wilder_14)
 wilderSum <- function(x, n = 10) {
   x <- try.xts(x, error = as.matrix)
 

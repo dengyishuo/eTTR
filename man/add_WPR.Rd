@@ -2,61 +2,59 @@
 % Please edit documentation in R/add_WPR.R
 \name{add_WPR}
 \alias{add_WPR}
-\title{Calculate Williams \%R}
+\title{Williams \%R}
 \usage{
-add_WPR(OHLCV, n = 14, scale = FALSE, append = FALSE)
+add_WPR(
+  mkt_data,
+  n = 14,
+  scale = FALSE,
+  append = TRUE,
+  output = c("tibble", "data.frame")
+)
 }
 \arguments{
-\item{OHLCV}{Object coercible to xts/matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and the required price/volume columns.}
 
-\item{n}{Lookback period (default 14).}
+\item{n}{Integer. Look-back window. Defaults to \code{14}.}
 
-\item{scale}{Scale to \code{[0, -100]} range? (default FALSE).}
+\item{scale}{Logical. If \code{TRUE}, multiply the raw proportion by -100 to
+match the traditional Williams \%R scale (-100 to 0). Defaults to
+\code{FALSE}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated Williams \%R values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-Williams \%R values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append = FALSE}, an object matching \code{OHLCV} class containing Williams \%R values.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated Williams \%R values appended, maintaining the integrity of the time - series
-alignment.
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with column \code{WPR_\{n\}} (or \code{WPR_scaled} when
+\code{scale = TRUE}) containing the Williams \%R values.
 }
 \description{
-Measures closing price's position relative to price range over last \code{n} periods.
-}
-\details{
-\deqn{WPR = \frac{\mathit{highest\ high} - close}{\mathit{highest\ high} - \mathit{lowest\ low}}}
-Equivalent to \eqn{1 - fastK} from stochastic oscillator.
-}
-\note{
-Requires \code{runMax}/\code{runMin} from eTTR/quantmod.
+Computes Williams Percent R for each security in a long-format panel data
+frame. Williams \%R is a momentum indicator that measures the level of the
+close relative to the highest high over a look-back window, expressed as a
+proportion (0 to 1) or optionally scaled to -100 to 0.
 }
 \examples{
 \dontrun{
-data(TSLA)
-ohlcv <- TSLA[, c("Open", "High", "Low", "Close")]
-# Using default parameters without appending
-wpr_result1 <- add_WPR(ohlcv)
-
-# Using default parameters and appending
-wpr_result2 <- add_WPR(ohlcv, append = TRUE)
-
-# Scaling and without appending
-wpr_scaled_result1 <- add_WPR(ohlcv, scale = TRUE)
-
-# Scaling and appending
-wpr_scaled_result2 <- add_WPR(ohlcv, scale = TRUE, append = TRUE)
+mkt_data <- data.frame(
+  date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code   = rep(c("AAPL", "MSFT"), each = 60),
+  name   = rep(c("Apple", "Microsoft"), each = 60),
+  high   = c(runif(60, 155, 205), runif(60, 305, 405)),
+  low    = c(runif(60, 145, 195), runif(60, 295, 395)),
+  close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+  volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
+)
+# Example 1: Default parameters
+result <- add_WPR(mkt_data)
+# Example 2: Custom window
+result <- add_WPR(mkt_data, n = 20)
+# Example 3: Slim output with traditional -100 to 0 scaling
+result <- add_WPR(mkt_data, n = 14, scale = TRUE, append = FALSE)
 }
 }
-\references{
-\itemize{
-\item \url{https://www.fmlabs.com/reference/WilliamsR.htm}
-\item \url{https://school.stockcharts.com/doku.php?id=technical_indicators:williams_r}
-}
-}
-\seealso{
-Related function: \code{\link[=stoch]{stoch()}}
-}
-\keyword{ts}

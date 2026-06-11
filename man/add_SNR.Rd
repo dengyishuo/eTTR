@@ -2,49 +2,56 @@
 % Please edit documentation in R/add_SNR.R
 \name{add_SNR}
 \alias{add_SNR}
-\title{Calculate Signal to Noise Ratio}
+\title{Signal-to-Noise Ratio (SNR)}
 \usage{
-add_SNR(OHLCV, n, append = FALSE, ...)
+add_SNR(mkt_data, n, append = TRUE, output = c("tibble", "data.frame"), ...)
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, \code{high}, \code{low}, and
+\code{close}.}
 
-\item{n}{Number of periods for moving average.}
+\item{n}{Integer. Look-back window (required, no default). Used for both
+the price-change lag and the ATR smoothing period.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated Signal to Noise Ratio
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-Signal to Noise Ratio values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append result columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
 
-\item{...}{Other arguments to be passed to \code{\link{ATR}}.}
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
+
+\item{...}{Additional arguments passed to the \code{ATR} function (e.g.
+\code{maType}).}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a matrix (if \code{try.xts} fails) containing the signal to noise ratio.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated Signal to Noise Ratio values appended, maintaining the integrity of the time - series
-alignment.
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with column \code{SNR_<n>} containing the signal-to-noise
+ratio values. Values are non-negative; larger values signal stronger
+directional price movement relative to intraday noise.
 }
 \description{
-The n - day SNR for a given market is calculated by taking the absolute
-price change over an n - day period and dividing it by the average
-n - day volatility.
-
-\deqn{SNR_n = \frac{|C_t - C_{t - n}|}{ATR_n}
-}{SNR = abs(Cl - lag(Cl,n)) / ATR(HLC, n)$atr}
-
-Using average true range as the volatility measure captures more of the
-intraday and overnight volatility in a way that a measurement of
-Close - to - Close price change does not.
-
-The interpretation is then relatively intuitive: an SNR value of five
-indicates that the market has moved five times the volatility (average true
-range) over the given look - back period.
+Computes the Signal-to-Noise Ratio for each security in a long-format panel
+data frame. SNR is defined as the absolute \code{n}-period price change
+divided by the Average True Range (ATR) computed over the same \code{n}
+periods. Higher values indicate that directional price movement dominates
+random noise, making the instrument more suitable for trend-following
+strategies. Required columns: \code{high}, \code{low}, \code{close}.
 }
-\references{
-Skeggs, James and Hill, Alex (2015). Back in Black Part 2: The
-Opportunity Set for Trend Following.
+\examples{
+\dontrun{
+mkt_data <- data.frame(
+  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code  = rep(c("AAPL", "MSFT"), each = 60),
+  name  = rep(c("Apple", "Microsoft"), each = 60),
+  high  = c(runif(60, 155, 205), runif(60, 305, 405)),
+  low   = c(runif(60, 145, 195), runif(60, 295, 395)),
+  close = c(runif(60, 150, 200), runif(60, 300, 400))
+)
+# Example 1: Window of 14 periods
+result <- add_SNR(mkt_data, n = 14)
+# Example 2: Longer window of 20 periods
+result <- add_SNR(mkt_data, n = 20)
+# Example 3: Slim output with n = 14
+result <- add_SNR(mkt_data, n = 14, append = FALSE)
 }
-\author{
-Peter Carl
 }

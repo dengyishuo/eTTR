@@ -2,71 +2,75 @@
 % Please edit documentation in R/add_SMI.R
 \name{add_SMI}
 \alias{add_SMI}
-\title{Calculate Stochastic Momentum Index}
+\title{Add Stochastic Momentum Index (SMI)}
 \usage{
 add_SMI(
-  OHLCV,
+  mkt_data,
   n = 13,
   nFast = 2,
   nSlow = 25,
   nSig = 9,
   maType,
   bounded = TRUE,
-  append = FALSE,
+  append = TRUE,
+  output = c("tibble", "data.frame"),
   ...
 )
 }
 \arguments{
-\item{OHLCV}{Object coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, \code{high}, \code{low}, and
+\code{close}.}
 
-\item{n}{Number of periods for range calculation (default: 13).}
+\item{n}{Integer. Look-back window for the high-low range. Defaults to
+\code{13}.}
 
-\item{nFast}{Fast moving average periods (default: 2).}
+\item{nFast}{Integer. Fast smoothing period. Defaults to \code{2}.}
 
-\item{nSlow}{Slow moving average periods (default: 25).}
+\item{nSlow}{Integer. Slow smoothing period. Defaults to \code{25}.}
 
-\item{nSig}{Signal line periods (default: 9).}
+\item{nSig}{Integer. Signal line period. Defaults to \code{9}.}
 
-\item{maType}{Moving average type: function, string, or list of configurations
-(default: "EMA").}
+\item{maType}{Character or list. Moving average type(s). Defaults to
+\code{"EMA"}.}
 
-\item{bounded}{Logical, use current period in range calculation (default: TRUE).}
+\item{bounded}{Logical. If \code{TRUE} (default), the high-low range uses
+the current bar; if \code{FALSE}, it uses the previous bar.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated Stochastic Momentum Index
-values and its signal line will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-Stochastic Momentum Index values and its signal line will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
 
-\item{...}{Additional arguments passed to moving average functions.}
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
+
+\item{...}{Additional arguments passed to the moving average function.}
 }
 \value{
-If \code{append = FALSE}, an xts or matrix object with columns: SMI, signal.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated Stochastic Momentum Index values and its signal line appended, maintaining the integrity of the time - series
-alignment.
+The input data frame with additional columns \code{SMI} (the
+Stochastic Momentum Index) and \code{signal} (the signal line).
 }
 \description{
-Calculates the SMI value and its signal line.
+Computes the Stochastic Momentum Index and its signal line for
+each asset in a long-format panel data frame. The SMI measures how far the
+current close is from the midpoint of the recent high-low range, double-
+smoothed by fast and slow MAs. Results are appended as columns \code{SMI}
+and \code{signal}.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-smi_result1 <- add_SMI(TSLA)
-
-# Modifying n and without appending
-smi_result2 <- add_SMI(TSLA, n = 15)
-
-# Using default parameters and appending
-smi_result3 <- add_SMI(TSLA, append = TRUE)
-
-# Modifying n and appending
-smi_result4 <- add_SMI(TSLA, n = 15, append = TRUE)
+mkt_data <- data.frame(
+  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code  = rep(c("AAPL", "MSFT"), each = 60),
+  name  = rep(c("Apple", "Microsoft"), each = 60),
+  high  = c(runif(60, 160, 210), runif(60, 310, 410)),
+  low   = c(runif(60, 140, 190), runif(60, 290, 390)),
+  close = c(runif(60, 150, 200), runif(60, 300, 400))
+)
+# Example 1: Default parameters
+result <- add_SMI(mkt_data)
+# Example 2: Custom look-back window
+result <- add_SMI(mkt_data, n = 9)
+# Example 3: Slim output
+result <- add_SMI(mkt_data, n = 13, append = FALSE)
 }
 }
-\author{
-DengYishuo
-}
-\keyword{indicator}
-\keyword{momentum}
-\keyword{ts}

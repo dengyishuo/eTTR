@@ -2,79 +2,72 @@
 % Please edit documentation in R/add_VHF.R
 \name{add_VHF}
 \alias{add_VHF}
-\title{Calculate Vertical Horizontal Filter (Optimized)}
+\title{Vertical Horizontal Filter (VHF)}
 \usage{
 add_VHF(
-  OHLCV,
+  mkt_data,
   n = 28,
   na.rm = TRUE,
   inf.replace = NA,
   zero.replace = NA,
-  allow_middle_na = FALSE,
-  append = FALSE
+  append = TRUE,
+  output = c("tibble", "data.frame")
 )
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, \code{high}, \code{low}, and
+\code{close}.}
 
-\item{n}{Number of periods to use. Default is 28.}
+\item{n}{Integer. Look-back window for rolling high, low, and price change
+sum. Defaults to \code{28}.}
 
-\item{na.rm}{Logical. Should NA values be removed during calculations? Default is TRUE.}
+\item{na.rm}{Logical. If \code{TRUE} (default), replace \code{NA} values in
+the output with the value of \code{zero.replace}.}
 
-\item{inf.replace}{Numeric value to replace INF/-INF values. Default is NA.}
+\item{inf.replace}{Replacement value for infinite VHF results. Defaults to
+\code{NA}.}
 
-\item{zero.replace}{Numeric value to replace division by zero results. Default is NA.}
+\item{zero.replace}{Replacement value for VHF results where the cumulative
+price change denominator is near zero. Defaults to \code{NA}.}
 
-\item{allow_middle_na}{Logical. If TRUE, allows NA values in the middle of the series.}
+\item{append}{Logical. If \code{TRUE} (default), append result columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated VHF values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-VHF values will be returned. Defaults to \code{FALSE}.}
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a vector (if \code{try.xts} fails) containing the VHF values with NA/INF values handled.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated VHF values appended, maintaining the integrity of the time - series
-alignment.
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with column:
+\describe{
+\item{VHF_\{n\}}{Vertical Horizontal Filter values scaled by 100.
+Higher values indicate a trending market; lower values indicate
+consolidation.}
+}
 }
 \description{
-The Vertical Horizontal Filter (VHF) attempts to identify starting and ending
-trends. This optimized version includes safeguards against NA and INF values.
-}
-\note{
-If Close prices are given, the function calculates the max/min using
-only those prices. If HLC prices are given, the function uses high/low prices.
+Computes the Vertical Horizontal Filter for each security in a long-format
+panel data frame. VHF measures the degree of trend versus consolidation by
+comparing the highest high minus lowest low to the sum of absolute price
+changes over a rolling window.
 }
 \examples{
 \dontrun{
-# Example 1: Using closing prices
-data("AAPL")
-close_price <- Cl(AAPL)
-vhf_close <- add_VHF(AAPL, n = 14)
-chartSeries(AAPL, TA = "addTA(vhf_close,col='blue')")
-
-# Example 2: Using HLC data
-hlc_data <- HLC(AAPL)
-vhf_hlc <- add_VHF(AAPL, n = 28, inf.replace = 0)
-
-# Example 3: Handling NA values
-test_data <- c(1:10, NA, 12:20)
-vhf_na <- add_VHF(test_data, n = 5, na.rm = TRUE)
-
-# Example 4: Zero - division protection
-zero_test <- c(1, 1, 1, 1, 1)
-vhf_zero <- add_VHF(zero_test, zero.replace = 0)
+mkt_data <- data.frame(
+  date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code   = rep(c("AAPL", "MSFT"), each = 60),
+  name   = rep(c("Apple", "Microsoft"), each = 60),
+  high   = c(runif(60, 155, 205), runif(60, 305, 405)),
+  low    = c(runif(60, 145, 195), runif(60, 295, 395)),
+  close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+  volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
+)
+# Example 1: Default parameters
+result <- add_VHF(mkt_data)
+# Example 2: Custom window
+result <- add_VHF(mkt_data, n = 14)
+# Example 3: Slim output
+result <- add_VHF(mkt_data, n = 28, append = FALSE)
 }
 }
-\references{
-\url{https://www.metastock.com/Customer/Resources/TAAZ/?p=119}
-}
-\seealso{
-See \code{\link{aroon}}, \code{\link{CCI}}, \code{\link{ADX}},
-\code{\link{TDI}}, \code{\link{GMMA}} for other trend indicators.
-}
-\author{
-Deng Yishuo
-}
-\keyword{ts}

@@ -2,61 +2,59 @@
 % Please edit documentation in R/add_ultimateOscillator.R
 \name{add_ultimateOscillator}
 \alias{add_ultimateOscillator}
-\title{Calculate The Ultimate Oscillator}
+\title{Ultimate Oscillator}
 \usage{
 add_ultimateOscillator(
-  OHLCV,
+  mkt_data,
   n = c(7, 14, 28),
   wts = c(4, 2, 1),
-  append = FALSE
+  append = TRUE,
+  output = c("tibble", "data.frame")
 )
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and the required price/volume columns.}
 
-\item{n}{A vector of the number of periods to use for each average calculation. Default is c(7, 14, 28).}
+\item{n}{Integer vector of length 3. Look-back windows for the three time
+frames. Defaults to \code{c(7, 14, 28)}.}
 
-\item{wts}{The weights applied to each average. Default is c(4, 2, 1).}
+\item{wts}{Numeric vector of length 3. Weights applied to each time frame.
+Defaults to \code{c(4, 2, 1)}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated Ultimate Oscillator
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-Ultimate Oscillator values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a matrix (if \code{try.xts} fails) containing the Ultimate Oscillator values.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated Ultimate Oscillator values appended, maintaining the integrity of the time - series
-alignment.
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with column \code{ultimateOscillator} containing values scaled
+between 0 and 100.
 }
 \description{
-The Ultimate Oscillator is a momentum oscillator designed to capture momentum across three
-different time frames.
-Created by Larry Williams in 1976.
+Computes the Ultimate Oscillator for each security in a long-format panel
+data frame. The Ultimate Oscillator combines three time frames of buying
+pressure relative to the true range, using weighted averages. Developed by
+Larry Williams.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-ult_osc_result1 <- add_ultimateOscillator(TSLA)
-
-# Modifying n and without appending
-ult_osc_result2 <- add_ultimateOscillator(TSLA, n = c(5, 10, 20))
-
-# Using default parameters and appending
-ult_osc_result3 <- add_ultimateOscillator(TSLA, append = TRUE)
-
-# Modifying n and appending
-ult_osc_result4 <- add_ultimateOscillator(TSLA, n = c(5, 10, 20), append = TRUE)
+mkt_data <- data.frame(
+  date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code   = rep(c("AAPL", "MSFT"), each = 60),
+  name   = rep(c("Apple", "Microsoft"), each = 60),
+  high   = c(runif(60, 155, 205), runif(60, 305, 405)),
+  low    = c(runif(60, 145, 195), runif(60, 295, 395)),
+  close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+  volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
+)
+# Example 1: Default parameters
+result <- add_ultimateOscillator(mkt_data)
+# Example 2: Custom windows
+result <- add_ultimateOscillator(mkt_data, n = c(5, 10, 20))
+# Example 3: Slim output
+result <- add_ultimateOscillator(mkt_data, append = FALSE)
 }
 }
-\references{
-The following site(s) were used to code/document this
-indicator:\cr
-\url{https://school.stockcharts.com/doku.php?id=technical_indicators:ultimate_oscillator}\cr
-}
-\author{
-Ivan Popivanov
-}
-\keyword{ts}

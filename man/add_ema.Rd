@@ -2,59 +2,58 @@
 % Please edit documentation in R/add_EMA.R
 \name{add_EMA}
 \alias{add_EMA}
-\title{Calculate Exponential Moving Average (EMA)}
+\title{Add Exponential Moving Average (EMA)}
 \usage{
-add_EMA(OHLCV, n = 10, wilder = FALSE, ratio = NULL, append = FALSE)
+add_EMA(
+  mkt_data,
+  n = 10,
+  wilder = FALSE,
+  ratio = NULL,
+  append = TRUE,
+  output = c("tibble", "data.frame")
+)
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume data.
-The function will extract the closing price from this object for EMA calculation.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and the required price columns.}
 
-\item{n}{Number of periods to average over. Must be between 1 and \code{nrow(OHLCV)}.
-A larger \code{n} will result in a smoother EMA, but it will be less responsive
-to recent price changes.}
+\item{n}{Integer. Look-back window. Defaults to \code{10}.}
 
-\item{wilder}{logical; if \code{TRUE}, use Welles Wilder's EMA formula (\code{1/n}).
-When \code{wilder = TRUE}, the smoothing factor is calculated as \code{1/n},
-which gives relatively more weight to the most recent data point.}
+\item{wilder}{Logical. If \code{TRUE}, use Wilder's EMA smoothing ratio
+\code{1/n}. If \code{FALSE} (default), use the standard ratio
+\code{2/(n+1)}.}
 
-\item{ratio}{A smoothing/decay ratio (overrides \code{wilder}). If provided,
-this ratio is used to calculate the EMA instead of the \code{n}-based approach
-(when \code{wilder} is \code{FALSE}) or the Welles Wilder's formula (when
-\code{wilder} is \code{TRUE}).}
+\item{ratio}{Numeric. A custom smoothing ratio that overrides both \code{n}
+and \code{wilder}. Defaults to \code{NULL}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated EMA values will be appended to the \code{OHLCV} input data,
-ensuring proper alignment of time - series data. If \code{FALSE}, only the calculated
-EMA values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append} is \code{FALSE}, an object of the same class as \code{OHLCV} (or a vector if \code{try.xts} fails)
-containing the EMA values.
-If \code{append} is \code{TRUE}, an object of the same class as \code{OHLCV} with the calculated EMA values appended,
-maintaining the integrity of the time - series alignment.
+The input data frame with an additional column \code{EMA_<n>}
+containing the exponential moving average of \code{close}.
 }
 \description{
-Calculate an exponentially - weighted mean, giving more weight to recent observations.
-The EMA is a type of moving average that responds more quickly to recent price changes
-compared to a simple moving average.
-}
-\note{
-\code{wilder=FALSE} uses \code{2/(n + 1)}; \code{wilder=TRUE} uses \code{1/n}.
+Computes an Exponential Moving Average for each asset in a
+long-format panel data frame and appends the result as a new column named
+\code{EMA_<n>}.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-ema_result1 <- add_EMA(TSLA)
-
-# Using default parameters and appending
-ema_result2 <- add_EMA(TSLA, append = TRUE)
-
-# Changing n and without appending
-ema_result3 <- add_EMA(TSLA, n = 15)
-
-# Changing n and appending
-ema_result4 <- add_EMA(TSLA, n = 15, append = TRUE)
+mkt_data <- data.frame(
+  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code  = rep(c("AAPL", "MSFT"), each = 60),
+  name  = rep(c("Apple", "Microsoft"), each = 60),
+  close = c(runif(60, 150, 200), runif(60, 300, 400))
+)
+# Example 1: Default parameters
+result <- add_EMA(mkt_data)
+# Example 2: Custom window with Wilder smoothing
+result <- add_EMA(mkt_data, n = 20, wilder = TRUE)
+# Example 3: Slim output
+result <- add_EMA(mkt_data, n = 50, append = FALSE)
 }
 }
-\keyword{ts}

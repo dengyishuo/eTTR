@@ -2,85 +2,58 @@
 % Please edit documentation in R/add_aroon.R
 \name{add_aroon}
 \alias{add_aroon}
-\alias{add_Aroon}
-\title{Aroon}
+\title{Aroon Indicator}
 \usage{
-add_aroon(OHLCV, n = 20, append = FALSE)
+add_aroon(mkt_data, n = 20, append = TRUE, output = c("tibble", "data.frame"))
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume data.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, \code{high}, and \code{low}.}
 
-\item{n}{Number of periods to use in the calculation. Defaults to 20.}
+\item{n}{Integer. Look-back window. Defaults to \code{20}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated result columns
-(aroonUp, aroonDn, oscillator) will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-result data will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append result columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-(or a matrix if \code{try.xts} fails) containing the columns:
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with columns:
 \describe{
-\item{aroonUp}{The Aroon up indicator.}
-\item{aroonDn}{The Aroon down indicator.}
-\item{oscillator}{The Aroon oscillator (\code{aroonUp - aroonDn}).}
+\item{aroonUp_\if{html}{\out{<n>}}}{Aroon up line (0 to 100): percentage of periods since
+the highest high within the look-back window.}
+\item{aroonDn_\if{html}{\out{<n>}}}{Aroon down line (0 to 100): percentage of periods
+since the lowest low within the look-back window.}
+\item{aroonOsc_\if{html}{\out{<n>}}}{Aroon oscillator: \code{aroonUp_<n>} minus
+\code{aroonDn_<n>}, ranging from -100 to 100.}
 }
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated columns appended, maintaining the integrity of the time - series
-alignment.
 }
 \description{
-The Aroon indicator attempts to identify starting trends. The indicator
-consists of up and down lines, which measure how long it has been since the
-highest high / lowest low has occurred in the last \code{n} periods. The Aroon
-indicator is developed by Tushar Chande in 1995.
-}
-\details{
-Aroon up (down) is the elapsed time, expressed as a percentage, between today
-and the highest (lowest) price in the last \code{n} periods. If today's
-price is a new high (low) Aroon up (down) will be 100. Each subsequent period
-without another new high (low) causes Aroon up (down) to decrease by \eqn{(1/
-n*100}.
-}
-\note{
-If High - Low prices are given, the function calculates the max/min using
-the high/low prices. Otherwise the function calculates the max/min of the
-single series.
-Up (down) trends are indicated when the aroonUp(Dn) is between 70 and 100.
-Strong trends are indicated when when the aroonUp(Dn) is above 70 while the
-aroonDn(Up) is below 30. Also, crossovers may be useful.
+Calculates the Aroon indicator for each security in a long-format panel data
+frame. The Aroon indicator identifies the start of new trends by measuring
+how recently the highest high (\code{aroonUp}) or lowest low (\code{aroonDn})
+occurred within the last \code{n} periods. Both lines range from 0 to 100.
+\code{aroonUp} near 100 signals a strong uptrend; \code{aroonDn} near 100
+signals a strong downtrend. The oscillator (\code{aroonOsc}) is the
+difference \code{aroonUp - aroonDn}, ranging from -100 to 100. Developed by
+Tushar Chande in 1995. Required columns: \code{high}, \code{low}.
 }
 \examples{
 \dontrun{
-# Load required data, assume TSLA is data in the appropriate format
-data(TSLA)
-
-# Use default parameters
-aroon_result1 <- add_aroon(TSLA)
-
-# Modify the n parameter
-aroon_result2 <- add_aroon(TSLA, n = 30)
-
-# Set append to TRUE
-aroon_result3 <- add_aroon(TSLA, append = TRUE)
-
-# Combine modifying the n parameter and setting append to TRUE
-aroon_result4 <- add_aroon(TSLA, n = 30, append = TRUE)
+mkt_data <- data.frame(
+  date = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code = rep(c("AAPL", "MSFT"), each = 60),
+  name = rep(c("Apple", "Microsoft"), each = 60),
+  high = c(runif(60, 155, 205), runif(60, 305, 405)),
+  low  = c(runif(60, 145, 195), runif(60, 295, 395))
+)
+# Example 1: Default parameters (n = 20)
+result <- add_aroon(mkt_data)
+# Example 2: Custom window with slim output
+result <- add_aroon(mkt_data, n = 30, append = FALSE)
+# Example 3: Return as data.frame
+result <- add_aroon(mkt_data, output = "data.frame")
 }
 }
-\references{
-The following site(s) were used to code/document this
-indicator:\cr \url{https://www.fmlabs.com/reference/Aroon.htm}\cr
-\url{https://www.fmlabs.com/reference/AroonOscillator.htm}\cr
-\url{https://www.linnsoft.com/techind/aroon - arn}\cr
-\url{https://school.stockcharts.com/doku.php?id=technical_indicators:aroon}\cr
-}
-\seealso{
-See \code{\link{CCI}}, \code{\link{ADX}}, \code{\link{TDI}},
-\code{\link{VHF}}, \code{\link{GMMA}} for other indicators that measure trend
-direction/strength.
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

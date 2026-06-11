@@ -1,120 +1,105 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2020  Joshua M. Ulrich
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Calculate Keltner Channels
+#' @title Keltner Channels
 #' @description
-#' Keltner Channels are volatility - based envelopes set above and below a moving
-#' average. This indicator is similar to Bollinger Bands, but Keltner Channels
-#' use the Average True Range (ATR) to set channel distance.
-#' Keltner Channels are a trend following indicator, and can also be used to
-#' identify overbought and oversold levels when there is no trend.
-#' Chester Keltner is credited with the original version of Keltner Channels in
-#' his 1960 book. Linda Bradford Raschke introduced the newer version of
-#' Keltner Channels in the 1980s.
-#' @aliases add_KeltnerChannels
-#' @param OHLCV Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume prices.
-#' @param n Number of periods for moving average. Defaults to 20.
-#' @param maType A function or a string naming the function to be called.
-#' @param atr The number of average true range distances to apply. Defaults to 2.
-#' @param append A logical value. If \code{TRUE}, the calculated Keltner Channels
-#' values will be appended to the \code{OHLCV} input data, ensuring
-#' proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' Keltner Channels values will be returned. Defaults to \code{FALSE}.
-#' @param ... Other arguments to be passed to the maType function.
-#' @section Details : Keltner Channels consist of three lines:
-#' The middle band is generally a 20 - period EMA of the typical price
-#' \code{[high + low + close]/3}. The upper and lower bands are multiples of average
-#' true range (usually 2) above and below the MA.
-#' The middle band is usually calculated using the typical price, but if a
-#' univariate series (e.g. Close, Weighted Close, Median Price, etc.) is
-#' provided, it will be used instead.
-#' @return If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-#' or a matrix (if \code{try.xts} fails) containing the columns:
-#'  \describe{
-#'     \item{dn}{ The lower Keltner Channel. }
-#'     \item{mavg}{ The middle moving average. }
-#'     \item{up}{ The upper Keltner Channel. }
-#'  }
-#' If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-#' calculated Keltner Channels values appended, maintaining the integrity of the time - series
-#' alignment.
-#' @keywords ts
-#' @author Nick Procyk, Joshua Ulrich
-#' @references The following site(s) were used to code/document this
-#' indicator:\cr
-#' \url{https://school.stockcharts.com/doku.php?id=technical_indicators:keltner_channels}\cr
-#' \url{https://www.linnsoft.com/techind/keltner - channels - keltu - keltd}\cr
-#' \url{https://www.investopedia.com/terms/k/keltnerchannel.asp}\cr
-#' @seealso See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
-#' options; and note Warning section.
-#' @importFrom xts xcoredata
+#' Computes Keltner Channels for each security in a long-format panel data frame.
+#' The channel is formed by a moving average of the typical price (center line)
+#' plus and minus a multiple of the Average True Range.
+#'
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, \code{high}, \code{low}, and
+#'   \code{close}.
+#' @param n Integer. Look-back window for both the moving average and the ATR.
+#'   Defaults to \code{20}.
+#' @param maType Moving average type applied to the typical price (function name
+#'   as a string or function object). Defaults to \code{"EMA"}.
+#' @param atr Numeric. Multiplier applied to the ATR to set the channel width.
+#'   Defaults to \code{2}.
+#' @param append Logical. If \code{TRUE} (default), append result columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#' @param ... Additional arguments passed to the \code{maType} function.
+#'
+#' @return A \code{tibble} or \code{data.frame} sorted by \code{date} then
+#'   \code{code}, with columns:
+#'   \describe{
+#'     \item{kc_dn_\{n\}}{Lower Keltner Channel band (center minus atr * ATR).}
+#'     \item{kc_mavg_\{n\}}{Center moving average of the typical price.}
+#'     \item{kc_up_\{n\}}{Upper Keltner Channel band (center plus atr * ATR).}
+#'   }
+#' @export
+#' @importFrom xts xts
+#' @importFrom tibble as_tibble
 #' @examples
 #' \dontrun{
-#' data(TSLA)
-#' # Using default parameters without appending
-#' kc_result1 <- add_keltnerChannels(TSLA)
-#'
-#' # Modifying n and without appending
-#' kc_result2 <- add_keltnerChannels(TSLA, n = 30)
-#'
-#' # Using default parameters and appending
-#' kc_result3 <- add_keltnerChannels(TSLA, append = TRUE)
-#'
-#' # Modifying n and appending
-#' kc_result4 <- add_keltnerChannels(TSLA, n = 30, append = TRUE)
+#' mkt_data <- data.frame(
+#'   date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+#'   code   = rep(c("AAPL", "MSFT"), each = 60),
+#'   name   = rep(c("Apple", "Microsoft"), each = 60),
+#'   high   = c(runif(60, 155, 205), runif(60, 305, 405)),
+#'   low    = c(runif(60, 145, 195), runif(60, 295, 395)),
+#'   close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+#'   volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
+#' )
+#' # Example 1: Default parameters
+#' result <- add_keltnerChannels(mkt_data)
+#' # Example 2: Custom window
+#' result <- add_keltnerChannels(mkt_data, n = 20, atr = 1.5)
+#' # Example 3: Slim output
+#' result <- add_keltnerChannels(mkt_data, n = 20, append = FALSE)
 #' }
-#' @export
-add_keltnerChannels <- function(OHLCV, n = 20, maType, atr = 2, append = FALSE, ...) {
-  # Extract HLC from OHLCV
-  HLC <- OHLCV[, c("High", "Low", "Close")]
+add_keltnerChannels <- function(mkt_data, n = 20, maType, atr = 2, append = TRUE,
+                                output = c("tibble", "data.frame"), ...) {
+  # ── Argument resolution ────────────────────────────────────────────────────
+  output <- match.arg(output)
+  if (missing(maType)) maType <- "EMA"
 
-  atrHLC <- HLC
-  HLC <- try.xts(HLC, error = as.matrix)
-  if (NCOL(HLC) == 3) {
-    if (is.xts(HLC)) {
-      xa <- xts::xcoredata(HLC)
-      HLC <- xts(apply(HLC, 1, mean), index(HLC))
-      xts::xcoredata(HLC) <- xa
-    } else {
-      HLC <- apply(HLC, 1, mean)
-    }
-  } else if (NCOL(HLC) != 1) {
-    stop("Price series must be either High - Low - Close, or Close/univariate.")
+  # ── Input validation ───────────────────────────────────────────────────────
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, high, low, close.")
   }
-  maArgs <- list(n = n, ...)
-  if (missing(maType)) {
-    maType <- "EMA"
+  required_cols <- c("date", "code", "high", "low", "close")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
   }
-  mavg <- do.call(maType, c(list(HLC), maArgs))
-  avgtruerange <- ATR(atrHLC, n = n)
 
-  up <- mavg + atr * avgtruerange[, 2]
-  dn <- mavg - atr * avgtruerange[, 2]
+  # ── Split-apply-combine ────────────────────────────────────────────────────
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
 
-  res <- cbind(dn, mavg, up)
-  colnames(res) <- c("dn", "mavg", "up")
-  res <- reclass(res, HLC)
+    # Build HLC xts
+    hlc <- xts::xts(
+      cbind(High = sub$high, Low = sub$low, Close = sub$close),
+      order.by = sub$date
+    )
 
-  if (append) {
-    ohlcv <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(ohlcv, res)
-    return(combined_result)
-  } else {
-    return(res)
+    # Typical price as the MA input
+    tp <- xts::xts(rowMeans(hlc), order.by = sub$date)
+
+    mavg_val <- do.call(maType, c(list(tp), list(n = n, ...)))
+    atr_val <- TTR::ATR(hlc, n = n)
+
+    up_val <- mavg_val + atr * atr_val[, "atr"]
+    dn_val <- mavg_val - atr * atr_val[, "atr"]
+
+    sub[[paste0("kc_dn_", n)]] <- as.numeric(dn_val)
+    sub[[paste0("kc_mavg_", n)]] <- as.numeric(mavg_val)
+    sub[[paste0("kc_up_", n)]] <- as.numeric(up_val)
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  # ── Optionally drop original columns ──────────────────────────────────────
+  if (!append) {
+    new_cols <- c(paste0("kc_dn_", n), paste0("kc_mavg_", n), paste0("kc_up_", n))
+    keep <- intersect(c("date", "code", "name", new_cols), colnames(res))
+    res <- res[, keep, drop = FALSE]
   }
+
+  # ── Output format ──────────────────────────────────────────────────────────
+  if (output == "tibble") tibble::as_tibble(res) else as.data.frame(res, stringsAsFactors = FALSE)
 }

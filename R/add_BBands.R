@@ -1,111 +1,87 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025 - 2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Calculate Bollinger Bands
-#' @description
-#' Calculates Bollinger Bands, a volatility indicator comparing price levels over time.
-#' @param OHLCV Object coercible to xts/matrix containing Open - High - Low - Close - Volume prices.
-#' @param n Number of periods for moving average (default 20).
-#' @param maType Function or string naming moving average type.
-#' @param sd Number of standard deviations (default 2).
-#' @param append A logical value. If \code{TRUE}, the calculated result columns
-#' ("dn", "mavg", "up", "pctB") will be appended to the \code{OHLCV} input data, ensuring
-#' proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' result data will be returned. Defaults to \code{FALSE}.
-#' @param ... Additional arguments passed to `maType`.
-#' @return
-#' If \code{append = FALSE}, an object matching \code{OHLCV} class with columns:
-#' - `dn`: Lower band
-#' - `mavg`: Moving average
-#' - `up`: Upper band
-#' - `pctB`: %B value
-#' If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-#' calculated columns appended, maintaining the integrity of the time - series
-#' alignment.
-#' @note
-#' Non - SMA averages cause inconsistencies since SD calculations assume SMA.
-#' @details
-#' Calculates three bands:
-#' - Middle: SMA of typical price \eqn{(high + low + close)/3}
-#' - Upper: `sd` standard deviations above MA
-#' - Lower: `sd` standard deviations below MA
-#' Uses univariate series directly if provided.
-#' @references
-#' - \url{https://www.fmlabs.com/reference/Bollinger.htm}
-#' - \url{https://school.stockcharts.com/doku.php?id=technical_indicators:bollinger_bands}
-#' @seealso
-#' Moving average functions: [eTTR::SMA()], [eTTR::EMA()]
-#' @keywords ts
-#' @importFrom xts xcoredata
+#' Calculate Bollinger Bands
+#'
+#' Calculates Bollinger Bands for each security in a long-format panel data frame.
+#' The middle band is an SMA of the typical price (high + low + close)/3.
+#'
+#' @param mkt_data A data.frame or tibble with columns: date, code, high, low, close.
+#' @param n Moving average period. Default 20.
+#' @param maType Moving average function. Default "SMA".
+#' @param sd Number of standard deviations. Default 2.
+#' @param append If TRUE, append columns to input data.
+#' @param output Output format: "tibble" or "data.frame".
+#' @param ... Additional parameters for moving average functions.
+#'
+#' @return Data frame with Bollinger Band columns added.
 #' @export
+#' @keywords ts
+#' @author DengYishuo
+#'
 #' @examples
 #' \dontrun{
-#' data(TSLA)
-#' # Using default parameters without appending
-#' bbands_result1 <- add_BBands(TSLA)
-#'
-#' # Modifying n and without appending
-#' bbands_result2 <- add_BBands(TSLA, n = 30)
-#'
-#' # Using default parameters and appending
-#' bbands_result3 <- add_BBands(TSLA, append = TRUE)
-#'
-#' # Modifying n and appending
-#' bbands_result4 <- add_BBands(TSLA, n = 30, append = TRUE)
+#' mkt_data <- data.frame(
+#'   date = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+#'   code = rep(c("AAA", "BBB"), each = 60),
+#'   high = runif(120, 20, 30),
+#'   low = runif(120, 5, 15),
+#'   close = runif(120, 10, 25)
+#' )
+#' result <- add_BBands(mkt_data)
 #' }
-add_BBands <- function(OHLCV, n = 20, maType, sd = 2, append = FALSE, ...) {
-  # Extract HLC from OHLCV
-  hlc <- OHLCV[, c("High", "Low", "Close")]
+add_BBands <- function(mkt_data, n = 20, maType, sd = 2, append = TRUE,
+                       output = c("tibble", "data.frame"), ...) {
+  output <- match.arg(output)
+  if (missing(maType)) maType <- "SMA"
 
-  hlc <- try.xts(hlc, error = as.matrix)
-  if (NCOL(hlc) == 3) {
-    if (is.xts(hlc)) {
-      xa <- xts::xcoredata(hlc)
-      hlc <- xts(apply(hlc, 1, mean), index(hlc))
-      xts::xcoredata(hlc) <- xa
-    } else {
-      hlc <- apply(hlc, 1, mean)
-    }
-  } else if (NCOL(hlc) != 1) {
-    stop("Price series must be either High - Low - Close, or Close/univariate.")
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a data.frame or tibble.")
   }
 
-  ma_args <- list(n = n, ...)
-  if (missing(maType)) {
-    maType <- "SMA"
+  required_cols <- c("date", "code", "high", "low", "close")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste("Missing columns:", paste(missing_cols, collapse = ", ")))
   }
 
-  mavg <- do.call(maType, c(list(hlc), ma_args))
-  sdev <- runSD(hlc, n, sample = FALSE)
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
 
-  up <- mavg + sd * sdev
-  dn <- mavg - sd * sdev
-  pctb <- (hlc - dn) / (up - dn)
+    hlc <- xts::xts(
+      cbind(High = sub$high, Low = sub$low, Close = sub$close),
+      order.by = sub$date
+    )
+    tp <- xts::xts(rowMeans(hlc), order.by = sub$date)
 
-  res <- cbind(dn, mavg, up, pctb)
-  colnames(res) <- c("dn", "mavg", "up", "pctB")
-  res <- reclass(res, hlc)
+    mavg_val <- do.call(maType, c(list(tp), list(n = n, ...)))
+    sdev_val <- runSD(tp, n, sample = FALSE)
 
-  if (append) {
-    ohlcv <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(ohlcv, res)
-    return(combined_result)
+    up_val <- mavg_val + sd * sdev_val
+    dn_val <- mavg_val - sd * sdev_val
+    pctb_val <- (tp - dn_val) / (up_val - dn_val)
+
+    sub[[paste0("dn_", n)]] <- as.numeric(dn_val)
+    sub[[paste0("mavg_", n)]] <- as.numeric(mavg_val)
+    sub[[paste0("up_", n)]] <- as.numeric(up_val)
+    sub[[paste0("pctB_", n)]] <- as.numeric(pctb_val)
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  if (!append) {
+    new_cols <- c(
+      paste0("dn_", n), paste0("mavg_", n),
+      paste0("up_", n), paste0("pctB_", n)
+    )
+    keep <- intersect(c("date", "code", new_cols), colnames(res))
+    res <- res[, keep, drop = FALSE]
+  }
+
+  if (output == "tibble") {
+    tibble::as_tibble(res)
   } else {
-    return(res)
+    as.data.frame(res, stringsAsFactors = FALSE)
   }
 }

@@ -2,81 +2,68 @@
 % Please edit documentation in R/add_CCI.R
 \name{add_CCI}
 \alias{add_CCI}
-\title{Calculate Commodity Channel Index}
+\title{Commodity Channel Index (CCI)}
 \usage{
-add_CCI(OHLCV, n = 20, maType, c = 0.015, append = FALSE, ...)
+add_CCI(
+  mkt_data,
+  n = 20,
+  maType,
+  c = 0.015,
+  append = TRUE,
+  output = c("tibble", "data.frame"),
+  ...
+)
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix and contains
-Open - High - Low - Close - Volume prices.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, \code{high}, \code{low}, and
+\code{close}.}
 
-\item{n}{Number of periods for moving average. Defaults to 20.}
+\item{n}{Integer. Look-back window. Defaults to \code{20}.}
 
-\item{maType}{A function or a string naming the function to be called.}
+\item{maType}{Character. Name of the moving average function to use (e.g.
+\code{"SMA"}, \code{"EMA"}). Defaults to \code{"SMA"}.}
 
-\item{c}{Constant to apply to the mean deviation. Defaults to 0.015.}
+\item{c}{Numeric. Scaling constant applied to the mean deviation.
+Defaults to \code{0.015}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated CCI values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-CCI values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append result columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
 
-\item{...}{Other arguments to be passed to the \code{maType} function.}
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
+
+\item{...}{Additional arguments passed to the \code{maType} function.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a vector (if \code{try.xts} fails) containing the CCI values.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated CCI values appended, maintaining the integrity of the time - series
-alignment.
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with column \code{CCI_<n>} containing the Commodity Channel
+Index values. Typical readings fall between -200 and +200, with extreme
+values indicating overbought or oversold conditions.
 }
 \description{
-The Commodity Channel Index (CCI) attempts to identify starting and ending
-trends.
-}
-\details{
-CCI relates the current price and the average of price over \code{n} periods.
-The CCI usually falls in a channel of - 100 to 100. A basic CCI trading system
-is: Buy (sell) if CCI rises above 100 (falls below - 100) and sell (buy) when
-it falls below 100 (rises above - 100).
-CCI is usually calculated using the typical price, but if a univariate series
-(e.g. Close, Weighted Close, Median Price, etc.) is provided, it will be used
-instead.
-}
-\note{
-If \code{OHLCV} contains High - Low - Close prices, then typical price will be
-calculated.  If \code{OHLCV} is a univariate series, then those values will be used
-instead of the typical price.
+Computes the Commodity Channel Index for each security in a long-format panel
+data frame. CCI measures how far the current typical price (mean of high,
+low, close) deviates from its \code{n}-period moving average, scaled by the
+mean absolute deviation. Values above \code{+100} suggest overbought
+conditions; values below \code{-100} suggest oversold conditions. Required
+columns: \code{high}, \code{low}, \code{close}.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-cci_result1 <- add_CCI(TSLA)
-
-# Modifying n and without appending
-cci_result2 <- add_CCI(TSLA, n = 30)
-
-# Using default parameters and appending
-cci_result3 <- add_CCI(TSLA, append = TRUE)
-
-# Modifying n and appending
-cci_result4 <- add_CCI(TSLA, n = 30, append = TRUE)
+mkt_data <- data.frame(
+  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code  = rep(c("AAPL", "MSFT"), each = 60),
+  name  = rep(c("Apple", "Microsoft"), each = 60),
+  high  = c(runif(60, 155, 205), runif(60, 305, 405)),
+  low   = c(runif(60, 145, 195), runif(60, 295, 395)),
+  close = c(runif(60, 150, 200), runif(60, 300, 400))
+)
+# Example 1: Default parameters (n = 20, c = 0.015)
+result <- add_CCI(mkt_data)
+# Example 2: Custom period, return data.frame
+result <- add_CCI(mkt_data, n = 30, output = "data.frame")
+# Example 3: Slim output with identifier columns only
+result <- add_CCI(mkt_data, append = FALSE)
 }
 }
-\references{
-The following site(s) were used to code/document this
-indicator:\cr \url{https://www.fmlabs.com/reference/CCI.htm}\cr
-\url{https://www.metastock.com/Customer/Resources/TAAZ/?p=42}\cr
-\url{https://www.linnsoft.com/techind/cci - commodity - channel - index}\cr
-\url{https://school.stockcharts.com/doku.php?id=technical_indicators:commodity_channel_index_cci}\cr
-}
-\seealso{
-See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
-options; and note Warning section.  See \code{\link{aroon}},
-\code{\link{ADX}}, \code{\link{TDI}}, \code{\link{VHF}}, \code{\link{GMMA}}
-for other indicators that measure trend direction/strength.
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

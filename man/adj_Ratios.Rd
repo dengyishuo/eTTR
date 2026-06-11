@@ -2,37 +2,27 @@
 % Please edit documentation in R/adj_Ratios.R
 \name{adj_Ratios}
 \alias{adj_Ratios}
-\alias{adjRatios}
-\alias{adjust}
-\title{Split and dividend adjustment ratios}
+\title{Adjustment Ratios for Splits and Dividends}
 \usage{
 adj_Ratios(splits, dividends, close)
 }
 \arguments{
-\item{splits}{Split series that is coercible to xts.}
+\item{splits}{Univariate xts object of stock split ratios.}
 
-\item{dividends}{Dividend series that is coercible to xts.}
+\item{dividends}{Univariate xts object of dividend payments.}
 
-\item{close}{Close price series that is coercible to xts.}
+\item{close}{Univariate xts object of closing prices (required for dividend adjustments).}
 }
 \value{
-A xts object containing the columns:
-\describe{
-\item{ Split }{ The split adjustment ratio. }
-\item{ Div }{ The dividend adjustment ratio. }
-}
+Xts object with two columns: Split (adjustment ratio for splits) and Div (adjustment ratio for dividends).
 }
 \description{
-Create split and dividend adjustment ratio vectors.
+Calculates price adjustment ratios to adjust historical prices for stock splits and dividends.
 }
-\details{
-\itemize{
-\item If only \code{splits} is provided, the resulting object will
-only have as many observations as \code{splits}.
-\item If \code{splits} and \code{close} are provided, the resulting
-object will have as many observations as \code{max(NROW(splits),
-     NROW(close))}.
-\item \code{close} is required if \code{dividends} is provided.
+\examples{
+\dontrun{
+# Example usage
+adj <- adj_Ratios(splits, dividends, close)
 }
 }
 \author{

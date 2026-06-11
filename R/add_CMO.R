@@ -1,92 +1,89 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025 - 2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Calculate Chande Momentum Oscillator
+#' @title Chande Momentum Oscillator (CMO)
 #' @description
-#' The Chande Momentum Oscillator (CMO) is a modified RSI. Developed by Tushar
-#' S. Chande.
-#' The CMO divides the total movement by the net movement ((up - down) / (up + down)),
-#' where RSI divides the upward movement by the net movement (up / (up + down)).
-#' @param OHLCV Price, volume, etc. series that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.
-#' @param n Number of periods to use. Defaults to 14.
-#' @param append A logical value. If \code{TRUE}, the calculated Chande Momentum Oscillator
-#' values will be appended to the \code{OHLCV} input data, ensuring
-#' proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' Chande Momentum Oscillator values will be returned. Defaults to \code{FALSE}.
-#' @return If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-#' or a vector (if \code{try.xts} fails) containing Chande Momentum Oscillator values.
-#' If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-#' calculated Chande Momentum Oscillator values appended, maintaining the integrity of the time - series
-#' alignment.
-#' @note There are several ways to interpret the CMO:
-#'  \enumerate{
-#'    \item Values over/under +/- 50 indicate overbought/oversold conditions.
-#'    \item High CMO values indicate strong trends.
-#'    \item When the CMO crosses above/below a moving average of the CMO,
-#'          it is a buy/sell signal.
-#'  }
-#' @author DengYishuo
-#' @seealso See \code{\link{RSI}}.
-#' @references The following site(s) were used to code/document this
-#' indicator:\cr \url{https://www.fmlabs.com/reference/CMO.htm}\cr
-#' @keywords ts
+#' Computes the Chande Momentum Oscillator for each security in a long-format
+#' panel data frame. CMO measures momentum by comparing the sum of recent gains
+#' to the sum of recent losses over a look-back period, returning values between
+#' -100 and +100. Developed by Tushar Chande.
+#'
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, and \code{close}.
+#' @param n Integer. Look-back window. Defaults to \code{14}.
+#' @param append Logical. If \code{TRUE} (default), append result columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#'
+#' @return A \code{tibble} or \code{data.frame} sorted by \code{date} then
+#'   \code{code}, with column \code{CMO_\{n\}} containing values in the range
+#'   \code{[-100, 100]}.
 #' @export
+#' @importFrom xts xts
+#' @importFrom tibble as_tibble
 #' @examples
 #' \dontrun{
-#' data(TSLA)
-#' # Using default parameters without appending
-#' cmo_result1 <- add_CMO(TSLA)
-#'
-#' # Modifying n and without appending
-#' cmo_result2 <- add_CMO(TSLA, n = 20)
-#'
-#' # Using default parameters and appending
-#' cmo_result3 <- add_CMO(TSLA, append = TRUE)
-#'
-#' # Modifying n and appending
-#' cmo_result4 <- add_CMO(TSLA, n = 20, append = TRUE)
+#' mkt_data <- data.frame(
+#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+#'   code  = rep(c("AAPL", "MSFT"), each = 60),
+#'   name  = rep(c("Apple", "Microsoft"), each = 60),
+#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
+#' )
+#' # Example 1: Default parameters
+#' result <- add_CMO(mkt_data)
+#' # Example 2: Custom window
+#' result <- add_CMO(mkt_data, n = 20)
+#' # Example 3: Slim output as data.frame
+#' result <- add_CMO(mkt_data, n = 14, append = FALSE, output = "data.frame")
 #' }
-add_CMO <- function(OHLCV, n = 14, append = FALSE) {
-  # Assume we use Close price for calculation, can be adjusted
-  x <- OHLCV[, "Close"]
+add_CMO <- function(mkt_data, n = 14, append = TRUE, output = c("tibble", "data.frame")) {
+  output <- match.arg(output)
 
-  x <- try.xts(x, error = as.matrix)
-
-  up <- momentum(x, n = 1)
-  dn <- ifelse(up < 0, abs(up), 0)
-  up <- ifelse(up > 0, up, 0)
-
-  up <- runSum(up, n)
-  dn <- runSum(dn, n)
-
-  cmo <- 100 * (up - dn) / (up + dn)
-
-  if (!is.null(dim(cmo)) && ncol(cmo) == 1L) {
-    colnames(cmo) <- "cmo"
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, close.")
   }
 
-  cmo <- reclass(cmo, x)
+  required_cols <- c("date", "code", "close")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
+  }
 
-  if (append) {
-    ohlcv <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(ohlcv, cmo)
-    return(combined_result)
+  col_name <- paste0("CMO_", n)
+  codes <- unique(mkt_data$code)
+
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
+
+    if (n > nrow(sub)) {
+      warning(sprintf("Skipping code '%s': n = %d exceeds available rows (%d).", cd, n, nrow(sub)))
+      sub[[col_name]] <- NA_real_
+      return(sub)
+    }
+
+    close_xts <- xts::xts(sub$close, order.by = sub$date)
+
+    up <- momentum(close_xts, n = 1)
+    dn <- ifelse(up < 0, abs(up), 0)
+    up <- ifelse(up > 0, up, 0)
+    up <- runSum(up, n)
+    dn <- runSum(dn, n)
+    cmo <- 100 * (up - dn) / (up + dn)
+
+    sub[[col_name]] <- as.numeric(cmo)
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  if (!append) {
+    keep <- intersect(c("date", "code", "name", col_name), colnames(res))
+    res <- res[, keep, drop = FALSE]
+  }
+
+  if (output == "tibble") {
+    tibble::as_tibble(res)
   } else {
-    return(cmo)
+    as.data.frame(res, stringsAsFactors = FALSE)
   }
 }

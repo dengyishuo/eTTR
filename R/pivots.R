@@ -1,57 +1,19 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025-2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Calculate Technical Analysis Pivot Points
-#' @description
-#' Computes pivot points (central pivot, resistance levels, and support levels)
-#' based on OHLCV data using the standard 3-point pivot calculation method.
+#' Pivot Points
 #'
-#' @param data An xts object containing OHLCV price data
-#' @param lagts Logical indicating whether to lag the results (default is TRUE)
+#' Calculate standard pivot points (central pivot, support and resistance levels)
+#' based on the high, low, and closing prices.
 #'
-#' @return An xts object with the following columns:
-#' \describe{
-#'   \item{center}{Central pivot point, calculated as \eqn{(High + Low + Close)/3}}
-#'   \item{R1}{First resistance level, calculated as \eqn{(2 \times P) - Low}}
-#'   \item{R2}{Second resistance level, calculated as \eqn{P + (R1 - S1)}}
-#'   \item{S1}{First support level, calculated as \eqn{(2 \times P) - High}}
-#'   \item{S2}{Second support level, calculated as \eqn{P - (R1 - S1)}}
-#' }
+#' @param data An xts object containing at least columns `High`, `Low`, `Close`
+#'   (case‑sensitive). Typically, the output of `quantmod::HLC()`.
+#' @param lagts Logical. If `TRUE`, the results are lagged by one period so that
+#'   today's pivots are based on yesterday's data. Default `TRUE`.
 #'
-#' @references
-#' http://www.investopedia.com/articles/forex/05/FXpivots.asp
-#' http://www.investopedia.com/articles/technical/04/041404.asp
+#' @return An xts object with columns: `center` (pivot), `R1`, `R2`, `S1`, `S2`.
 #'
-#' @author Brian G. Peterson
-#' @importFrom xts xts lag.xts last
+#' @importFrom xts xts last lag.xts
+#' @importFrom quantmod HLC Lo Hi
 #' @importFrom zoo index
-#' @importFrom quantmod HLC Hi Lo
 #' @export
-#' @examples
-#' \dontrun{
-#' # Load sample data
-#' data(TSLA)
-#' prices <- Cl(TSLA)
-#'
-#' # Calculate pivot points
-#' pivot_points <- pivots(prices)
-#' head(pivot_points)
-#' }
 pivots <- function(data, lagts = TRUE) {
   # Calculate central pivot
   center <- xts(rowSums(HLC(data)) / 3, order.by = index(data))

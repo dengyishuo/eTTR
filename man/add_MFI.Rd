@@ -2,70 +2,48 @@
 % Please edit documentation in R/add_MFI.R
 \name{add_MFI}
 \alias{add_MFI}
-\alias{ADD_MFI}
-\alias{add_mfi}
-\title{Calculate Money Flow Index}
+\title{Money Flow Index (MFI)}
 \usage{
-add_MFI(OHLCV, n = 14, append = FALSE)
+add_MFI(mkt_data, n = 14, append = TRUE, output = c("tibble", "data.frame"))
 }
 \arguments{
-\item{OHLCV}{Object that is coercible to xts or matrix and contains Open - High - Low - Close - Volume prices.}
+\item{mkt_data}{A long-format panel data frame or tibble. Must contain
+columns \code{date}, \code{code}, and the required price/volume columns.}
 
-\item{n}{Number of periods to use. Defaults to 14.}
+\item{n}{Integer. Look-back window. Defaults to \code{14}.}
 
-\item{append}{A logical value. If \code{TRUE}, the calculated Money Flow Index
-values will be appended to the \code{OHLCV} input data, ensuring
-proper alignment of time - series data. If \code{FALSE}, only the calculated
-Money Flow Index values will be returned. Defaults to \code{FALSE}.}
+\item{append}{Logical. If \code{TRUE} (default), append new columns to
+\code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+\code{name}, and the result columns.}
+
+\item{output}{Character. \code{"tibble"} (default) or \code{"data.frame"}.}
 }
 \value{
-If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-or a vector (if \code{try.xts} fails) containing the MFI values.
-If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-calculated Money Flow Index values appended, maintaining the integrity of the time - series
-alignment.
+A \code{tibble} or \code{data.frame} sorted by \code{date} then
+\code{code}, with column \code{MFI} containing values in the range
+\code{[0, 100]}.
 }
 \description{
-The MFI is a ratio of positive and negative money flow over time.
-Money Flow (MF) is the product of price and volume. Positive/negative MF
-occur when today's price is higher/lower than yesterday's price. The MFI is
-calculated by dividing positive MF by negative MF for the past \code{n}
-periods. It is then scaled between 0 and 100.
-MFI is usually calculated using the typical price, but if a univariate series
-(e.g. Close, Weighted Close, Median Price, etc.) is provided, it will be used
-instead.
-}
-\note{
-Divergence between MFI and price can be indicative of a reversal. In
-addition, values above/below 80/20 indicate market tops/bottoms.
+Computes the Money Flow Index for each security in a long-format panel data
+frame. MFI is a momentum oscillator that uses both price and volume to measure
+buying and selling pressure, and is often called the volume-weighted RSI.
 }
 \examples{
 \dontrun{
-data(TSLA)
-# Using default parameters without appending
-mfi_result1 <- add_MFI(TSLA)
-
-# Modifying n and without appending
-mfi_result2 <- add_MFI(TSLA, n = 20)
-
-# Using default parameters and appending
-mfi_result3 <- add_MFI(TSLA, append = TRUE)
-
-# Modifying n and appending
-mfi_result4 <- add_MFI(TSLA, n = 20, append = TRUE)
+mkt_data <- data.frame(
+  date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
+  code   = rep(c("AAPL", "MSFT"), each = 60),
+  name   = rep(c("Apple", "Microsoft"), each = 60),
+  high   = c(runif(60, 155, 205), runif(60, 305, 405)),
+  low    = c(runif(60, 145, 195), runif(60, 295, 395)),
+  close  = c(runif(60, 150, 200), runif(60, 300, 400)),
+  volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
+)
+# Example 1: Default parameters
+result <- add_MFI(mkt_data)
+# Example 2: Custom window
+result <- add_MFI(mkt_data, n = 20)
+# Example 3: Slim output
+result <- add_MFI(mkt_data, n = 14, append = FALSE)
 }
 }
-\references{
-The following site(s) were used to code/document this
-indicator:\cr
-\url{https://www.fmlabs.com/reference/default.htm?url=MoneyFlowIndex.htm}\cr
-\url{https://www.linnsoft.com/techind/money - flow - index - mfi}\cr
-\url{https://school.stockcharts.com/doku.php?id=technical_indicators:money_flow_index_mfi}\cr
-}
-\seealso{
-See \code{\link{OBV}} and \code{\link{CMF}}.
-}
-\author{
-DengYishuo
-}
-\keyword{ts}

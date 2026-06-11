@@ -1,158 +1,133 @@
-#
-#   eTTR: Enhanced Technical Trading Rules
-#
-#   Copyright (C) 2025 - 2030  DengYishuo
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#' @title Calculate Know Sure Thing
-#' @description
-#' The Know Sure Thing (KST) is a smooth, summed, rate of change indicator.
-#' Developed by Martin Pring.
-#' For each day (week, month, etc.), the KST calculates the ROC over several
-#' periods. Those ROCs are smoothed using the given moving averages, then
-#' multiplied by their respective weighting values. The resulting values are
-#' summed for each day (month, week, etc.).
-#' @param OHLCV Price series that is coercible to xts or matrix, assumed to contain Open - High - Low - Close - Volume data.
-#' @param n A vector of the number of periods to use in the MA calculations. Defaults to c(10, 10, 10, 15).
-#' @param nROC A vector of the number of periods to use in the ROC calculations. Defaults to c(10, 15, 20, 30).
-#' @param nSig The number of periods to use for the KST signal line. Defaults to 9.
-#' @param maType Either:
-#'  \enumerate{
-#'    \item A function or a string naming the function to be called.
-#'    \item A \emph{list} with the first component like (1) above, and
-#'      additional parameters specified as \emph{named} components.
-#'      See Examples.
-#'  }
-#' @param wts A vector the same length as \code{n}, of the weight for each
-#' period (need not sum to one). Defaults to 1:NROW(n).
-#' @param append A logical value. If \code{TRUE}, the calculated Know Sure Thing
-#' values will be appended to the \code{OHLCV} input data, ensuring
-#' proper alignment of time - series data. If \code{FALSE}, only the calculated
-#' Know Sure Thing values will be returned. Defaults to \code{FALSE}.
-#' @param ... Other arguments to be passed to the \code{maType} function in
-#' case (1) above.
-#' @return If \code{append = FALSE}, an object of the same class as \code{OHLCV}
-#' or a vector (if \code{try.xts} fails) containing the Know Sure Thing values.
-#' If \code{append = TRUE}, an object of the same class as \code{OHLCV} with the
-#' calculated Know Sure Thing values appended, maintaining the integrity of the time - series
-#' alignment.
-#' @note The KST indicates bullish/bearish momentum as it crosses above/below
-#' its moving average. Because the KST tends to lead price action, look for
-#' trend confirmation in the price.
-#' The default arguments are for the daily KST. There is also the Long - Term
-#' KST, with arguments: \code{n=c(9, 12, 18, 24)} - where the periods are
-#' months, not days - and the moving average periods are 6, 6, 6, and 9 months,
-#' respectively.
-#' @author DengYishuo
-#' @seealso See \code{\link{EMA}}, \code{\link{SMA}}, etc. for moving average
-#' options; and note Warning section.  See \code{\link{ROC}} for the
-#' rate - of - change function.  See \code{\link{MACD}} for a generic oscillator.
-#' @references The following site(s) were used to code/document this
-#' indicator:\cr
-#' \url{https://web.archive.org/web/20110715112957/http://www.pring.com/movieweb/daily_kst.htm}\cr
-#' \url{https://web.archive.org/web/20100101162707/http://www.pring.com/movieweb/KST_MCM.htm}\cr
-#' @keywords ts
+#' @title Add Know Sure Thing (KST) Oscillator
+#'
+#' @description Computes the Know Sure Thing momentum oscillator and its signal
+#'   line for each asset in a long-format panel data frame. The KST is a
+#'   weighted sum of four smoothed Rate-of-Change values. Results are appended
+#'   as columns \code{KST_<n>} and \code{KSTsig_<n>}.
+#'
+#' @param mkt_data A long-format panel data frame or tibble. Must contain
+#'   columns \code{date}, \code{code}, and the required price columns.
+#' @param n Integer vector of length 4. Look-back windows for the four smoothed
+#'   ROC components. Defaults to \code{c(10, 10, 10, 15)}.
+#' @param nROC Integer vector of length 4. Rate-of-change periods.
+#'   Defaults to \code{c(10, 15, 20, 30)}.
+#' @param nSig Integer. Signal line smoothing period. Defaults to \code{9}.
+#' @param maType Character or list. Moving average type(s). Defaults to
+#'   \code{"SMA"}.
+#' @param wts Numeric vector. Weights for the four ROC components.
+#'   Defaults to \code{1:NROW(n)}.
+#' @param append Logical. If \code{TRUE} (default), append new columns to
+#'   \code{mkt_data}. If \code{FALSE}, return only \code{date}, \code{code},
+#'   \code{name}, and the result columns.
+#' @param output Character. \code{"tibble"} (default) or \code{"data.frame"}.
+#' @param ... Additional arguments passed to the moving average function.
+#'
+#' @return The input data frame with additional columns \code{KST_<n>} (the KST
+#'   oscillator value) and \code{KSTsig_<n>} (the signal line).
+#'
 #' @export
+#' @importFrom xts xts
+#' @importFrom tibble as_tibble
+#'
 #' @examples
 #' \dontrun{
-#' data(TSLA)
-#' # Using default parameters without appending
-#' kst_result1 <- add_KST(TSLA)
-#'
-#' # Modifying n and without appending
-#' kst_result2 <- add_KST(TSLA, n = c(12, 12, 12, 18))
-#'
-#' # Using default parameters and appending
-#' kst_result3 <- add_KST(TSLA, append = TRUE)
-#'
-#' # Modifying n and appending
-#' kst_result4 <- add_KST(TSLA, n = c(12, 12, 12, 18), append = TRUE)
+#' mkt_data <- data.frame(
+#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 120), 2),
+#'   code  = rep(c("AAPL", "MSFT"), each = 120),
+#'   name  = rep(c("Apple", "Microsoft"), each = 120),
+#'   close = c(runif(120, 150, 200), runif(120, 300, 400))
+#' )
+#' # Example 1: Default parameters
+#' result <- add_KST(mkt_data)
+#' # Example 2: Custom ROC periods
+#' result <- add_KST(mkt_data, nROC = c(5, 10, 15, 20))
+#' # Example 3: Slim output
+#' result <- add_KST(mkt_data, append = FALSE)
 #' }
-add_KST <- function(OHLCV, n = c(10, 10, 10, 15), nROC = c(10, 15, 20, 30), nSig = 9,
-                    maType, wts = 1:NROW(n), append = FALSE, ...) {
-  # Assume we use Close price for calculation, can be adjusted
-  price <- OHLCV[, "Close"]
+add_KST <- function(mkt_data, n = c(10, 10, 10, 15), nROC = c(10, 15, 20, 30), nSig = 9,
+                    maType, wts = 1:NROW(n), append = TRUE,
+                    output = c("tibble", "data.frame"), ...) {
+  # ── Argument resolution ────────────────────────────────────────────────────
+  output <- match.arg(output)
+  if (missing(maType)) maType <- "SMA"
 
-  if (!all.equal(NROW(n), NROW(wts), NROW(nROC))) {
+  # ── Input validation ───────────────────────────────────────────────────────
+  if (!inherits(mkt_data, "data.frame")) {
+    stop("'mkt_data' must be a long-format data frame with columns: date, code, close.")
+  }
+  required_cols <- c("date", "code", "close")
+  missing_cols <- setdiff(required_cols, colnames(mkt_data))
+  if (length(missing_cols) > 0) {
+    stop(paste0("'mkt_data' is missing required columns: ", paste(missing_cols, collapse = ", ")))
+  }
+  if (!isTRUE(all.equal(NROW(n), NROW(wts), NROW(nROC)))) {
     stop("'n', 'nROC', and 'wts' must be the same length.")
-  } else {
-    N <- NROW(n)
   }
+  N <- NROW(n)
 
-  # Default MA
-  if (missing(maType)) {
-    maType <- "SMA"
-  }
+  # ── Column names ──────────────────────────────────────────────────────────
+  n_label <- max(n)
+  col_kst <- paste0("KST_", n_label)
+  col_sig <- paste0("KSTsig_", n_label)
 
-  ret <- NULL
+  # ── Split-apply-combine over each asset ───────────────────────────────────
+  codes <- unique(mkt_data$code)
+  result_list <- lapply(codes, function(cd) {
+    sub <- mkt_data[mkt_data$code == cd, ]
+    sub <- sub[order(sub$date), ]
 
-  # Case of two different 'maType's for both MAs.
-  if (is.list(maType)) {
-    # Make sure maType is a list of lists
-    maTypeInfo <- sapply(maType, is.list)
-    if (!(all(maTypeInfo) && length(maTypeInfo) == N)) {
-      stop(
-        "If \'maType\' is a list, you must specify\n ",
-        "the same number of MAs as elements in \'n\' and\n ",
-        "\'nROC\' (see Examples section of ?KST)"
-      )
+    min_rows <- max(nROC) + max(n) + nSig
+    if (min_rows > nrow(sub)) {
+      warning(sprintf("Skipping code '%s': insufficient rows for KST computation.", cd))
+      sub[[col_kst]] <- NA_real_
+      sub[[col_sig]] <- NA_real_
+      return(sub)
     }
 
-    # If MA function has 'n' arg, see if it's populated in maType;
-    # if it isn't, populate it with formal 'n'
-    for (i in 1:length(maType)) {
-      if (!is.null(formals(maType[[i]][[1]])$n) && is.null(maType[[i]]$n)) {
-        maType[[i]]$n <- n[i]
+    close_xts <- xts::xts(sub$close, order.by = sub$date)
+    ret <- NULL
+
+    if (is.list(maType)) {
+      maTypeInfo <- sapply(maType, is.list)
+      if (!(all(maTypeInfo) && length(maTypeInfo) == N)) {
+        stop("If 'maType' is a list, it must have the same number of elements as 'n'.")
       }
-      roc <- ROC(price, nROC[i], na.pad = TRUE)
-      ma.roc <- do.call(maType[[i]][[1]], c(list(roc), maType[[i]][-1])) * wts[i]
-      ret <- cbind(ret, ma.roc)
+      for (i in seq_len(N)) {
+        if (!is.null(formals(maType[[i]][[1]])$n) && is.null(maType[[i]]$n)) maType[[i]]$n <- n[i]
+        roc <- ROC(close_xts, nROC[i], na.pad = TRUE)
+        ma_roc <- do.call(maType[[i]][[1]], c(list(roc), maType[[i]][-1])) * wts[i]
+        ret <- cbind(ret, ma_roc)
+      }
+    } else {
+      for (i in seq_len(N)) {
+        roc <- ROC(close_xts, nROC[i], na.pad = TRUE)
+        ma_roc <- do.call(maType, c(list(roc), list(n = n[i], ...))) * wts[i]
+        ret <- cbind(ret, ma_roc)
+      }
     }
-  }
 
-  # Case of one 'maType' for both MAs.
-  else {
-    for (i in 1:NROW(n)) {
-      roc <- ROC(price, nROC[i], na.pad = TRUE)
-      ma.roc <- do.call(maType, c(list(roc), list(n = n[i], ...))) * wts[i]
-      ret <- cbind(ret, ma.roc)
+    kst <- xts::xts(100 * rowSums(ret), index(ret))
+
+    if (is.list(maType)) {
+      signal <- do.call(maType[[N]][[1]], c(list(kst), maType[[N]][-1]))
+    } else {
+      signal <- do.call(maType, c(list(kst), list(n = nSig, ...)))
     }
+
+    sub[[col_kst]] <- as.numeric(kst)
+    sub[[col_sig]] <- as.numeric(signal)
+    sub
+  })
+
+  res <- do.call(rbind, result_list)
+  res <- res[order(res$date, res$code), ]
+
+  # ── Slim output when append = FALSE ───────────────────────────────────────
+  if (!append) {
+    keep <- intersect(c("date", "code", "name", col_kst, col_sig), colnames(res))
+    res <- res[, keep, drop = FALSE]
   }
 
-  if (is.xts(ret)) {
-    kst <- xts(100 * rowSums(ret), index(ret))
-  } else {
-    kst <- 100 * rowSums(ret)
-  }
-
-  if (is.list(maType)) {
-    sigMA <- length(maType)
-    signal <- do.call(maType[[sigMA]][[1]], c(list(kst), maType[[sigMA]][-1]))
-  } else {
-    signal <- do.call(maType, c(list(kst), list(n = nSig, ...)))
-  }
-
-  result <- cbind(kst, signal)
-  colnames(result) <- c("kst", "signal")
-  result <- reclass(result, price)
-
-  if (append) {
-    ohlcv <- try.xts(OHLCV, error = as.matrix)
-    combined_result <- cbind(ohlcv, result)
-    return(combined_result)
-  } else {
-    return(result)
-  }
+  # ── Output format conversion ───────────────────────────────────────────────
+  if (output == "tibble") tibble::as_tibble(res) else as.data.frame(res, stringsAsFactors = FALSE)
 }

@@ -2,30 +2,30 @@
 % Please edit documentation in R/runVar.R
 \name{runVar}
 \alias{runVar}
-\title{Moving Window Variance (runVar)}
+\title{Rolling Variance}
 \usage{
 runVar(x, y = NULL, n = 10, sample = TRUE, cumulative = FALSE)
 }
 \arguments{
-\item{x}{Object coercible to xts or matrix.}
+\item{x}{Univariate numeric time series (vector, matrix, xts/zoo object), input series for variance calculation.}
 
-\item{y}{Object coercible to xts or matrix (if NULL, use x).}
+\item{y}{Univariate numeric time series; if \code{NULL}, set equal to \code{x} to compute variance. Default \code{NULL}.}
 
-\item{n}{Number of periods in the window (1 <= n <= nrow(x)).}
+\item{n}{Integer rolling window length, must satisfy \code{1 <= n <= NROW(x)}. Default 10.}
 
-\item{sample}{Logical; if TRUE, use sample variance (n-1 denominator).}
+\item{sample}{Logical scalar. If \code{TRUE}, calculate sample variance (divisor \code{n-1});
+if \code{FALSE}, calculate population variance (divisor \code{n}). Default \code{TRUE}.}
 
-\item{cumulative}{Logical; if TRUE, use from-inception calculation.}
+\item{cumulative}{Logical scalar. If \code{TRUE}, use expanding cumulative window instead of fixed rolling window. Default \code{FALSE}.}
 }
 \value{
-An object of the same class as \code{x} with variance values.
+Object with identical class as input \code{x}, containing rolling variance values.
 }
 \description{
-Calculate the variance over a moving window of periods.
+Calculate rolling or cumulative variance for a univariate time series, implemented as self-covariance via \code{\link{runCov}}.
 }
-\examples{
-data(TSLA)
-var_20 <- runVar(TSLA[, "Close"], 20)
-head(var_20)
+\details{
+Variance is mathematically equivalent to the covariance of a series with itself:
+\deqn{runVar(x) = runCov(x, x)}
+All input coercion, validation, NA handling and xts class restoration logic are delegated to \code{\link{runCov}}.
 }
-\keyword{ts}
