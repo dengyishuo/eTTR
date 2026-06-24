@@ -42,18 +42,6 @@ prices and an idealized linear trend within a rolling window of length
 clear trend. Required column: \code{close}.
 }
 \examples{
-\dontrun{
-mkt_data <- data.frame(
-  date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-  code   = rep(c("AAPL", "MSFT"), each = 60),
-  name   = rep(c("Apple", "Microsoft"), each = 60),
-  close  = c(runif(60, 150, 200), runif(60, 300, 400))
-)
-# Example 1: Default parameters (n = 20)
-result <- add_CTI(mkt_data)
-# Example 2: Custom look-back window of 30
-result <- add_CTI(mkt_data, n = 30)
-# Example 3: Slim output with n = 50
-result <- add_CTI(mkt_data, n = 50, append = FALSE)
-}
+data(ettr_stocks)
+result <- add_CTI(ettr_stocks)
 }

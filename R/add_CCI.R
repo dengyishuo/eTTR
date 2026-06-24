@@ -30,22 +30,8 @@
 #' @importFrom tibble as_tibble
 #' @importFrom TTR CCI
 #' @examples
-#' \dontrun{
-#' mkt_data <- data.frame(
-#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-#'   code  = rep(c("AAPL", "MSFT"), each = 60),
-#'   name  = rep(c("Apple", "Microsoft"), each = 60),
-#'   high  = c(runif(60, 155, 205), runif(60, 305, 405)),
-#'   low   = c(runif(60, 145, 195), runif(60, 295, 395)),
-#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
-#' )
-#' # Example 1: Default parameters (n = 20, c = 0.015)
-#' result <- add_CCI(mkt_data)
-#' # Example 2: Custom period, return data.frame
-#' result <- add_CCI(mkt_data, n = 30, output = "data.frame")
-#' # Example 3: Slim output with identifier columns only
-#' result <- add_CCI(mkt_data, append = FALSE)
-#' }
+#' data(ettr_stocks)
+#' result <- add_CCI(ettr_stocks)
 add_CCI <- function(mkt_data, n = 20, maType, c = 0.015, append = TRUE,
                     output = c("tibble", "data.frame"), ...) {
   # ── Argument resolution ────────────────────────────────────────────────────
@@ -79,7 +65,7 @@ add_CCI <- function(mkt_data, n = 20, maType, c = 0.015, append = TRUE,
 
     ma_args <- list(n = n, ...)
     mavg <- do.call(maType, c(list(typical), ma_args))
-    mean_dev <- runMAD(typical, n, center = mavg, stat = "mean")
+    mean_dev <- TTR::runMAD(typical, n, center = mavg, stat = "mean")
     cci_val <- (typical - mavg) / (c * mean_dev)
 
     sub[[col_name]] <- as.numeric(cci_val)

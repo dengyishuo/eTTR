@@ -28,20 +28,8 @@
 #' @importFrom tibble as_tibble
 #'
 #' @examples
-#' \dontrun{
-#' mkt_data <- data.frame(
-#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-#'   code  = rep(c("AAPL", "MSFT"), each = 60),
-#'   name  = rep(c("Apple", "Microsoft"), each = 60),
-#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
-#' )
-#' # Example 1: Default parameters
-#' result <- add_MACD(mkt_data)
-#' # Example 2: Custom fast/slow periods
-#' result <- add_MACD(mkt_data, nFast = 8, nSlow = 21)
-#' # Example 3: Slim output with absolute difference
-#' result <- add_MACD(mkt_data, percent = FALSE, append = FALSE)
-#' }
+#' data(ettr_stocks)
+#' result <- add_MACD(ettr_stocks)
 add_MACD <- function(mkt_data, nFast = 12, nSlow = 26, nSig = 9, maType,
                      percent = TRUE, append = TRUE,
                      output = c("tibble", "data.frame"), ...) {

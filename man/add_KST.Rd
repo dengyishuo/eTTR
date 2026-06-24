@@ -53,18 +53,6 @@ weighted sum of four smoothed Rate-of-Change values. Results are appended
 as columns \code{KST_<n>} and \code{KSTsig_<n>}.
 }
 \examples{
-\dontrun{
-mkt_data <- data.frame(
-  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 120), 2),
-  code  = rep(c("AAPL", "MSFT"), each = 120),
-  name  = rep(c("Apple", "Microsoft"), each = 120),
-  close = c(runif(120, 150, 200), runif(120, 300, 400))
-)
-# Example 1: Default parameters
-result <- add_KST(mkt_data)
-# Example 2: Custom ROC periods
-result <- add_KST(mkt_data, nROC = c(5, 10, 15, 20))
-# Example 3: Slim output
-result <- add_KST(mkt_data, append = FALSE)
-}
+data(ettr_stocks)
+result <- add_KST(ettr_stocks)
 }

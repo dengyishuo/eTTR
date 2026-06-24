@@ -6,6 +6,17 @@
 #' @param append Logical.
 #' @param output "tibble" or "data.frame".
 #' @return Data frame with columns alpha, beta, r.squared.
+#' @examples
+#' \dontrun{
+#' # add_rollSFM requires a pre-computed ret_asset column and an xts benchmark
+#' data(ettr_stocks)
+#' df <- ettr_stocks
+#' df$ret_asset <- ave(df$close, df$code,
+#'                     FUN = function(x) c(NA, diff(x) / head(x, -1)))
+#' Rb <- xts::xts(df$ret_asset[df$code == df$code[1]],
+#'                order.by = df$date[df$code == df$code[1]])
+#' result <- add_rollSFM(df, Rb = Rb, n = 60)
+#' }
 #' @export
 add_rollSFM <- function(mkt_data, Rb, n = 60,
                         append = TRUE, output = c("tibble", "data.frame")) {

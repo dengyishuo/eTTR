@@ -7,6 +7,9 @@
 #' @param append Logical.
 #' @param output "tibble" or "data.frame".
 #' @return Data frame with column ROC_<n>.
+#' @examples
+#' data(ettr_stocks)
+#' result <- add_ROC(ettr_stocks)
 #' @export
 add_ROC <- function(mkt_data, n = 1, type = c("discrete", "continuous"),
                     na.pad = TRUE, append = TRUE, output = c("tibble", "data.frame")) {

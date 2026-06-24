@@ -17,16 +17,8 @@
 #' @author DengYishuo
 #'
 #' @examples
-#' \dontrun{
-#' mkt_data <- data.frame(
-#'   date = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-#'   code = rep(c("AAA", "BBB"), each = 60),
-#'   high = runif(120, 20, 30),
-#'   low = runif(120, 5, 15),
-#'   close = runif(120, 10, 25)
-#' )
-#' result <- add_BBands(mkt_data)
-#' }
+#' data(ettr_stocks)
+#' result <- add_BBands(ettr_stocks)
 add_BBands <- function(mkt_data, n = 20, maType, sd = 2, append = TRUE,
                        output = c("tibble", "data.frame"), ...) {
   output <- match.arg(output)
@@ -51,19 +43,13 @@ add_BBands <- function(mkt_data, n = 20, maType, sd = 2, append = TRUE,
       cbind(High = sub$high, Low = sub$low, Close = sub$close),
       order.by = sub$date
     )
-    tp <- xts::xts(rowMeans(hlc), order.by = sub$date)
 
-    mavg_val <- do.call(maType, c(list(tp), list(n = n, ...)))
-    sdev_val <- runSD(tp, n, sample = FALSE)
+    bb <- TTR::BBands(hlc, n = n, sd = sd, ...)
 
-    up_val <- mavg_val + sd * sdev_val
-    dn_val <- mavg_val - sd * sdev_val
-    pctb_val <- (tp - dn_val) / (up_val - dn_val)
-
-    sub[[paste0("dn_", n)]] <- as.numeric(dn_val)
-    sub[[paste0("mavg_", n)]] <- as.numeric(mavg_val)
-    sub[[paste0("up_", n)]] <- as.numeric(up_val)
-    sub[[paste0("pctB_", n)]] <- as.numeric(pctb_val)
+    sub[[paste0("dn_", n)]] <- as.numeric(bb[, "dn"])
+    sub[[paste0("mavg_", n)]] <- as.numeric(bb[, "mavg"])
+    sub[[paste0("up_", n)]] <- as.numeric(bb[, "up"])
+    sub[[paste0("pctB_", n)]] <- as.numeric(bb[, "pctB"])
     sub
   })
 

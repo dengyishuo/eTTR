@@ -66,19 +66,6 @@ Elliott Wave structures, and support/resistance levels. Required columns:
 \code{high}, \code{low}.
 }
 \examples{
-\dontrun{
-mkt_data <- data.frame(
-  date = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-  code = rep(c("AAPL", "MSFT"), each = 60),
-  name = rep(c("Apple", "Microsoft"), each = 60),
-  high = c(runif(60, 155, 205), runif(60, 305, 405)),
-  low  = c(runif(60, 145, 195), runif(60, 295, 395))
-)
-# Example 1: Default parameters (10 percent swing threshold)
-result <- add_ZigZag(mkt_data)
-# Example 2: Tighter 5 percent swing threshold
-result <- add_ZigZag(mkt_data, change = 5)
-# Example 3: Slim output with 10 percent threshold
-result <- add_ZigZag(mkt_data, change = 10, append = FALSE)
-}
+data(ettr_stocks)
+result <- add_ZigZag(ettr_stocks)
 }

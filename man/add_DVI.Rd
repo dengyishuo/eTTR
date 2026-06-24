@@ -66,18 +66,6 @@ are generally interpreted as bullish; values below 0.5 as bearish. Required
 column: \code{close}.
 }
 \examples{
-\dontrun{
-mkt_data <- data.frame(
-  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 300), 2),
-  code  = rep(c("AAPL", "MSFT"), each = 300),
-  name  = rep(c("Apple", "Microsoft"), each = 300),
-  close = c(runif(300, 150, 200), runif(300, 300, 400))
-)
-# Example 1: Default parameters (n = 252)
-result <- add_DVI(mkt_data)
-# Example 2: Shorter look-back window of 126
-result <- add_DVI(mkt_data, n = 126)
-# Example 3: Slim output with default n
-result <- add_DVI(mkt_data, n = 252, append = FALSE)
-}
+data(ettr_stocks)
+result <- add_DVI(ettr_stocks)
 }

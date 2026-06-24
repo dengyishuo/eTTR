@@ -28,22 +28,8 @@
 #' @importFrom xts lag.xts
 #' @importFrom tibble as_tibble
 #' @examples
-#' \dontrun{
-#' mkt_data <- data.frame(
-#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-#'   code  = rep(c("AAPL", "MSFT"), each = 60),
-#'   name  = rep(c("Apple", "Microsoft"), each = 60),
-#'   high  = c(runif(60, 155, 205), runif(60, 305, 405)),
-#'   low   = c(runif(60, 145, 195), runif(60, 295, 395)),
-#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
-#' )
-#' # Example 1: Window of 14 periods
-#' result <- add_SNR(mkt_data, n = 14)
-#' # Example 2: Longer window of 20 periods
-#' result <- add_SNR(mkt_data, n = 20)
-#' # Example 3: Slim output with n = 14
-#' result <- add_SNR(mkt_data, n = 14, append = FALSE)
-#' }
+#' data(ettr_stocks)
+#' result <- add_SNR(ettr_stocks, n = 10)
 add_SNR <- function(mkt_data, n, append = TRUE, output = c("tibble", "data.frame"), ...) {
   # ── Argument resolution ────────────────────────────────────────────────────
   output <- match.arg(output)

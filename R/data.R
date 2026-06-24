@@ -1,54 +1,27 @@
-#' Apple Inc. Stock Daily Price Data
+#' US Tech Stock Daily OHLCV Panel Data
 #'
-#' Historical daily OHLCV time series data for Apple Inc. ticker AAPL.
+#' Daily price and volume data for 5 major US technology stocks
+#' (AAPL, TSLA, NVDA, MSFT, AMZN) from 2020-01-02 to 2024-12-30,
+#' in long format suitable for use with all \code{add_*()} functions.
 #'
-#' @name AAPL
+#' @name ettr_stocks
 #' @docType data
-#' @format An xts time series object with 5 columns:
-#' \itemize{
-#'   \item Open: Opening price
-#'   \item High: Intraday high price
-#'   \item Low: Intraday low price
-#'   \item Close: Closing price
-#'   \item Volume: Daily trading volume
+#' @format A data frame with 6285 rows and 9 columns:
+#' \describe{
+#'   \item{date}{Trading date (\code{Date}).}
+#'   \item{code}{Ticker symbol (character): AAPL, TSLA, NVDA, MSFT, AMZN.}
+#'   \item{name}{Company name (character).}
+#'   \item{open}{Opening price (numeric).}
+#'   \item{high}{Intraday high price (numeric).}
+#'   \item{low}{Intraday low price (numeric).}
+#'   \item{close}{Closing price (numeric).}
+#'   \item{volume}{Trading volume in shares (numeric).}
+#'   \item{adjusted}{Dividend and split adjusted closing price (numeric).}
 #' }
-#' @source Yahoo Finance
-#' @keywords datasets
-"AAPL"
-
-#' Tesla Inc. Stock Daily Price Data
-#'
-#' Historical daily OHLCV time series data for Tesla Inc. ticker TSLA.
-#'
-#' @name TSLA
-#' @docType data
-#' @format An xts time series object with 5 columns:
-#' \itemize{
-#'   \item Open: Opening price
-#'   \item High: Intraday high price
-#'   \item Low: Intraday low price
-#'   \item Close: Closing price
-#'   \item Volume: Daily trading volume
-#' }
-#' @source Yahoo Finance
-#' @keywords datasets
-"TSLA"
-
-#' Synthetic Technical Trading Rule Composite Dataset
-#'
-#' Simulated historical Open, High, Low, Close and Volume data spanning from January 2, 1985 to December 31, 2006.
-#' All values are randomly generated synthetic data and do not correspond to any real traded security.
-#' This offline dataset is designed for package examples that do not require internet access to download market data.
-#'
-#' @name ttrc
-#' @docType data
-#' @format An xts time series object with 5 columns:
-#' \itemize{
-#'   \item Open: Opening price
-#'   \item High: Intraday high price
-#'   \item Low: Intraday low price
-#'   \item Close: Closing price
-#'   \item Volume: Daily trading volume
-#' }
-#' @keywords datasets
+#' @source Yahoo Finance via \code{quantmod::getSymbols()}.
+#' @usage data(ettr_stocks)
+#' @examples
+#' data(ettr_stocks)
+#' head(ettr_stocks)
+#' table(ettr_stocks$code)
 NULL

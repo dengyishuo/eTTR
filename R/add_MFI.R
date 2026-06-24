@@ -18,23 +18,8 @@
 #' @export
 #' @importFrom tibble as_tibble
 #' @examples
-#' \dontrun{
-#' mkt_data <- data.frame(
-#'   date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-#'   code   = rep(c("AAPL", "MSFT"), each = 60),
-#'   name   = rep(c("Apple", "Microsoft"), each = 60),
-#'   high   = c(runif(60, 155, 205), runif(60, 305, 405)),
-#'   low    = c(runif(60, 145, 195), runif(60, 295, 395)),
-#'   close  = c(runif(60, 150, 200), runif(60, 300, 400)),
-#'   volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
-#' )
-#' # Example 1: Default parameters
-#' result <- add_MFI(mkt_data)
-#' # Example 2: Custom window
-#' result <- add_MFI(mkt_data, n = 20)
-#' # Example 3: Slim output
-#' result <- add_MFI(mkt_data, n = 14, append = FALSE)
-#' }
+#' data(ettr_stocks)
+#' result <- add_MFI(ettr_stocks)
 add_MFI <- function(mkt_data, n = 14, append = TRUE, output = c("tibble", "data.frame")) {
 
   # ── Argument resolution ────────────────────────────────────────────────────
@@ -67,8 +52,8 @@ add_MFI <- function(mkt_data, n = 14, append = TRUE, output = c("tibble", "data.
     pmf <- ifelse(!is.na(tp) & !is.na(tp_lag) & tp > tp_lag, mf, 0)
     nmf <- ifelse(!is.na(tp) & !is.na(tp_lag) & tp < tp_lag, mf, 0)
 
-    num <- runSum(pmf, n)
-    den <- runSum(nmf, n)
+    num <- TTR::runSum(pmf, n)
+    den <- TTR::runSum(nmf, n)
     mr  <- num / den
     mfi <- 100 - (100 / (1 + mr))
     mfi[!is.na(den) & den == 0] <- 100

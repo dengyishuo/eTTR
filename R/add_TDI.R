@@ -26,20 +26,8 @@
 #' @importFrom tibble as_tibble
 #'
 #' @examples
-#' \dontrun{
-#' mkt_data <- data.frame(
-#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-#'   code  = rep(c("AAPL", "MSFT"), each = 60),
-#'   name  = rep(c("Apple", "Microsoft"), each = 60),
-#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
-#' )
-#' # Example 1: Default parameters
-#' result <- add_TDI(mkt_data)
-#' # Example 2: Custom window
-#' result <- add_TDI(mkt_data, n = 14)
-#' # Example 3: Slim output
-#' result <- add_TDI(mkt_data, n = 20, append = FALSE)
-#' }
+#' data(ettr_stocks)
+#' result <- add_TDI(ettr_stocks)
 add_TDI <- function(mkt_data, n = 20, multiple = 2, allow_middle_na = FALSE,
                     append = TRUE, output = c("tibble", "data.frame")) {
   # ── Argument resolution ────────────────────────────────────────────────────
@@ -95,15 +83,15 @@ add_TDI <- function(mkt_data, n = 20, multiple = 2, allow_middle_na = FALSE,
     mom <- momentum(close_xts, n, na.pad = TRUE)
     mom[is.na(mom)] <- 0
 
-    di <- runSum(mom, n)
+    di <- TTR::runSum(mom, n)
     abs_di <- abs(di)
 
     run_sum_2n <- min(n * multiple, price_len - n + 1)
     run_sum_2n <- max(run_sum_2n, 1)
     run_sum_1n <- max(n, 1)
 
-    abs_mom_2n <- runSum(abs(mom), run_sum_2n)
-    abs_mom_1n <- runSum(abs(mom), run_sum_1n)
+    abs_mom_2n <- TTR::runSum(abs(mom), run_sum_2n)
+    abs_mom_1n <- TTR::runSum(abs(mom), run_sum_1n)
     tdi <- abs_di - (abs_mom_2n - abs_mom_1n)
 
     # Re-align to original sub if leading NAs were stripped

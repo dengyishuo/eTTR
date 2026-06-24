@@ -32,3 +32,7 @@ Data frame with column ROC_\if{html}{\out{<n>}}.
 \description{
 Add Rate of Change (Panel Data)
 }
+\examples{
+data(ettr_stocks)
+result <- add_ROC(ettr_stocks)
+}

@@ -32,3 +32,7 @@ Data frame with columns adj_split, adj_div, adj_total.
 \description{
 Add Adjustment Ratios for Splits and Dividends (Panel Data)
 }
+\examples{
+data(ettr_stocks)
+result <- add_adj_Ratios(ettr_stocks)
+}

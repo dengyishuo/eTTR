@@ -35,27 +35,8 @@
 #' @importFrom tibble as_tibble
 #' @importFrom TTR ATR
 #' @examples
-#' \dontrun{
-#' # Build a minimal mkt_data panel
-#' mkt_data <- data.frame(
-#'   date = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-#'   code = rep(c("AAA", "BBB"), each = 60),
-#'   open = runif(120, 10, 20),
-#'   high = runif(120, 20, 30),
-#'   low = runif(120, 5, 15),
-#'   close = runif(120, 10, 25),
-#'   volume = runif(120, 1e6, 2e6)
-#' )
-#'
-#' # Default: append = TRUE, output = "tibble"
-#' result1 <- add_ATR(mkt_data, n = 14)
-#'
-#' # Return only indicator columns
-#' result2 <- add_ATR(mkt_data, n = 14, append = FALSE)
-#'
-#' # Use a longer period and return a plain data.frame
-#' result3 <- add_ATR(mkt_data, n = 20, output = "data.frame")
-#' }
+#' data(ettr_stocks)
+#' result <- add_ATR(ettr_stocks)
 #' @export
 add_ATR <- function(mkt_data, n = 14, maType, append = TRUE,
                     output = c("tibble", "data.frame"), ...) {

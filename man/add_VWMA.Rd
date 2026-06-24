@@ -21,3 +21,7 @@ Data frame with column VWMA_\if{html}{\out{<n>}}.
 \description{
 Add Volume-Weighted Moving Average (Panel Data)
 }
+\examples{
+data(ettr_stocks)
+result <- add_VWMA(ettr_stocks)
+}

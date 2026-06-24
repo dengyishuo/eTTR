@@ -1,0 +1,687 @@
+---
+title: "eTTR 使用手册"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+vignette: >
+  %\VignetteIndexEntry{eTTR 使用手册}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  eval     = FALSE
+)
+```
+
+# 简介
+
+**eTTR**（Enhanced Technical Trading Rules）是一个面向量化交易的技术指标计算工具包，提供 50+ 个经典技术指标的长格式面板数据实现。所有函数均以 `add_` 为前缀，采用统一的 `mkt_data` 输入约定，可直接与 `eClassic`、`eBacktestCraft` 等包衔接。
+
+## 安装
+
+```{r install}
+devtools::install("/path/to/eTTR", upgrade = FALSE)
+```
+
+## 数据约定
+
+所有 `add_*` 函数接受**长格式面板数据**（每行 = 一个资产在某一日期的观测值），必需列因函数而异：
+
+| 函数类型 | 必需列 |
+|---------|-------|
+| 仅需收盘价 | `date`, `code`, `Close`（或 `close`） |
+| 需要 OHLC | `date`, `code`, `Open`, `High`, `Low`, `Close` |
+| 需要成交量 | `date`, `code`, `Close`, `Volume` |
+| 需要 OHLCV | `date`, `code`, `Open`, `High`, `Low`, `Close`, `Volume` |
+
+**输出参数**：
+
+| 参数 | 说明 | 默认值 |
+|-----|------|-------|
+| `append` | 是否追加到原数据 | `TRUE` |
+| `output` | 返回格式：`"tibble"` 或 `"data.frame"` | `"tibble"` |
+
+## 内置数据集
+
+```{r datasets}
+library(eTTR)
+
+# ettr_stocks：AAPL/TSLA/NVDA/MSFT/AMZN 日行情，2020-2024，长格式
+data("ettr_stocks")
+str(ettr_stocks)
+head(ettr_stocks)
+table(ettr_stocks$code)
+```
+
+---
+
+# 移动平均类
+
+## 简单移动平均：`add_SMA()`
+
+```{r add_SMA}
+df <- add_SMA(ettr_stocks, n = 20)
+# 输出列：SMA_20
+```
+
+## 指数移动平均：`add_EMA()`
+
+```{r add_EMA}
+df <- add_EMA(ettr_stocks, n = 20, wilder = FALSE, ratio = NULL)
+# 输出列：EMA_20
+# wilder=TRUE 使用 Wilder 平滑（等价于 EMA(2n-1)）
+```
+
+## 双重指数移动平均：`add_DEMA()`
+
+```{r add_DEMA}
+df <- add_DEMA(ettr_stocks, n = 10, v = 1, wilder = FALSE, ratio = NULL)
+# 输出列：DEMA_10
+# v 控制 EMA 权重（0=EMA，1=DEMA，>1 更激进）
+```
+
+## 加权移动平均：`add_WMA()`
+
+```{r add_WMA}
+df <- add_WMA(ettr_stocks, n = 10, wts = 1:10)
+# 输出列：WMA_10
+# wts：权重向量，长度须等于 n
+```
+
+## 船体移动平均：`add_HMA()`
+
+```{r add_HMA}
+df <- add_HMA(ettr_stocks, n = 20)
+# 输出列：HMA_20
+# 减少滞后，反应更灵敏
+```
+
+## 零滞后 EMA：`add_ZLEMA()`
+
+```{r add_ZLEMA}
+df <- add_ZLEMA(ettr_stocks, n = 20, ratio = NULL)
+# 输出列：ZLEMA_20
+```
+
+## 指数量价移动平均：`add_EVWMA()`
+
+```{r add_EVWMA}
+# 需要 Close 和 Volume 列
+df <- add_EVWMA(ettr_stocks, n = 20)
+# 输出列：EVWMA_20
+```
+
+## 成交量加权移动平均：`add_VWMA()`
+
+```{r add_VWMA}
+df <- add_VWMA(ettr_stocks, n = 20)
+# 输出列：VWMA_20
+```
+
+## 成交量加权平均价：`add_VWAP()`
+
+```{r add_VWAP}
+df <- add_VWAP(ettr_stocks, n = 10)
+# 输出列：VWAP_10
+```
+
+## Arnaud Legoux 移动平均：`add_ALMA()`
+
+```{r add_ALMA}
+df <- add_ALMA(ettr_stocks, n = 9, offset = 0.85, sigma = 6)
+# 输出列：ALMA_9
+# 低延迟，无震荡
+```
+
+## Guppy 多重移动平均：`add_GMMA()`
+
+```{r add_GMMA}
+df <- add_GMMA(ettr_stocks,
+  short = c(3, 5, 8, 10, 12, 15),
+  long  = c(30, 35, 40, 45, 50, 60))
+# 输出列：GMMA_short_3/5/8/10/12/15，GMMA_long_30/35/40/45/50/60
+```
+
+---
+
+# 趋势类
+
+## MACD：`add_MACD()`
+
+```{r add_MACD}
+df <- add_MACD(ettr_stocks,
+  nFast    = 12,
+  nSlow    = 26,
+  nSig     = 9,
+  percent  = FALSE)   # TRUE 时输出百分比差值
+# 输出列：MACD, Signal, Histogram
+```
+
+## ADX / DMI：`add_adx()`
+
+```{r add_adx}
+# 需要 High, Low, Close
+df <- add_adx(ettr_stocks, n = 14)
+# 输出列：DIp（+DI），DIn（-DI），DX，ADX，ADXR
+```
+
+## Aroon：`add_aroon()`
+
+```{r add_aroon}
+# 需要 High, Low
+df <- add_aroon(ettr_stocks, n = 20)
+# 输出列：aroonUp, aroonDn, oscillator
+# oscillator = aroonUp - aroonDn，正值看多
+```
+
+## 抛物线 SAR：`add_SAR()`
+
+```{r add_SAR}
+# 需要 High, Low
+df <- add_SAR(ettr_stocks, accel = c(0.02, 0.2))
+# 输出列：sar
+# accel：加速因子 c(步长, 最大值)
+```
+
+## 去趋势价格震荡：`add_DPO()`
+
+```{r add_DPO}
+df <- add_DPO(ettr_stocks, n = 10, percent = FALSE)
+# 输出列：DPO_10
+```
+
+## 价格震荡指标：`add_PO()`
+
+```{r add_PO}
+df <- add_PO(ettr_stocks, n_short = 10, n_long = 20, type = "EMA")
+# 输出列：PO
+```
+
+## 三重指数平滑：`add_TRIX()`
+
+```{r add_TRIX}
+df <- add_TRIX(ettr_stocks, n = 20, nSig = 9, percent = TRUE)
+# 输出列：TRIX_20, Signal
+```
+
+## KST（Know Sure Thing）：`add_KST()`
+
+```{r add_KST}
+df <- add_KST(ettr_stocks,
+  n    = c(10, 13, 14, 15),
+  nROC = c(10, 13, 14, 15),
+  nSig = 9)
+# 输出列：KST, Signal
+```
+
+## 垂直水平过滤：`add_VHF()`
+
+```{r add_VHF}
+df <- add_VHF(ettr_stocks, n = 28)
+# 输出列：VHF_28
+# 高值=趋势市，低值=震荡市
+```
+
+## 信噪比：`add_SNR()`
+
+```{r add_SNR}
+df <- add_SNR(ettr_stocks, n = 10)
+# 输出列：SNR_10
+```
+
+## ZigZag：`add_ZigZag()`
+
+```{r add_ZigZag}
+df <- add_ZigZag(ettr_stocks,
+  change    = 0.05,   # 最小波动幅度
+  percent   = TRUE,
+  retrace   = FALSE,
+  lastExtreme = TRUE)
+# 输出列：ZigZag
+```
+
+---
+
+# 震荡类
+
+## RSI：`add_RSI()`
+
+```{r add_RSI}
+df <- add_RSI(ettr_stocks, n = 14)
+# 输出列：RSI_14
+# 超买区间 > 70，超卖区间 < 30
+```
+
+## 随机指标：`add_stoch()`
+
+```{r add_stoch}
+# 需要 High, Low, Close
+df <- add_stoch(ettr_stocks,
+  nFastK = 14,
+  nFastD = 3,
+  nSlowD = 3,
+  bounded = TRUE,
+  smooth  = 1)
+# 输出列：fastK, fastD, slowD
+```
+
+## KDJ：`add_KDJ()`
+
+```{r add_KDJ}
+# 需要 High, Low, Close
+df <- add_KDJ(ettr_stocks, n = 9, m1 = 3, m2 = 3)
+# 输出列：K, D, J
+# J = 3K - 2D，J < 0 或 > 100 为极端区间
+```
+
+## CCI（商品通道指数）：`add_CCI()`
+
+```{r add_CCI}
+# 需要 High, Low, Close
+df <- add_CCI(ettr_stocks, n = 20, c = 0.015)
+# 输出列：CCI_20
+# > +100 超买，< -100 超卖
+```
+
+## CMO（钱德动量震荡）：`add_CMO()`
+
+```{r add_CMO}
+df <- add_CMO(ettr_stocks, n = 14)
+# 输出列：CMO_14
+```
+
+## SMI（随机动量指数）：`add_SMI()`
+
+```{r add_SMI}
+# 需要 High, Low, Close
+df <- add_SMI(ettr_stocks, n = 13, nFast = 2, nSlow = 25, nSig = 9)
+# 输出列：SMI, Signal
+```
+
+## TSI（真实强度指数）：`add_TSI()`
+
+```{r add_TSI}
+df <- add_TSI(ettr_stocks, r = 25, s = 13, signal_period = 7)
+# 输出列：TSI, Signal
+```
+
+## William %R：`add_WPR()`
+
+```{r add_WPR}
+# 需要 High, Low, Close
+df <- add_WPR(ettr_stocks, n = 14, scale = -100)
+# 输出列：WPR_14
+# 范围 [-100, 0]，> -20 超买，< -80 超卖
+```
+
+## ROC（变化率）：`add_ROC()`
+
+```{r add_ROC}
+df <- add_ROC(ettr_stocks, n = 10, type = "discrete")
+# 输出列：ROC_10
+# type="continuous" 输出对数收益率
+```
+
+## DPO（去趋势价格震荡）已在趋势类列出。
+
+## DVI：`add_DVI()`
+
+```{r add_DVI}
+df <- add_DVI(ettr_stocks, n = 252, wts = c(0.8, 0.2), smooth = 3,
+              magnitude = c(5, 100, 5), stretch = c(10, 100, 2),
+              exact.multiplier = 1)
+# 输出列：DVI.mag, DVI.str, DVI
+```
+
+---
+
+# 布林带 / 通道类
+
+## 布林带：`add_BBands()`
+
+```{r add_BBands}
+df <- add_BBands(ettr_stocks, n = 20, sd = 2)
+# 输出列：BBands_dn, BBands_mavg, BBands_up, BBands_pctB
+# pctB = (Close - dn) / (up - dn)，0.5 = 中轨
+```
+
+## 肯特纳通道：`add_keltnerChannels()`
+
+```{r add_keltnerChannels}
+# 需要 High, Low, Close
+df <- add_keltnerChannels(ettr_stocks, n = 20, atr = 2)
+# 输出列：keltner_dn, keltner_mavg, keltner_up
+```
+
+## 唐奇安通道：`add_DonchianChannel()`
+
+```{r add_DonchianChannel}
+# 需要 High, Low
+df <- add_DonchianChannel(ettr_stocks, n = 10, include.lag = FALSE)
+# 输出列：DonchianChannel_high, DonchianChannel_mid, DonchianChannel_low
+```
+
+## 布林带百分比（P Bands）：`add_PBands()`
+
+```{r add_PBands}
+df <- add_PBands(ettr_stocks, n = 20, sd = 2, fastn = 2, centered = FALSE)
+# 输出列：PBands_dn, PBands_up, PBands_pct
+```
+
+---
+
+# 波动率类
+
+## 真实波幅：`add_TR()`
+
+```{r add_TR}
+# 需要 High, Low, Close
+df <- add_TR(ettr_stocks)
+# 输出列：TR
+```
+
+## ATR（平均真实波幅）：`add_ATR()`
+
+```{r add_ATR}
+# 需要 High, Low, Close
+df <- add_ATR(ettr_stocks, n = 14)
+# 输出列：tr, atr, trueHigh, trueLow
+```
+
+## 历史波动率：`add_volatility()`
+
+```{r add_volatility}
+df <- add_volatility(ettr_stocks,
+  n    = 10,
+  calc = "close",    # "close"/"garman.klass"/"yang.zhang"/"rogers.satchell"
+  N    = 252)        # 年化系数
+# 输出列：volatility_10
+```
+
+## Chaikin 波动率：`add_chaikinVolatility()`
+
+```{r add_chaikinVolatility}
+# 需要 High, Low
+df <- add_chaikinVolatility(ettr_stocks, n = 10)
+# 输出列：chaikinVolatility_10
+```
+
+---
+
+# 成交量类
+
+## OBV（能量潮）：`add_OBV()`
+
+```{r add_OBV}
+# 需要 Close, Volume
+df <- add_OBV(ettr_stocks)
+# 输出列：OBV
+# 上升趋势配合 OBV 上升 = 放量上涨，信号强
+```
+
+## CMF（蔡金资金流量）：`add_CMF()`
+
+```{r add_CMF}
+# 需要 High, Low, Close, Volume
+df <- add_CMF(ettr_stocks, n = 20)
+# 输出列：CMF_20
+# > 0 资金净流入，< 0 净流出
+```
+
+## Chaikin A/D 线：`add_chaikinAD()`
+
+```{r add_chaikinAD}
+# 需要 High, Low, Close, Volume
+df <- add_chaikinAD(ettr_stocks)
+# 输出列：chaikinAD
+```
+
+## MFI（资金流量指数）：`add_MFI()`
+
+```{r add_MFI}
+# 需要 High, Low, Close, Volume
+df <- add_MFI(ettr_stocks, n = 14)
+# 输出列：MFI_14
+# > 80 超买，< 20 超卖
+```
+
+## EMV（简易波动率）：`add_EMV()`
+
+```{r add_EMV}
+# 需要 High, Low, Volume
+df <- add_EMV(ettr_stocks, n = 14, vol.divisor = 10000)
+# 输出列：EMV, Signal
+```
+
+## CLV（收盘位置值）：`add_CLV()`
+
+```{r add_CLV}
+# 需要 High, Low, Close
+df <- add_CLV(ettr_stocks)
+# 输出列：CLV
+# 范围 [-1, 1]，+1=收最高，-1=收最低
+```
+
+## Williams A/D：`add_williamsAD()`
+
+```{r add_williamsAD}
+# 需要 High, Low, Close
+df <- add_williamsAD(ettr_stocks)
+# 输出列：williamsAD
+```
+
+---
+
+# 动量类
+
+## 动量：`add_momentum()`
+
+```{r add_momentum}
+df <- add_momentum(ettr_stocks, n = 1)
+# 输出列：momentum_1
+# = Close - lag(Close, n)（绝对动量，区别于 ROC 的相对动量）
+```
+
+## CTI（收盘价趋势指数）：`add_CTI()`
+
+```{r add_CTI}
+df <- add_CTI(ettr_stocks, n = 20, slope = TRUE)
+# 输出列：CTI_20（，CTI_slope_20）
+```
+
+## RVI（相对活力指数）：`add_RVI()`
+
+```{r add_RVI}
+# 需要 Open, High, Low, Close
+df <- add_RVI(ettr_stocks, n = 10, ema.n = 4)
+# 输出列：rvi, signal
+```
+
+## TDI（趋势偏差指标）：`add_TDI()`
+
+```{r add_TDI}
+df <- add_TDI(ettr_stocks, n = 20)
+# 输出列：TDI_20
+```
+
+## 终极震荡指标：`add_ultimateOscillator()`
+
+```{r add_ultimateOscillator}
+# 需要 High, Low, Close
+df <- add_ultimateOscillator(ettr_stocks,
+  n   = c(7, 14, 28),
+  wts = c(4, 2, 1))
+# 输出列：ultimateOscillator
+```
+
+---
+
+# 其他指标
+
+## 枢轴点：`add_pivots()`
+
+```{r add_pivots}
+# 需要 High, Low, Close（日线数据）
+df <- add_pivots(ettr_stocks, lagts = TRUE)
+# 输出列：pivot, r1, r2, r3, s1, s2, s3
+# r = 阻力位，s = 支撑位
+```
+
+## 滚动单因子模型：`add_rollSFM()`
+
+```{r add_rollSFM}
+# 计算资产相对基准的滚动 alpha/beta
+df <- add_rollSFM(ettr_stocks,
+  Rb = ettr_stocks$close / lag(ettr_stocks$close) - 1,  # 基准收益率
+  n  = 60)
+# 输出列：alpha, beta, r.squared
+```
+
+## 成长率：`add_growth()`
+
+```{r add_growth}
+# 将累计收益率转化为净值曲线
+df <- add_growth(ettr_stocks, signals = c("Close"))
+# 输出列：growth_Close（初始值归一化为 1）
+```
+
+## 调整比例：`add_adj_Ratios()`
+
+```{r add_adj_Ratios}
+# 计算拆股/分红复权因子
+df <- add_adj_Ratios(ettr_stocks, splits = NULL, dividends = NULL)
+```
+
+---
+
+# 完整示例：多指标综合信号
+
+```{r full_example}
+library(eTTR)
+data("ettr_stocks")
+
+# ── 1. 趋势判断（MACD + EMA 双均线）──────────────────────────
+df <- ettr_stocks |>
+  add_EMA(n = 20) |>
+  add_EMA(n = 60) |>
+  add_MACD(nFast = 12, nSlow = 26, nSig = 9)
+
+# ── 2. 超买超卖（RSI + KDJ）──────────────────────────────────
+df <- df |>
+  add_RSI(n = 14) |>
+  add_KDJ(n = 9, m1 = 3, m2 = 3)
+
+# ── 3. 波动率（ATR + BBands）─────────────────────────────────
+df <- df |>
+  add_ATR(n = 14) |>
+  add_BBands(n = 20, sd = 2)
+
+# ── 4. 成交量（OBV + CMF）────────────────────────────────────
+df <- df |>
+  add_OBV() |>
+  add_CMF(n = 20)
+
+# ── 5. 查看所有新增列 ─────────────────────────────────────────
+new_cols <- setdiff(names(df), names(ettr_stocks))
+cat("新增指标列：\n")
+print(new_cols)
+
+tail(df[, new_cols])
+```
+
+---
+
+# 函数速查表
+
+## 移动平均类
+
+| 函数 | 指标 | 核心参数 |
+|------|------|---------|
+| `add_SMA()` | 简单移动平均 | `n` |
+| `add_EMA()` | 指数移动平均 | `n`, `wilder`, `ratio` |
+| `add_DEMA()` | 双重 EMA | `n`, `v` |
+| `add_WMA()` | 加权移动平均 | `n`, `wts` |
+| `add_HMA()` | 船体移动平均 | `n` |
+| `add_ZLEMA()` | 零滞后 EMA | `n`, `ratio` |
+| `add_ALMA()` | Arnaud Legoux MA | `n`, `offset`, `sigma` |
+| `add_EVWMA()` | 指数量价 MA | `n` |
+| `add_VWMA()` | 成交量加权 MA | `n` |
+| `add_VWAP()` | 成交量加权平均价 | `n` |
+| `add_GMMA()` | Guppy 多重 MA | `short`, `long` |
+
+## 趋势类
+
+| 函数 | 指标 | 核心参数 |
+|------|------|---------|
+| `add_MACD()` | MACD | `nFast`, `nSlow`, `nSig` |
+| `add_adx()` | ADX / DMI | `n` |
+| `add_aroon()` | Aroon | `n` |
+| `add_SAR()` | 抛物线 SAR | `accel` |
+| `add_DPO()` | 去趋势价格震荡 | `n` |
+| `add_PO()` | 价格震荡 | `n_short`, `n_long` |
+| `add_TRIX()` | 三重指数平滑 | `n`, `nSig` |
+| `add_KST()` | KST | `n`, `nROC`, `nSig` |
+| `add_VHF()` | 垂直水平过滤 | `n` |
+| `add_ZigZag()` | ZigZag | `change`, `percent` |
+
+## 震荡类
+
+| 函数 | 指标 | 核心参数 |
+|------|------|---------|
+| `add_RSI()` | RSI | `n` |
+| `add_stoch()` | 随机指标 K/D | `nFastK`, `nFastD`, `nSlowD` |
+| `add_KDJ()` | KDJ | `n`, `m1`, `m2` |
+| `add_CCI()` | 商品通道指数 | `n`, `c` |
+| `add_CMO()` | 钱德动量震荡 | `n` |
+| `add_SMI()` | 随机动量指数 | `n`, `nFast`, `nSlow`, `nSig` |
+| `add_TSI()` | 真实强度指数 | `r`, `s`, `signal_period` |
+| `add_WPR()` | William %R | `n` |
+| `add_ROC()` | 变化率 | `n`, `type` |
+| `add_DVI()` | DVI | `n`, `wts` |
+
+## 通道类
+
+| 函数 | 指标 | 核心参数 |
+|------|------|---------|
+| `add_BBands()` | 布林带 | `n`, `sd` |
+| `add_keltnerChannels()` | 肯特纳通道 | `n`, `atr` |
+| `add_DonchianChannel()` | 唐奇安通道 | `n` |
+| `add_PBands()` | P Bands | `n`, `sd` |
+
+## 波动率类
+
+| 函数 | 指标 | 核心参数 |
+|------|------|---------|
+| `add_TR()` | 真实波幅 | — |
+| `add_ATR()` | 平均真实波幅 | `n` |
+| `add_volatility()` | 历史波动率 | `n`, `calc`, `N` |
+| `add_chaikinVolatility()` | Chaikin 波动率 | `n` |
+
+## 成交量类
+
+| 函数 | 指标 | 核心参数 |
+|------|------|---------|
+| `add_OBV()` | 能量潮 | — |
+| `add_CMF()` | 蔡金资金流量 | `n` |
+| `add_chaikinAD()` | Chaikin A/D 线 | — |
+| `add_MFI()` | 资金流量指数 | `n` |
+| `add_EMV()` | 简易波动率 | `n`, `vol.divisor` |
+| `add_CLV()` | 收盘位置值 | — |
+| `add_williamsAD()` | Williams A/D | — |
+
+## 动量类
+
+| 函数 | 指标 | 核心参数 |
+|------|------|---------|
+| `add_momentum()` | 动量 | `n` |
+| `add_CTI()` | 收盘价趋势指数 | `n` |
+| `add_RVI()` | 相对活力指数 | `n`, `ema.n` |
+| `add_TDI()` | 趋势偏差指标 | `n` |
+| `add_ultimateOscillator()` | 终极震荡指标 | `n`, `wts` |
+| `add_SNR()` | 信噪比 | `n` |

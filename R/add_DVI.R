@@ -42,20 +42,8 @@
 #' @importFrom xts lag.xts
 #' @importFrom tibble as_tibble
 #' @examples
-#' \dontrun{
-#' mkt_data <- data.frame(
-#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 300), 2),
-#'   code  = rep(c("AAPL", "MSFT"), each = 300),
-#'   name  = rep(c("Apple", "Microsoft"), each = 300),
-#'   close = c(runif(300, 150, 200), runif(300, 300, 400))
-#' )
-#' # Example 1: Default parameters (n = 252)
-#' result <- add_DVI(mkt_data)
-#' # Example 2: Shorter look-back window of 126
-#' result <- add_DVI(mkt_data, n = 126)
-#' # Example 3: Slim output with default n
-#' result <- add_DVI(mkt_data, n = 252, append = FALSE)
-#' }
+#' data(ettr_stocks)
+#' result <- add_DVI(ettr_stocks)
 add_DVI <- function(mkt_data, n = 252, wts = c(0.8, 0.2), smooth = 3,
                     magnitude = c(5, 100, 5), stretch = c(10, 100, 2),
                     exact.multiplier = 1, append = TRUE,
@@ -90,11 +78,11 @@ add_DVI <- function(mkt_data, n = 252, wts = c(0.8, 0.2), smooth = 3,
 
     # Stretch component: up/down day counts
     b <- ifelse(price > lag.xts(price), 1, -1)
-    str <- SMA((runSum(b, stretch[1]) + runSum(b, stretch[2]) / 10) / 2, stretch[3])
+    str <- SMA((TTR::runSum(b, stretch[1]) + TTR::runSum(b, stretch[2]) / 10) / 2, stretch[3])
 
     # Percent rank
-    dvi_mag <- runPercentRank(mag, n, FALSE, exact.multiplier)
-    dvi_str <- runPercentRank(str, n, FALSE, exact.multiplier)
+    dvi_mag <- TTR::runPercentRank(mag, n, FALSE, exact.multiplier)
+    dvi_str <- TTR::runPercentRank(str, n, FALSE, exact.multiplier)
     dvi_val <- wts[1] * dvi_mag + wts[2] * dvi_str
 
     sub[["dvi.mag"]] <- as.numeric(dvi_mag)

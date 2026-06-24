@@ -57,20 +57,6 @@ smoothed by fast and slow MAs. Results are appended as columns \code{SMI}
 and \code{signal}.
 }
 \examples{
-\dontrun{
-mkt_data <- data.frame(
-  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-  code  = rep(c("AAPL", "MSFT"), each = 60),
-  name  = rep(c("Apple", "Microsoft"), each = 60),
-  high  = c(runif(60, 160, 210), runif(60, 310, 410)),
-  low   = c(runif(60, 140, 190), runif(60, 290, 390)),
-  close = c(runif(60, 150, 200), runif(60, 300, 400))
-)
-# Example 1: Default parameters
-result <- add_SMI(mkt_data)
-# Example 2: Custom look-back window
-result <- add_SMI(mkt_data, n = 9)
-# Example 3: Slim output
-result <- add_SMI(mkt_data, n = 13, append = FALSE)
-}
+data(ettr_stocks)
+result <- add_SMI(ettr_stocks)
 }

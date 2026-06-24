@@ -6,6 +6,9 @@
 #' @param append Logical.
 #' @param output "tibble" or "data.frame".
 #' @return Data frame with column GROWTH.
+#' @examples
+#' data(ettr_stocks)
+#' result <- add_growth(ettr_stocks)
 #' @export
 add_growth <- function(mkt_data, signals = NULL, ...,
                        append = TRUE, output = c("tibble", "data.frame")) {

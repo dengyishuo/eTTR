@@ -32,23 +32,8 @@
 #' @importFrom xts xts
 #' @importFrom tibble as_tibble
 #' @examples
-#' \dontrun{
-#' mkt_data <- data.frame(
-#'   date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-#'   code   = rep(c("AAPL", "MSFT"), each = 60),
-#'   name   = rep(c("Apple", "Microsoft"), each = 60),
-#'   high   = c(runif(60, 155, 205), runif(60, 305, 405)),
-#'   low    = c(runif(60, 145, 195), runif(60, 295, 395)),
-#'   close  = c(runif(60, 150, 200), runif(60, 300, 400)),
-#'   volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
-#' )
-#' # Example 1: Default parameters
-#' result <- add_VHF(mkt_data)
-#' # Example 2: Custom window
-#' result <- add_VHF(mkt_data, n = 14)
-#' # Example 3: Slim output
-#' result <- add_VHF(mkt_data, n = 28, append = FALSE)
-#' }
+#' data(ettr_stocks)
+#' result <- add_VHF(ettr_stocks)
 add_VHF <- function(mkt_data, n = 28, na.rm = TRUE, inf.replace = NA,
                     zero.replace = NA, append = TRUE,
                     output = c("tibble", "data.frame")) {
@@ -79,11 +64,11 @@ add_VHF <- function(mkt_data, n = 28, na.rm = TRUE, inf.replace = NA,
     low   <- xts::xts(sub$low,   order.by = as.Date(sub$date))
     close <- xts::xts(sub$close, order.by = as.Date(sub$date))
 
-    hmax         <- runMax(high, n)
-    lmin         <- runMin(low,  n)
+    hmax         <- TTR::runMax(high, n)
+    lmin         <- TTR::runMin(low,  n)
     price_range  <- hmax - lmin
     deltas       <- diff(close)
-    price_change <- runSum(abs(deltas), n)
+    price_change <- TTR::runSum(abs(deltas), n)
 
     vhf <- price_range / pmax(price_change, 1e-10) * 100
 

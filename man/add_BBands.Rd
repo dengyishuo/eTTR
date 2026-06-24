@@ -37,16 +37,8 @@ Calculates Bollinger Bands for each security in a long-format panel data frame.
 The middle band is an SMA of the typical price (high + low + close)/3.
 }
 \examples{
-\dontrun{
-mkt_data <- data.frame(
-  date = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-  code = rep(c("AAA", "BBB"), each = 60),
-  high = runif(120, 20, 30),
-  low = runif(120, 5, 15),
-  close = runif(120, 10, 25)
-)
-result <- add_BBands(mkt_data)
-}
+data(ettr_stocks)
+result <- add_BBands(ettr_stocks)
 }
 \author{
 DengYishuo

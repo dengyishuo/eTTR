@@ -30,22 +30,8 @@
 #' @importFrom tibble as_tibble
 #'
 #' @examples
-#' \dontrun{
-#' mkt_data <- data.frame(
-#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-#'   code  = rep(c("AAPL", "MSFT"), each = 60),
-#'   name  = rep(c("Apple", "Microsoft"), each = 60),
-#'   high  = c(runif(60, 160, 210), runif(60, 310, 410)),
-#'   low   = c(runif(60, 140, 190), runif(60, 290, 390)),
-#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
-#' )
-#' # Example 1: Default parameters
-#' result <- add_KDJ(mkt_data)
-#' # Example 2: Custom window and fill method
-#' result <- add_KDJ(mkt_data, n = 14, fill_na_method = "initial")
-#' # Example 3: Slim output
-#' result <- add_KDJ(mkt_data, n = 9, append = FALSE)
-#' }
+#' data(ettr_stocks)
+#' result <- add_KDJ(ettr_stocks)
 add_KDJ <- function(mkt_data, n = 9, m1 = 3, m2 = 3, fill_na_method = "none",
                     append = TRUE, output = c("tibble", "data.frame")) {
   # ── Argument resolution ────────────────────────────────────────────────────

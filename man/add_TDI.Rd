@@ -43,18 +43,6 @@ directional momentum sums over two window lengths. Results are appended as
 columns \code{TDI_<n>} and \code{DI_<n>}.
 }
 \examples{
-\dontrun{
-mkt_data <- data.frame(
-  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-  code  = rep(c("AAPL", "MSFT"), each = 60),
-  name  = rep(c("Apple", "Microsoft"), each = 60),
-  close = c(runif(60, 150, 200), runif(60, 300, 400))
-)
-# Example 1: Default parameters
-result <- add_TDI(mkt_data)
-# Example 2: Custom window
-result <- add_TDI(mkt_data, n = 14)
-# Example 3: Slim output
-result <- add_TDI(mkt_data, n = 20, append = FALSE)
-}
+data(ettr_stocks)
+result <- add_TDI(ettr_stocks)
 }

@@ -27,20 +27,8 @@
 #' @importFrom xts xts
 #' @importFrom tibble as_tibble
 #' @examples
-#' \dontrun{
-#' mkt_data <- data.frame(
-#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-#'   code  = rep(c("AAPL", "MSFT"), each = 60),
-#'   name  = rep(c("Apple", "Microsoft"), each = 60),
-#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
-#' )
-#' # Example 1: Default parameters
-#' result <- add_ALMA(mkt_data)
-#' # Example 2: Slim output with larger window
-#' result <- add_ALMA(mkt_data, n = 21, append = FALSE)
-#' # Example 3: Less smoothing via lower sigma
-#' result <- add_ALMA(mkt_data, n = 12, sigma = 4, output = "data.frame")
-#' }
+#' data(ettr_stocks)
+#' result <- add_ALMA(ettr_stocks)
 add_ALMA <- function(mkt_data, n = 9, offset = 0.85, sigma = 6, append = TRUE,
                      output = c("tibble", "data.frame")) {
   # ── Argument resolution ────────────────────────────────────────────────────

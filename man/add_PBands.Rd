@@ -70,18 +70,6 @@ from the slow average, optionally using a doubled window (\code{lavg}).
 Required column: \code{close}.
 }
 \examples{
-\dontrun{
-mkt_data <- data.frame(
-  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-  code  = rep(c("AAPL", "MSFT"), each = 60),
-  name  = rep(c("Apple", "Microsoft"), each = 60),
-  close = c(runif(60, 150, 200), runif(60, 300, 400))
-)
-# Example 1: Default parameters (n = 20, sd = 2)
-result <- add_PBands(mkt_data)
-# Example 2: Custom window and tighter band multiplier
-result <- add_PBands(mkt_data, n = 20, sd = 1.5)
-# Example 3: Slim output with n = 50
-result <- add_PBands(mkt_data, n = 50, append = FALSE)
-}
+data(ettr_stocks)
+result <- add_PBands(ettr_stocks)
 }

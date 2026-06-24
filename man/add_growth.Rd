@@ -29,3 +29,7 @@ Data frame with column GROWTH.
 \description{
 Add Growth of $1 (Panel Data)
 }
+\examples{
+data(ettr_stocks)
+result <- add_growth(ettr_stocks)
+}

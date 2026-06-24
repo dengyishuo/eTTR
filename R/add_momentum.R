@@ -6,6 +6,9 @@
 #' @param append Logical.
 #' @param output "tibble" or "data.frame".
 #' @return Data frame with added column MOMENTUM_<n>.
+#' @examples
+#' data(ettr_stocks)
+#' result <- add_momentum(ettr_stocks)
 #' @export
 add_momentum <- function(mkt_data, n = 1, na.pad = TRUE,
                          append = TRUE, output = c("tibble", "data.frame")) {

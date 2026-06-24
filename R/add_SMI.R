@@ -32,22 +32,8 @@
 #' @importFrom tibble as_tibble
 #'
 #' @examples
-#' \dontrun{
-#' mkt_data <- data.frame(
-#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-#'   code  = rep(c("AAPL", "MSFT"), each = 60),
-#'   name  = rep(c("Apple", "Microsoft"), each = 60),
-#'   high  = c(runif(60, 160, 210), runif(60, 310, 410)),
-#'   low   = c(runif(60, 140, 190), runif(60, 290, 390)),
-#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
-#' )
-#' # Example 1: Default parameters
-#' result <- add_SMI(mkt_data)
-#' # Example 2: Custom look-back window
-#' result <- add_SMI(mkt_data, n = 9)
-#' # Example 3: Slim output
-#' result <- add_SMI(mkt_data, n = 13, append = FALSE)
-#' }
+#' data(ettr_stocks)
+#' result <- add_SMI(ettr_stocks)
 add_SMI <- function(mkt_data, n = 13, nFast = 2, nSlow = 25, nSig = 9,
                     maType, bounded = TRUE, append = TRUE,
                     output = c("tibble", "data.frame"), ...) {
@@ -78,11 +64,11 @@ add_SMI <- function(mkt_data, n = 13, nFast = 2, nSlow = 25, nSig = 9,
 
     # Calculate high-low range boundaries
     if (bounded) {
-      hmax <- runMax(high, n)
-      lmin <- runMin(low, n)
+      hmax <- TTR::runMax(high, n)
+      lmin <- TTR::runMin(low, n)
     } else {
-      hmax <- runMax(c(high[1], high[-NROW(high)]), n)
-      lmin <- runMin(c(low[1],  low[-NROW(low)]),  n)
+      hmax <- TTR::runMax(c(high[1], high[-NROW(high)]), n)
+      lmin <- TTR::runMin(c(low[1],  low[-NROW(low)]),  n)
     }
     hmax <- ifelse(is.na(hmax), high, hmax)
     lmin <- ifelse(is.na(lmin), low,  lmin)

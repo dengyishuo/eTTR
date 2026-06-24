@@ -51,18 +51,6 @@ long-format panel data frame and appends the result as a new column named
 shifted moving average, isolating shorter-term price cycles.
 }
 \examples{
-\dontrun{
-mkt_data <- data.frame(
-  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-  code  = rep(c("AAPL", "MSFT"), each = 60),
-  name  = rep(c("Apple", "Microsoft"), each = 60),
-  close = c(runif(60, 150, 200), runif(60, 300, 400))
-)
-# Example 1: Default parameters
-result <- add_DPO(mkt_data)
-# Example 2: Custom window with EMA
-result <- add_DPO(mkt_data, n = 20, maType = "EMA")
-# Example 3: Slim output as percentage
-result <- add_DPO(mkt_data, n = 14, percent = TRUE, append = FALSE)
-}
+data(ettr_stocks)
+result <- add_DPO(ettr_stocks)
 }

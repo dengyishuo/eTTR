@@ -29,20 +29,8 @@
 #' @importFrom tibble as_tibble
 #'
 #' @examples
-#' \dontrun{
-#' mkt_data <- data.frame(
-#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-#'   code  = rep(c("AAPL", "MSFT"), each = 60),
-#'   name  = rep(c("Apple", "Microsoft"), each = 60),
-#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
-#' )
-#' # Example 1: Default parameters
-#' result <- add_PO(mkt_data)
-#' # Example 2: Percentage type with EMA
-#' result <- add_PO(mkt_data, type = "percent", ma_type = "EMA")
-#' # Example 3: Slim output
-#' result <- add_PO(mkt_data, n_short = 5, n_long = 20, append = FALSE)
-#' }
+#' data(ettr_stocks)
+#' result <- add_PO(ettr_stocks)
 add_PO <- function(mkt_data, n_short = 12, n_long = 26,
                    type = c("difference", "percent"),
                    ma_type = c("SMA", "EMA"),

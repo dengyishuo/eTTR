@@ -29,7 +29,7 @@ add_ZigZag <- function(mkt_data, change = 10, percent = TRUE, retrace = FALSE,
     } else {
       hl <- xts::xts(sub$close, order.by = sub$date)
     }
-    zz <- ZigZag(hl,
+    zz <- TRR::ZigZag(hl,
       change = change, percent = percent,
       retrace = retrace, lastExtreme = lastExtreme
     )

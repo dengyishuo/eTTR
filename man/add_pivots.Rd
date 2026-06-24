@@ -26,3 +26,7 @@ Data frame with columns pivot_center, R1, R2, S1, S2.
 \description{
 Add Pivot Points (Panel Data)
 }
+\examples{
+data(ettr_stocks)
+result <- add_pivots(ettr_stocks)
+}

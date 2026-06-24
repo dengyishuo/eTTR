@@ -27,20 +27,8 @@
 #' @importFrom xts xts
 #' @importFrom tibble as_tibble
 #' @examples
-#' \dontrun{
-#' mkt_data <- data.frame(
-#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-#'   code  = rep(c("AAPL", "MSFT"), each = 60),
-#'   name  = rep(c("Apple", "Microsoft"), each = 60),
-#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
-#' )
-#' # Example 1: Default parameters
-#' result <- add_RVI(mkt_data)
-#' # Example 2: Custom look-back window
-#' result <- add_RVI(mkt_data, n = 20, ema.n = 5)
-#' # Example 3: Slim output as data.frame
-#' result <- add_RVI(mkt_data, append = FALSE, output = "data.frame")
-#' }
+#' data(ettr_stocks)
+#' result <- add_RVI(ettr_stocks)
 add_RVI <- function(mkt_data, n = 14, ema.n = 3, keepNA = TRUE,
                     append = TRUE, output = c("tibble", "data.frame")) {
   # Argument resolution
@@ -64,17 +52,18 @@ add_RVI <- function(mkt_data, n = 14, ema.n = 3, keepNA = TRUE,
     sub <- mkt_data[mkt_data$code == cd, ]
     sub <- sub[order(sub$date), ]
 
-    close_xts <- xts::xts(sub$close, order.by = as.Date(sub$date))
-    price_change <- diff(close_xts)
-    # Prepend an NA row to align lengths
-    price_change <- rbind(xts::xts(NA, order.by = as.Date(sub$date)[1]), price_change)
+    price_change <- c(NA, diff(sub$close))
 
-    up_change <- ifelse(price_change > 0, price_change, 0)
-    down_change <- ifelse(price_change < 0, abs(price_change), 0)
+    up_change   <- ifelse(!is.na(price_change) & price_change > 0, price_change, 0)
+    down_change <- ifelse(!is.na(price_change) & price_change < 0, abs(price_change), 0)
 
-    up_sd <- runSD(up_change, n = n)
-    down_sd <- runSD(down_change, n = n)
-    up_ema <- EMA(up_sd, n = ema.n)
+    pc_xts   <- xts::xts(price_change, order.by = as.Date(sub$date))
+    up_xts   <- xts::xts(up_change,   order.by = as.Date(sub$date))
+    down_xts <- xts::xts(down_change, order.by = as.Date(sub$date))
+
+    up_sd   <- TTR::runSD(up_xts,   n = n)
+    down_sd <- TTR::runSD(down_xts, n = n)
+    up_ema   <- EMA(up_sd,   n = ema.n)
     down_ema <- EMA(down_sd, n = ema.n)
 
     rvi_val <- 100 * (up_ema / (up_ema + down_ema))

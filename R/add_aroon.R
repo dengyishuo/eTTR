@@ -32,21 +32,8 @@
 #' @importFrom tibble as_tibble
 #' @importFrom TTR aroon
 #' @examples
-#' \dontrun{
-#' mkt_data <- data.frame(
-#'   date = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-#'   code = rep(c("AAPL", "MSFT"), each = 60),
-#'   name = rep(c("Apple", "Microsoft"), each = 60),
-#'   high = c(runif(60, 155, 205), runif(60, 305, 405)),
-#'   low  = c(runif(60, 145, 195), runif(60, 295, 395))
-#' )
-#' # Example 1: Default parameters (n = 20)
-#' result <- add_aroon(mkt_data)
-#' # Example 2: Custom window with slim output
-#' result <- add_aroon(mkt_data, n = 30, append = FALSE)
-#' # Example 3: Return as data.frame
-#' result <- add_aroon(mkt_data, output = "data.frame")
-#' }
+#' data(ettr_stocks)
+#' result <- add_aroon(ettr_stocks)
 add_aroon <- function(mkt_data, n = 20, append = TRUE, output = c("tibble", "data.frame")) {
   # ── Argument resolution ────────────────────────────────────────────────────
   output <- match.arg(output)

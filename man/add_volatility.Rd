@@ -51,22 +51,6 @@ frame using one of several OHLCV-based estimators: close-to-close, Garman-
 Klass, Parkinson, Rogers-Satchell, GK-YZ, or Yang-Zhang.
 }
 \examples{
-\dontrun{
-mkt_data <- data.frame(
-  date   = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-  code   = rep(c("AAPL", "MSFT"), each = 60),
-  name   = rep(c("Apple", "Microsoft"), each = 60),
-  open   = c(runif(60, 148, 198), runif(60, 298, 398)),
-  high   = c(runif(60, 155, 205), runif(60, 305, 405)),
-  low    = c(runif(60, 145, 195), runif(60, 295, 395)),
-  close  = c(runif(60, 150, 200), runif(60, 300, 400)),
-  volume = c(runif(60, 1e6, 2e6), runif(60, 5e5, 1.5e6))
-)
-# Example 1: Default close-to-close volatility
-result <- add_volatility(mkt_data)
-# Example 2: Garman-Klass estimator
-result <- add_volatility(mkt_data, calc = "garman.klass")
-# Example 3: Slim output with Yang-Zhang estimator
-result <- add_volatility(mkt_data, calc = "yang.zhang", append = FALSE)
-}
+data(ettr_stocks)
+result <- add_volatility(ettr_stocks)
 }

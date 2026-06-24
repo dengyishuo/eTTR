@@ -20,20 +20,8 @@
 #' @importFrom xts xts
 #' @importFrom tibble as_tibble
 #' @examples
-#' \dontrun{
-#' mkt_data <- data.frame(
-#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-#'   code  = rep(c("AAPL", "MSFT"), each = 60),
-#'   name  = rep(c("Apple", "Microsoft"), each = 60),
-#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
-#' )
-#' # Example 1: Default parameters
-#' result <- add_CMO(mkt_data)
-#' # Example 2: Custom window
-#' result <- add_CMO(mkt_data, n = 20)
-#' # Example 3: Slim output as data.frame
-#' result <- add_CMO(mkt_data, n = 14, append = FALSE, output = "data.frame")
-#' }
+#' data(ettr_stocks)
+#' result <- add_CMO(ettr_stocks)
 add_CMO <- function(mkt_data, n = 14, append = TRUE, output = c("tibble", "data.frame")) {
   output <- match.arg(output)
 
@@ -65,8 +53,8 @@ add_CMO <- function(mkt_data, n = 14, append = TRUE, output = c("tibble", "data.
     up <- momentum(close_xts, n = 1)
     dn <- ifelse(up < 0, abs(up), 0)
     up <- ifelse(up > 0, up, 0)
-    up <- runSum(up, n)
-    dn <- runSum(dn, n)
+    up <- TTR::runSum(up, n)
+    dn <- TTR::runSum(dn, n)
     cmo <- 100 * (up - dn) / (up + dn)
 
     sub[[col_name]] <- as.numeric(cmo)

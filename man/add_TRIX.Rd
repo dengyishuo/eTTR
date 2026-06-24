@@ -49,18 +49,6 @@ long-format panel data frame. Results are appended as columns
 \code{TRIX_<n>} and \code{TRIXsig_<n>}.
 }
 \examples{
-\dontrun{
-mkt_data <- data.frame(
-  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 120), 2),
-  code  = rep(c("AAPL", "MSFT"), each = 120),
-  name  = rep(c("Apple", "Microsoft"), each = 120),
-  close = c(runif(120, 150, 200), runif(120, 300, 400))
-)
-# Example 1: Default parameters
-result <- add_TRIX(mkt_data)
-# Example 2: Custom window
-result <- add_TRIX(mkt_data, n = 14)
-# Example 3: Slim output with absolute momentum
-result <- add_TRIX(mkt_data, n = 20, percent = FALSE, append = FALSE)
-}
+data(ettr_stocks)
+result <- add_TRIX(ettr_stocks)
 }

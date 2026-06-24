@@ -46,18 +46,6 @@ double-smoothed absolute momentum, scaled to \code{[-100, 100]}. Results
 are appended as columns \code{TSI_<r>} and \code{TSIsig_<r>}.
 }
 \examples{
-\dontrun{
-mkt_data <- data.frame(
-  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-  code  = rep(c("AAPL", "MSFT"), each = 60),
-  name  = rep(c("Apple", "Microsoft"), each = 60),
-  close = c(runif(60, 150, 200), runif(60, 300, 400))
-)
-# Example 1: Default parameters
-result <- add_TSI(mkt_data)
-# Example 2: Custom smoothing periods
-result <- add_TSI(mkt_data, r = 10, s = 20)
-# Example 3: Slim output
-result <- add_TSI(mkt_data, r = 13, s = 25, append = FALSE)
-}
+data(ettr_stocks)
+result <- add_TSI(ettr_stocks)
 }

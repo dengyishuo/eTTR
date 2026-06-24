@@ -46,18 +46,6 @@ then smoothed with an EMA of length \code{ema.n}. Values range between 0 and
 100.
 }
 \examples{
-\dontrun{
-mkt_data <- data.frame(
-  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-  code  = rep(c("AAPL", "MSFT"), each = 60),
-  name  = rep(c("Apple", "Microsoft"), each = 60),
-  close = c(runif(60, 150, 200), runif(60, 300, 400))
-)
-# Example 1: Default parameters
-result <- add_RVI(mkt_data)
-# Example 2: Custom look-back window
-result <- add_RVI(mkt_data, n = 20, ema.n = 5)
-# Example 3: Slim output as data.frame
-result <- add_RVI(mkt_data, append = FALSE, output = "data.frame")
-}
+data(ettr_stocks)
+result <- add_RVI(ettr_stocks)
 }

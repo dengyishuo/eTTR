@@ -6,6 +6,9 @@
 #' @param output "tibble" or "data.frame".
 #' @return Data frame with column VWMA_<n>.
 #' @importFrom TTR  VWMA
+#' @examples
+#' data(ettr_stocks)
+#' result <- add_VWMA(ettr_stocks)
 #' @export
 add_VWMA <- function(mkt_data, n = 10,
                      append = TRUE, output = c("tibble", "data.frame")) {

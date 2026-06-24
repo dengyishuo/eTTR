@@ -5,6 +5,9 @@
 #' @param append Logical.
 #' @param output "tibble" or "data.frame".
 #' @return Data frame with columns pivot_center, R1, R2, S1, S2.
+#' @examples
+#' data(ettr_stocks)
+#' result <- add_pivots(ettr_stocks)
 #' @export
 add_pivots <- function(mkt_data, lagts = TRUE,
                        append = TRUE, output = c("tibble", "data.frame")) {
@@ -19,6 +22,7 @@ add_pivots <- function(mkt_data, lagts = TRUE,
     # Create xts of OHLC
     ohlc <- xts::xts(sub[, c("high", "low", "close")], order.by = sub$date)
     piv <- pivots(ohlc, lagts = lagts)
+    piv <- piv[seq_len(nrow(sub)), ]   # align to sub rows (lagts adds an extra row)
     sub$pivot_center <- as.numeric(piv[, "center"])
     sub$R1 <- as.numeric(piv[, "R1"])
     sub$R2 <- as.numeric(piv[, "R2"])

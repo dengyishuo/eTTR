@@ -29,3 +29,15 @@ Data frame with columns alpha, beta, r.squared.
 \description{
 Add Rolling Single-Factor Model (Panel Data)
 }
+\examples{
+\dontrun{
+# add_rollSFM requires a pre-computed ret_asset column and an xts benchmark
+data(ettr_stocks)
+df <- ettr_stocks
+df$ret_asset <- ave(df$close, df$code,
+                    FUN = function(x) c(NA, diff(x) / head(x, -1)))
+Rb <- xts::xts(df$ret_asset[df$code == df$code[1]],
+               order.by = df$date[df$code == df$code[1]])
+result <- add_rollSFM(df, Rb = Rb, n = 60)
+}
+}

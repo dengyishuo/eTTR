@@ -42,18 +42,6 @@ a 0-100 scale; readings above 70 are typically considered overbought and
 below 30 oversold.
 }
 \examples{
-\dontrun{
-mkt_data <- data.frame(
-  date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-  code  = rep(c("AAPL", "MSFT"), each = 60),
-  name  = rep(c("Apple", "Microsoft"), each = 60),
-  close = c(runif(60, 150, 200), runif(60, 300, 400))
-)
-# Example 1: Default parameters
-result <- add_RSI(mkt_data)
-# Example 2: Custom window
-result <- add_RSI(mkt_data, n = 9)
-# Example 3: Slim output
-result <- add_RSI(mkt_data, n = 21, append = FALSE)
-}
+data(ettr_stocks)
+result <- add_RSI(ettr_stocks)
 }

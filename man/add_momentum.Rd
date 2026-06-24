@@ -29,3 +29,7 @@ Data frame with added column MOMENTUM_\if{html}{\out{<n>}}.
 \description{
 Add Momentum (Panel Data)
 }
+\examples{
+data(ettr_stocks)
+result <- add_momentum(ettr_stocks)
+}

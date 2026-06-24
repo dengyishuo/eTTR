@@ -27,20 +27,8 @@
 #' @importFrom tibble as_tibble
 #'
 #' @examples
-#' \dontrun{
-#' mkt_data <- data.frame(
-#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 120), 2),
-#'   code  = rep(c("AAPL", "MSFT"), each = 120),
-#'   name  = rep(c("Apple", "Microsoft"), each = 120),
-#'   close = c(runif(120, 150, 200), runif(120, 300, 400))
-#' )
-#' # Example 1: Default parameters
-#' result <- add_GMMA(mkt_data)
-#' # Example 2: Custom short and long periods
-#' result <- add_GMMA(mkt_data, short = c(3, 5, 8), long = c(30, 40, 50))
-#' # Example 3: Slim output
-#' result <- add_GMMA(mkt_data, append = FALSE)
-#' }
+#' data(ettr_stocks)
+#' result <- add_GMMA(ettr_stocks)
 add_GMMA <- function(mkt_data,
                      short = c(3, 5, 8, 10, 12, 15),
                      long = c(30, 35, 40, 45, 50, 60),

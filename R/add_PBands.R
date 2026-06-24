@@ -43,20 +43,8 @@
 #' @importFrom xts xts
 #' @importFrom tibble as_tibble
 #' @examples
-#' \dontrun{
-#' mkt_data <- data.frame(
-#'   date  = rep(seq.Date(as.Date("2023-01-01"), by = "day", length.out = 60), 2),
-#'   code  = rep(c("AAPL", "MSFT"), each = 60),
-#'   name  = rep(c("Apple", "Microsoft"), each = 60),
-#'   close = c(runif(60, 150, 200), runif(60, 300, 400))
-#' )
-#' # Example 1: Default parameters (n = 20, sd = 2)
-#' result <- add_PBands(mkt_data)
-#' # Example 2: Custom window and tighter band multiplier
-#' result <- add_PBands(mkt_data, n = 20, sd = 1.5)
-#' # Example 3: Slim output with n = 50
-#' result <- add_PBands(mkt_data, n = 50, append = FALSE)
-#' }
+#' data(ettr_stocks)
+#' result <- add_PBands(ettr_stocks)
 add_PBands <- function(mkt_data, n = 20, maType = "SMA", sd = 2, fastn = 2,
                        centered = FALSE, lavg = FALSE, append = TRUE,
                        output = c("tibble", "data.frame"), ...) {
@@ -88,7 +76,7 @@ add_PBands <- function(mkt_data, n = 20, maType = "SMA", sd = 2, fastn = 2,
 
     mavg     <- do.call(maType, c(list(prices), maArgs))
     fastmavg <- do.call(maType, c(list(prices), maFastArgs))
-    sdev     <- runSD((mavg - fastmavg), n = n, sample = FALSE)
+    sdev     <- TTR::runSD((mavg - fastmavg), n = n, sample = FALSE)
 
     if (!isTRUE(centered)) {
       center <- mavg

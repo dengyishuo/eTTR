@@ -10,6 +10,7 @@
 #'
 #' Global import functions from external packages, effective for all package scripts
 #' @keywords internal
+#' @useDynLib eTTR, .registration = TRUE
 #' @importFrom stats embed is.ts
 #' @importFrom xts try.xts is.xts merge.xts last reclass
 #' @importFrom zoo index coredata na.approx

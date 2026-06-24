@@ -7,6 +7,9 @@
 #' @param append Logical.
 #' @param output "tibble" or "data.frame".
 #' @return Data frame with columns adj_split, adj_div, adj_total.
+#' @examples
+#' data(ettr_stocks)
+#' result <- add_adj_Ratios(ettr_stocks)
 #' @export
 add_adj_Ratios <- function(mkt_data, splits = NULL, dividends = NULL,
                            fill_value = 1,
